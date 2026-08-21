@@ -1,3 +1,12 @@
+In admin-dashboard.html file, find the function named txRows and completely replace it with the following correct version. 
+
+Make sure:
+- All template literals use correct backticks
+- No syntax errors
+- The function returns proper HTML table
+
+Here is the correct function:
+
 function txRows(list, showActions) {
   if (!list.length) return '<div class="empty">No records found.</div>';
   return `<div class="table-wrap"><table>
