@@ -1,0 +1,237 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Buraq Markets — Verify Identity</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#070707;color:#f5f3ef;font-family:Arial,sans-serif}
+a{text-decoration:none;color:inherit}.wrap{max-width:760px;margin:auto;padding:0 18px}
+header{height:72px;background:#080808;border-bottom:1px solid #292929;display:flex;align-items:center}
+.headwrap{max-width:1180px;margin:auto;padding:0 18px;width:100%;display:flex;align-items:center}
+.nav{display:flex;align-items:center;gap:25px;width:100%}.brand{font:700 22px Georgia;color:#f4cf72}
+.links{margin-left:auto;display:flex;gap:22px;font-size:12px;color:#bbb}.links a:hover{color:#f4cf72}
+.logout{border:1px solid #806226;background:transparent;color:#fff;padding:10px 15px;border-radius:7px;cursor:pointer;font-size:12px}
+main{padding:35px 0 60px}
+.eyebrow{color:#f4cf72;font-size:11px;letter-spacing:3px;font-weight:bold}
+.pagehead{margin-bottom:6px}.pagehead h1{font:normal 34px Georgia;margin:8px 0 6px}
+.desc{color:#8b9bb4;font-size:13px;margin-bottom:26px}
+.panel{background:#111116;border:1px solid #262530;border-radius:12px;padding:26px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}
+.field label{display:block;font-size:11px;color:#999;margin-bottom:8px}
+.field select,.field input{width:100%;background:#0b0b10;border:1px solid #34333c;color:#f5f3ef;padding:13px 14px;border-radius:8px;font-size:14px;font-family:Arial,sans-serif}
+.field select:focus,.field input:focus{outline:none;border-color:#a37a31}
+.field input::placeholder{color:#555}
+.field{margin-bottom:18px}
+.field select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9'%3E%3Cpath d='M1 1l6 6 6-6' stroke='%23999' stroke-width='2' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;cursor:pointer}
+.filefield{border:1.5px dashed #34333c;border-radius:8px;padding:16px;text-align:center;background:#0b0b10;cursor:pointer}
+.filefield:hover{border-color:#a37a31}
+.filefield input{display:none}
+.filefield .fname{font-size:12px;color:#9be0b3;margin-top:6px;word-break:break-all}
+.filefield .hint{font-size:11px;color:#666;margin-top:4px}
+.howitworks{background:#0b0b10;border:1px solid #262530;border-radius:9px;padding:16px 18px;margin:8px 0 22px}
+.howitworks .h{color:#f4cf72;font-size:11px;font-weight:bold;letter-spacing:.5px;margin-bottom:8px}
+.howitworks ol{margin:0;padding-left:18px;color:#aab;font-size:12px;line-height:1.9}
+.submit{width:100%;background:#c9982f;border:none;color:#171208;font-weight:bold;font-size:15px;padding:16px;border-radius:8px;cursor:pointer}
+.submit:hover{background:#dba838}
+.submit:disabled{opacity:.6;cursor:default}
+.note{text-align:center;font-size:12px;margin-top:14px;display:none}
+.back{display:inline-flex;align-items:center;gap:6px;color:#f4cf72;font-size:12px;margin-bottom:18px}
+.errorbox{padding:14px 16px;border:1px solid #5b2929;background:#1b0c0c;border-radius:9px;color:#ffb0b0;margin-bottom:18px;font-size:12px}
+.statusbox{padding:22px;border-radius:10px;text-align:center;margin-bottom:4px}
+.statusbox.verified{background:#0c1b14;border:1px solid #1f6b4c;color:#8ee0a5}
+.statusbox.pending{background:#1b160a;border:1px solid #6b551f;color:#f0d68a}
+.statusbox.rejected{background:#1b0c0c;border:1px solid #6b2929;color:#ffb0b0}
+.statusbox .big{font-size:16px;font-weight:bold;margin-bottom:6px}
+.statusbox .small{font-size:12px;opacity:.85}
+.loading{padding:30px;text-align:center;color:#aaa}
+footer{text-align:center;border-top:1px solid #242329;padding:18px;color:#777;font-size:10px;margin-top:20px}
+@media(max-width:900px){.links{display:none}}
+@media(max-width:600px){.row2{grid-template-columns:1fr}}
+</style></head><body>
+<header><div class="headwrap"><div class="nav"><a class="brand" href="index.html">BURAQ MARKETS</a><nav class="links"><a href="client-dashboard.html#dashboard">Dashboard</a><a href="client-dashboard.html#accounts">Accounts</a><a href="client-dashboard.html#transactions">Transactions</a></nav><button class="logout" id="logout">Logout</button></div></div></header>
+
+<main><div class="wrap">
+<a class="back" href="client-dashboard.html">← Back to Dashboard</a>
+<div class="pagehead"><div class="eyebrow">CLIENT VERIFICATION</div><h1>Verify Identity</h1></div>
+<div class="desc">Verifying your identity unlocks full withdrawal and trading limits on your account.</div>
+
+<div id="content" class="loading">Loading your verification status…</div>
+
+</div></main>
+<footer>© 2026 Buraq Markets. All rights reserved.</footer>
+<script type="module">
+import { supabase } from './supabase-config.js';
+import { sendNotification } from './email-helper.js';
+
+const content = document.getElementById('content');
+let currentUser = null;
+
+function genPath(userId, kind, filename){
+  const ext = (filename.split('.').pop() || 'jpg').toLowerCase();
+  return `${userId}/${kind}-${Date.now()}.${ext}`;
+}
+
+function renderStatusBox(status, note){
+  if(status === 'Verified'){
+    return `<div class="panel"><div class="statusbox verified"><div class="big">✓ Your identity is verified</div><div class="small">Full account limits are active. No further action needed.</div></div></div>`;
+  }
+  if(status === 'Rejected'){
+    return `<div class="panel"><div class="statusbox rejected"><div class="big">Your submission was not approved</div><div class="small">${note ? note : 'Please review your documents and submit again.'}</div></div></div>`;
+  }
+  return '';
+}
+
+function renderForm(){
+  return `
+  <form class="panel" id="kycForm">
+    <div class="row2">
+      <div class="field"><label>ID Document Type</label>
+      <select id="idType" required>
+        <option value="">Select ID type</option>
+        <option value="CNIC">CNIC (National ID)</option>
+        <option value="Passport">Passport</option>
+      </select></div>
+      <div class="field"><label>ID Number</label>
+      <input type="text" id="idNumber" placeholder="e.g. 35202-1234567-1" required></div>
+    </div>
+
+    <div class="field"><label>ID Document (front side, clear photo)</label>
+      <label class="filefield" id="idDocLabel">
+        <input type="file" id="idDoc" accept="image/*,.pdf" required>
+        <div>Tap to upload ID document</div>
+        <div class="hint">JPG, PNG or PDF — max 10MB</div>
+        <div class="fname" id="idDocName"></div>
+      </label>
+    </div>
+
+    <div class="field"><label>Selfie (holding your ID document)</label>
+      <label class="filefield" id="selfieLabel">
+        <input type="file" id="selfie" accept="image/*" required>
+        <div>Tap to upload selfie</div>
+        <div class="hint">Clear photo of your face, JPG or PNG — max 10MB</div>
+        <div class="fname" id="selfieName"></div>
+      </label>
+    </div>
+
+    <div class="howitworks">
+      <div class="h">HOW IT WORKS</div>
+      <ol>
+        <li>Upload a clear photo of your CNIC or Passport.</li>
+        <li>Upload a selfie of yourself holding the same document.</li>
+        <li>Our team reviews your submission — this usually takes 1–2 business days.</li>
+      </ol>
+    </div>
+
+    <button type="submit" class="submit" id="submitBtn">Submit for Verification</button>
+    <div id="formStatus" class="note"></div>
+  </form>`;
+}
+
+function wireForm(){
+  const form = document.getElementById('kycForm');
+  if(!form) return;
+  const submitBtn = document.getElementById('submitBtn');
+  const status = document.getElementById('formStatus');
+
+  document.getElementById('idDoc').addEventListener('change', e=>{
+    document.getElementById('idDocName').textContent = e.target.files[0]?.name || '';
+  });
+  document.getElementById('selfie').addEventListener('change', e=>{
+    document.getElementById('selfieName').textContent = e.target.files[0]?.name || '';
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Uploading…';
+    status.style.display = 'none';
+
+    const idType = document.getElementById('idType').value;
+    const idNumber = document.getElementById('idNumber').value.trim();
+    const idDocFile = document.getElementById('idDoc').files[0];
+    const selfieFile = document.getElementById('selfie').files[0];
+
+    try{
+      const idDocPath = genPath(currentUser.id, 'id', idDocFile.name);
+      const selfiePath = genPath(currentUser.id, 'selfie', selfieFile.name);
+
+      const up1 = await supabase.storage.from('kyc-documents').upload(idDocPath, idDocFile);
+      if(up1.error) throw up1.error;
+
+      const up2 = await supabase.storage.from('kyc-documents').upload(selfiePath, selfieFile);
+      if(up2.error) throw up2.error;
+
+      const { error: insertError } = await supabase.from('kyc_documents').insert({
+        user_id: currentUser.id,
+        id_type: idType,
+        id_number: idNumber,
+        id_document_path: idDocPath,
+        selfie_path: selfiePath,
+        status: 'Pending'
+      });
+      if(insertError) throw insertError;
+
+      status.textContent = 'Documents submitted successfully. Your verification is now Pending review.';
+      status.style.color = '#8ee0a5';
+      status.style.display = 'block';
+      sendNotification({
+        to_email: currentUser.email,
+        subject: 'KYC Documents Received — Buraq Markets',
+        heading: 'Your identity verification documents have been received',
+        message: 'We received your ID document and selfie for identity verification. Your KYC status is now Pending review. This usually takes 1–2 business days.'
+      });
+      setTimeout(()=>{ location.href = 'client-dashboard.html'; }, 1800);
+    } catch(err){
+      status.textContent = err.message || 'Something went wrong. Please try again.';
+      status.style.color = '#ff8b8b';
+      status.style.display = 'block';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit for Verification';
+    }
+  });
+}
+
+async function init(){
+  const { data: { user } } = await supabase.auth.getUser();
+  if(!user){ location.href = 'client-login.html'; return; }
+  currentUser = user;
+
+  const [{ data: profile, error: pErr }, { data: docs, error: dErr }] = await Promise.all([
+    supabase.from('profiles').select('kyc_status').eq('id', user.id).maybeSingle(),
+    supabase.from('kyc_documents').select('*').eq('user_id', user.id).order('submitted_at', { ascending: false }).limit(1)
+  ]);
+
+  if(pErr || dErr){
+    content.innerHTML = `<div class="errorbox"><b>Verification setup incomplete.</b><br>Please make sure <code>supabase-kyc-schema.sql</code> has been run in the Supabase SQL Editor, then refresh this page.</div>`;
+    return;
+  }
+
+  const kycStatus = profile?.kyc_status || 'Pending';
+  const latestDoc = (docs && docs[0]) || null;
+
+  if(kycStatus === 'Verified'){
+    content.innerHTML = renderStatusBox('Verified');
+    return;
+  }
+
+  if(latestDoc && latestDoc.status === 'Pending'){
+    content.innerHTML = `<div class="panel"><div class="statusbox pending"><div class="big">⏳ Verification in progress</div><div class="small">Your documents were submitted and are awaiting review. This usually takes 1–2 business days.</div></div></div>`;
+    return;
+  }
+
+  if(latestDoc && latestDoc.status === 'Rejected'){
+    content.innerHTML = renderStatusBox('Rejected', latestDoc.admin_note) + renderForm();
+    wireForm();
+    return;
+  }
+
+  content.innerHTML = renderForm();
+  wireForm();
+}
+
+document.getElementById('logout').addEventListener('click', async () => {
+  await supabase.auth.signOut();
+  location.href = 'client-login.html';
+});
+
+init();
+</script>
+</body></html>
