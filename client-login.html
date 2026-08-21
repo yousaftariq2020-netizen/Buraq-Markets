@@ -71,18 +71,9 @@ form.addEventListener('submit', async (e) => {
     return;
   }
 
-  // Check the logged-in user's role and redirect accordingly
-  const { data: profile, error: profileErr } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', signInData.user.id)
-    .maybeSingle();
-
-  if (!profileErr && profile && profile.role === 'admin') {
-    location.href = 'admin-dashboard.html';
-  } else {
-    location.href = 'client-dashboard.html';
-  }
+  // This is the CLIENT login page. Never route users to the admin panel
+  // from here. Admin access is protected separately by admin-dashboard.html.
+  location.href = 'client-dashboard.html';
 });
 </script>
 </body>
