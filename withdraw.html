@@ -32,6 +32,9 @@ main{padding:35px 0 60px}
 .note{text-align:center;font-size:12px;margin-top:14px;display:none}
 .back{display:inline-flex;align-items:center;gap:6px;color:#f4cf72;font-size:12px;margin-bottom:18px}
 .errorbox{padding:14px 16px;border:1px solid #5b2929;background:#1b0c0c;border-radius:9px;color:#ffb0b0;margin-bottom:18px;font-size:12px}
+.confirmbox{background:#1a1508;border:1px solid #5b4725;border-radius:10px;padding:18px;margin-bottom:18px;display:none}
+.confirmbox h3{margin:0 0 10px;color:#f4cf72;font-size:15px}
+.confirmbox p{margin:0 0 14px;font-size:13px;color:#ccc;line-height:1.5}
 footer{text-align:center;border-top:1px solid #242329;padding:18px;color:#777;font-size:10px;margin-top:20px}
 @media(max-width:900px){.links{display:none}}
 @media(max-width:600px){.row2{grid-template-columns:1fr}}
@@ -77,16 +80,27 @@ footer{text-align:center;border-top:1px solid #242329;padding:18px;color:#777;fo
 <div class="field"><label>Additional Note (optional)</label>
 <input type="text" id="reference" placeholder="Any extra detail for our support team"></div>
 
+<!-- Password Confirmation Box -->
+<div class="confirmbox" id="confirmBox">
+  <h3>Confirm Withdrawal</h3>
+  <p>For your security, please re-enter your account password to confirm this withdrawal request.</p>
+  <div class="field">
+    <label>Your Password</label>
+    <input type="password" id="confirmPassword" placeholder="Enter your password" autocomplete="current-password">
+  </div>
+</div>
+
 <div class="howitworks">
 <div class="h">HOW IT WORKS</div>
 <ol>
-<li>Select the trading account and enter the amount you want to withdraw.</li>
-<li>Choose your withdrawal method and enter the account/wallet you want funds sent to.</li>
-<li>Submit the request. It will appear as Pending until our team reviews and processes it.</li>
+<li>Select the account and enter the amount you want to withdraw.</li>
+<li>Choose your withdrawal method and enter the account/wallet details.</li>
+<li>Re-enter your password to confirm.</li>
+<li>Submit the request. It will remain Pending until reviewed by our team.</li>
 </ol>
 </div>
 
-<button type="submit" class="submit" id="submitBtn">Submit Withdrawal Request</button>
+<button type="submit" class="submit" id="submitBtn">Continue to Confirm</button>
 <div id="formStatus" class="note"></div>
 </form>
 
@@ -95,49 +109,21 @@ footer{text-align:center;border-top:1px solid #242329;padding:18px;color:#777;fo
 <script type="module">
 import { supabase } from './supabase-config.js';
 
-const accountSel = document.getElementById('account');
 const form = document.getElementById('withdrawForm');
 const submitBtn = document.getElementById('submitBtn');
 const status = document.getElementById('formStatus');
 const setupError = document.getElementById('setupError');
+const accountSel = document.getElementById('account');
+const amountInput = document.getElementById('amount');
 const availText = document.getElementById('availText');
-const methodSel = document.getElementById('method');
-const payoutLabel = document.getElementById('payoutLabel');
-const payoutInput = document.getElementById('payout');
+const confirmBox = document.getElementById('confirmBox');
+const confirmPassword = document.getElementById('confirmPassword');
 
 let currentUser = null;
 let accounts = [];
+let step = 1; // 1 = form, 2 = password confirm
 
-function genReference(){
-  return 'WD-' + Date.now().toString(36).toUpperCase() + Math.floor(Math.random()*900+100);
-}
-
-function freeMarginOf(a){
-  return Number(a?.equity||0) - Number(a?.used_margin||0);
-}
-
-function updateAvailable(){
-  const a = accounts.find(x => String(x.id) === accountSel.value);
-  if(a){
-    availText.textContent = 'Available (Free Margin): $' + freeMarginOf(a).toFixed(2);
-  } else {
-    availText.textContent = '';
-  }
-}
-
-const payoutPlaceholders = {
-  'Easypaisa': 'Easypaisa account number',
-  'JazzCash': 'JazzCash account number',
-  'Pakistan Local Bank Transfer': 'Bank name, account title & account number',
-  'Tether USDT BEP20': 'USDT (BEP20) wallet address',
-  'Tether USDT ERC20': 'USDT (ERC20) wallet address',
-  'Tether USDT TRC20': 'USDT (TRC20) wallet address'
-};
-
-methodSel.addEventListener('change', () => {
-  const ph = payoutPlaceholders[methodSel.value] || 'Where should we send your funds?';
-  payoutInput.placeholder = ph;
-});
+function money(n){ return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(Number(n||0)); }
 
 async function init(){
   const { data: { user } } = await supabase.auth.getUser();
@@ -150,82 +136,21 @@ async function init(){
     .eq('user_id', user.id)
     .order('created_at', { ascending: true });
 
-  if(error){
+  if(error || !data || !data.length){
     setupError.style.display = 'block';
-    setupError.innerHTML = '<b>Withdrawal setup incomplete.</b><br>Please make sure <code>supabase-deposit-policy.sql</code> has been run in the Supabase SQL Editor, then refresh this page.';
-    accountSel.innerHTML = '<option value="">Unable to load accounts</option>';
+    setupError.innerHTML = '<b>No trading accounts found.</b><br>Please create an account first.';
+    submitBtn.disabled = true;
     return;
   }
 
-  accounts = data || [];
-  if(!accounts.length){
-    accountSel.innerHTML = '<option value="">No trading account found</option>';
-    return;
-  }
-
-  accountSel.innerHTML = accounts.map(a =>
-    `<option value="${a.id}">${a.account_name} — #${a.account_number}</option>`
+  accounts = data;
+  accountSel.innerHTML = data.map(a => 
+    `<option value="${a.id}" data-balance="${a.balance||0}">${a.account_name}${a.is_wallet?' (Wallet)':''} — #${a.account_number}</option>`
   ).join('');
   accountSel.disabled = false;
-  updateAvailable();
+  updateAvail();
 }
 
-accountSel.addEventListener('change', updateAvailable);
-
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  if(!currentUser || !accounts.length) return;
-
-  const accountId = accountSel.value;
-  const amount = parseFloat(document.getElementById('amount').value);
-  const account = accounts.find(a => String(a.id) === accountId);
-  const available = freeMarginOf(account);
-
-  if(amount > available){
-    status.textContent = `Amount exceeds your available Free Margin ($${available.toFixed(2)}).`;
-    status.style.color = '#ff8b8b';
-    status.style.display = 'block';
-    return;
-  }
-
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'Submitting…';
-  status.style.display = 'none';
-
-  const methodLabel = methodSel.selectedOptions[0]?.text || '';
-  const payout = payoutInput.value.trim();
-  const note = document.getElementById('reference').value.trim();
-  const reference = genReference();
-  const fullType = `Withdrawal - ${methodLabel} (to: ${payout})${note ? ' — ' + note : ''}`;
-
-  const { error } = await supabase.from('transactions').insert({
-    user_id: currentUser.id,
-    trading_account_id: Number(accountId),
-    type: fullType,
-    amount: -Math.abs(amount),
-    reference: reference,
-    status: 'Pending'
-  });
-
-  if(error){
-    status.textContent = error.message;
-    status.style.color = '#ff8b8b';
-  } else {
-    status.textContent = 'Withdrawal request submitted. It is now Pending review.';
-    status.style.color = '#8ee0a5';
-    form.reset();
-    setTimeout(() => { location.href = 'client-dashboard.html#transactions'; }, 1800);
-  }
-  status.style.display = 'block';
-  submitBtn.disabled = false;
-  submitBtn.textContent = 'Submit Withdrawal Request';
-});
-
-document.getElementById('logout').addEventListener('click', async () => {
-  await supabase.auth.signOut();
-  location.href = 'client-login.html';
-});
-
-init();
-</script>
-</body></html>
+function updateAvail(){
+  const opt = accountSel.selectedOptions[0];
+  const bal = opt ?
