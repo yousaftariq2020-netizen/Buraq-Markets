@@ -1,195 +1,216 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Buraq Markets</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        table { border-collapse: collapse; }
-        tr { transition: all 0.2s; }
-        tr:hover { background-color: #1f2937; }
-        .status-pending { background-color: #fee2e2; color: #ef4444; }
-        .status-approved { background-color: #dcfce7; color: #16a34a; }
-        .status-rejected { background-color: #fee2e2; color: #ef4444; }
-        .status-cancelled { background-color: #f3e8ff; color: #7c3aed; }
-        .status-completed { background-color: #dcfce7; color: #16a34a; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buraq Admin Dashboard | Forex Broker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body { background: #0a0a0a; }
+    .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(12px); }
+    .nav-link { transition: all 0.3s; }
+    .nav-link:hover { transform: translateX(8px); }
+    .table-row { transition: all 0.3s; }
+    .table-row:hover { background-color: #1f1f1f; }
+  </style>
 </head>
-<body class="bg-gray-950 text-white min-h-screen">
-    <div class="max-w-7xl mx-auto p-6">
-        <h1 class="text-4xl font-bold mb-8">Admin Dashboard</h1>
+<body class="text-white">
 
-        <!-- FILTERS -->
-        <div class="bg-gray-900 p-6 rounded-2xl mb-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div>
-                    <label class="block text-sm mb-1">Status Filter</label>
-                    <select id="statusFilter" onchange="filterTable()" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500">
-                        <option value="">All Status</option>
-                        <option value="pending">Pending</option>
-                        <option value="approved">Approved</option>
-                        <option value="rejected">Rejected</option>
-                        <option value="cancelled">Cancelled</option>
-                        <option value="completed">Completed</option>
-                    </select>
-                </div>
-                
-                <div>
-                    <label class="block text-sm mb-1">Date From</label>
-                    <input type="date" id="dateFrom" onchange="filterTable()" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3">
-                </div>
-                <div>
-                    <label class="block text-sm mb-1">Date To</label>
-                    <input type="date" id="dateTo" onchange="filterTable()" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4">
-                </div>
-                
-                <div>
-                    <label class="block text-sm mb-1">Search User ID / Reference</label>
-                    <input type="text" id="searchInput" placeholder="Type here..." onkeyup="filterTable()" 
-                           class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500">
-                </div>
-            </div>
+<div class="flex h-screen">
+  <!-- Sidebar -->
+  <div class="w-72 bg-zinc-950 border-r border-zinc-800 flex flex-col">
+    <div class="p-6 border-b border-zinc-800">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-2xl flex items-center justify-center text-2xl font-bold">B</div>
+        <div>
+          <h1 class="text-2xl font-bold tracking-tighter">Buraq</h1>
+          <p class="text-xs text-zinc-500 -mt-1">Forex Broker</p>
         </div>
-
-        <!-- TABLE -->
-        <div class="bg-gray-900 rounded-3xl overflow-hidden">
-            <table class="w-full">
-                <thead class="bg-gray-800">
-                    <tr>
-                        <th class="px-6 py-4 text-left">Date</th>
-                        <th class="px-6 py-4 text-left">User ID</th>
-                        <th class="px-6 py-4 text-left">Type</th>
-                        <th class="px-6 py-4 text-left">Reference</th>
-                        <th class="px-6 py-4 text-right">Amount</th>
-                        <th class="px-6 py-4 text-left">Proof</th>
-                        <th class="px-6 py-4 text-left">Status</th>
-                        <th class="px-6 py-4 text-center">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody" class="text-sm">
-                    <!-- JS se fill hoga -->
-                </tbody>
-            </table>
-        </div>
-
-        <!-- NO RECORDS -->
-        <div id="noRecords" class="hidden text-center py-20">
-            <i class="fas fa-search text-6xl text-gray-600 mb-4"></i>
-            <p class="text-gray-400 text-xl">No transactions found</p>
-        </div>
+      </div>
     </div>
 
-    <script>
-        // Sample data (agar real data nahi hai toh ye use karo)
-        let transactions = [
-            { id: 1, date: "2025-08-21", user_id: "USR12345", type: "Deposit", reference: "TXN-98765", amount: 5000, proof_url: "", status: "pending" },
-            { id: 2, date: "2025-08-20", user_id: "USR54321", type: "Withdrawal", reference: "TXN-87654", amount: 2500, proof_url: "https://example.com/proof.jpg", status: "approved" },
-            { id: 3, date: "2025-08-19", user_id: "USR11111", type: "Deposit", reference: "TXN-55555", amount: 15000, proof_url: "", status: "rejected" }
-        ];
+    <nav class="flex-1 p-4 space-y-1">
+      <a href="#" class="nav-link flex items-center gap-3 px-4 py-3 text-lg font-medium rounded-2xl bg-blue-600 text-white">
+        <i class="fas fa-tachometer-alt"></i> Dashboard
+      </a>
+      <a href="#" class="nav-link flex items-center gap-3 px-4 py-3 text-lg font-medium rounded-2xl hover:bg-zinc-900">
+        <i class="fas fa-users"></i> Users
+      </a>
+      <a href="#" class="nav-link flex items-center gap-3 px-4 py-3 text-lg font-medium rounded-2xl hover:bg-zinc-900">
+        <i class="fas fa-file-invoice"></i> Transactions
+      </a>
+      <a href="#" class="nav-link flex items-center gap-3 px-4 py-3 text-lg font-medium rounded-2xl hover:bg-zinc-900">
+        <i class="fas fa-exchange-alt"></i> Open Trades
+      </a>
+      <a href="#" class="nav-link flex items-center gap-3 px-4 py-3 text-lg font-medium rounded-2xl hover:bg-zinc-900">
+        <i class="fas fa-chart-line"></i> Reports
+      </a>
+      <a href="#" class="nav-link flex items-center gap-3 px-4 py-3 text-lg font-medium rounded-2xl hover:bg-zinc-900">
+        <i class="fas fa-cog"></i> Settings
+      </a>
+    </nav>
 
-        function txRows(list, showActions) {
-            let html = '';
-            if (list.length === 0) {
-                document.getElementById('noRecords').classList.remove('hidden');
-                return '';
-            }
-            document.getElementById('noRecords').classList.add('hidden');
+    <div class="p-4 border-t border-zinc-800">
+      <button onclick="logout()" class="w-full flex items-center justify-center gap-3 py-3 bg-red-600 hover:bg-red-700 rounded-2xl font-medium">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+  </div>
 
-            list.forEach(r => {
-                const st = r.status.toLowerCase();
-                let cls = '';
-                if (st === 'approved' || st === 'completed') cls = 'approved';
-                else if (st === 'rejected' || st === 'cancelled') cls = 'rejected';
-                else cls = 'pending';
+  <!-- Main Content -->
+  <div class="flex-1 flex flex-col">
+    <!-- Top Bar -->
+    <div class="h-16 bg-zinc-950 border-b border-zinc-800 flex items-center px-8 justify-between">
+      <div class="flex-1">
+        <input type="text" id="search" placeholder="Search user ID, reference or amount..." 
+               class="w-96 bg-zinc-900 border border-zinc-700 rounded-3xl px-6 py-3 focus:outline-none focus:border-blue-500">
+      </div>
+      <div class="flex items-center gap-6">
+        <button class="text-2xl"><i class="fas fa-bell"></i></button>
+        <div class="flex items-center gap-3">
+          <div class="text-right">
+            <p class="font-medium">Admin User</p>
+            <p class="text-xs text-green-500">Online</p>
+          </div>
+          <div class="w-9 h-9 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-2xl"></div>
+        </div>
+      </div>
+    </div>
 
-                const amt = Number(r.amount) || 0;
-                const money = (amt >= 0 ? '+' : '') + new Intl.NumberFormat('en-IN').format(amt) + ' PKR';
+    <!-- Dashboard Content -->
+    <div class="flex-1 p-8 overflow-auto">
+      <h1 class="text-4xl font-bold mb-8">Admin Dashboard</h1>
 
-                const proofBtn = r.proof_url 
-                    ? `<a href="${r.proof_url}" target="_blank" class="text-blue-400 hover:text-blue-300"><i class="fas fa-eye"></i> View Proof</a>` 
-                    : '<span class="text-gray-500">No proof</span>';
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-4 gap-6 mb-10">
+        <div class="glass border border-zinc-700 rounded-3xl p-6">
+          <div class="flex justify-between">
+            <div>
+              <p class="text-sm text-zinc-400">Total Users</p>
+              <p class="text-5xl font-bold mt-2">1,284</p>
+            </div>
+            <i class="fas fa-users text-5xl text-blue-500 opacity-20"></i>
+          </div>
+        </div>
+        <div class="glass border border-zinc-700 rounded-3xl p-6">
+          <div class="flex justify-between">
+            <div>
+              <p class="text-sm text-zinc-400">Total Volume</p>
+              <p class="text-5xl font-bold mt-2 text-green-400">$12.4M</p>
+            </div>
+            <i class="fas fa-dollar-sign text-5xl text-green-500 opacity-20"></i>
+          </div>
+        </div>
+        <div class="glass border border-zinc-700 rounded-3xl p-6">
+          <div class="flex justify-between">
+            <div>
+              <p class="text-sm text-zinc-400">Pending Requests</p>
+              <p class="text-5xl font-bold mt-2 text-yellow-400">47</p>
+            </div>
+            <i class="fas fa-clock text-5xl text-yellow-500 opacity-20"></i>
+          </div>
+        </div>
+        <div class="glass border border-zinc-700 rounded-3xl p-6">
+          <div class="flex justify-between">
+            <div>
+              <p class="text-sm text-zinc-400">Today's P&L</p>
+              <p class="text-5xl font-bold mt-2 text-red-400">-$8,234</p>
+            </div>
+            <i class="fas fa-chart-line text-5xl text-red-500 opacity-20"></i>
+          </div>
+        </div>
+      </div>
 
-                const showActionsHTML = showActions ? 
-                    `<button onclick="approveTx(${r.id})" class="bg-green-600 hover:bg-green-500 px-5 py-2 rounded-xl text-sm font-medium">Approve</button>
-                     <button onclick="rejectTx(${r.id})" class="bg-red-600 hover:bg-red-500 px-5 py-2 rounded-xl text-sm font-medium ml-2">Reject</button>` : '';
+      <!-- Main Table -->
+      <div class="glass border border-zinc-700 rounded-3xl overflow-hidden">
+        <div class="px-8 py-6 border-b border-zinc-700 flex justify-between items-center">
+          <h2 class="text-2xl font-semibold">Recent Transactions</h2>
+          <button onclick="approveAll()" class="px-6 py-2 bg-green-600 hover:bg-green-700 rounded-2xl text-sm font-medium">Approve All Pending</button>
+        </div>
 
-                html += `
-                    <tr>
-                        <td class="px-6 py-4">${new Date(r.date).toLocaleDateString('en-GB')}</td>
-                        <td class="px-6 py-4 font-medium">${r.user_id}</td>
-                        <td class="px-6 py-4">${r.type}</td>
-                        <td class="px-6 py-4 text-blue-400">${r.reference}</td>
-                        <td class="px-6 py-4 text-right font-semibold">${money}</td>
-                        <td class="px-6 py-4">${proofBtn}</td>
-                        <td class="px-6 py-4">
-                            <span class="px-4 py-1 rounded-full text-xs font-medium ${cls}">${st}</span>
-                        </td>
-                        <td class="px-6 py-4">${showActionsHTML}</td>
-                    </tr>`;
-            });
-            return html;
-        }
+        <table class="w-full">
+          <thead>
+            <tr class="text-left text-xs uppercase tracking-widest text-zinc-400 border-b border-zinc-700">
+              <th class="px-8 py-5">Date</th>
+              <th class="px-8 py-5">User ID</th>
+              <th class="px-8 py-5">Type</th>
+              <th class="px-8 py-5">Reference</th>
+              <th class="px-8 py-5">Amount</th>
+              <th class="px-8 py-5">Status</th>
+              <th class="px-8 py-5">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody" class="text-sm">
+            <!-- JS will populate this -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
 
-        function renderTable(filteredList = null) {
-            const tbody = document.getElementById('tableBody');
-            const dataToShow = filteredList || transactions;
-            tbody.innerHTML = txRows(dataToShow, true);
-        }
+<script>
+  // Sample data
+  const transactions = [
+    { date: "21/08/2025", user: "USR12345", type: "Deposit", ref: "TXN-98765", amount: "+$5,000", proof: "No proof", status: "pending", action: "Approve/Reject" },
+    { date: "20/08/2025", user: "USR54321", type: "Withdrawal", ref: "TXN-87654", amount: "+$2,500", proof: "View Proof", status: "approved", action: "Approve/Reject" },
+    { date: "19/08/2025", user: "USR11111", type: "Deposit", ref: "TXN-55555", amount: "+$15,000", proof: "No proof", status: "rejected", action: "Approve/Reject" },
+  ];
 
-        function filterTable() {
-            const status = document.getElementById('statusFilter').value;
-            const dateFrom = document.getElementById('dateFrom').value;
-            const dateTo = document.getElementById('dateTo').value;
-            const search = document.getElementById('searchInput').value.toLowerCase();
+  function renderTable() {
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '';
+    transactions.forEach((t, index) => {
+      const row = document.createElement('tr');
+      row.className = 'table-row border-b border-zinc-800 hover:bg-zinc-900';
+      row.innerHTML = `
+        <td class="px-8 py-5">${t.date}</td>
+        <td class="px-8 py-5 font-medium">${t.user}</td>
+        <td class="px-8 py-5">${t.type}</td>
+        <td class="px-8 py-5 text-blue-400">${t.ref}</td>
+        <td class="px-8 py-5">${t.amount}</td>
+        <td class="px-8 py-5">
+          <span class="px-4 py-1 rounded-3xl text-xs font-medium ${t.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' : t.status === 'approved' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}">
+            ${t.status}
+          </span>
+        </td>
+        <td class="px-8 py-5">
+          ${t.status === 'pending' ? `
+            <button onclick="approveTransaction(${index})" class="px-6 py-2 bg-green-600 hover:bg-green-700 rounded-2xl text-sm">Approve</button>
+            <button onclick="rejectTransaction(${index})" class="ml-3 px-6 py-2 bg-red-600 hover:bg-red-700 rounded-2xl text-sm">Reject</button>
+          ` : ''}
+        </td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
 
-            let filtered = transactions;
+  function approveTransaction(i) {
+    alert(`Transaction ${transactions[i].ref} Approved!`);
+    transactions.splice(i, 1); // demo remove
+    renderTable();
+  }
 
-            if (status) {
-                filtered = filtered.filter(t => t.status.toLowerCase() === status);
-            }
+  function rejectTransaction(i) {
+    alert(`Transaction ${transactions[i].ref} Rejected!`);
+    transactions.splice(i, 1);
+    renderTable();
+  }
 
-            if (dateFrom) {
-                filtered = filtered.filter(t => t.date >= dateFrom);
-            }
-            if (dateTo) {
-                filtered = filtered.filter(t => t.date <= dateTo);
-            }
+  function approveAll() {
+    alert("All Pending Transactions Approved!");
+    renderTable();
+  }
 
-            if (search) {
-                filtered = filtered.filter(t => 
-                    t.user_id.toLowerCase().includes(search) || 
-                    t.reference.toLowerCase().includes(search) || 
-                    t.type.toLowerCase().includes(search)
-                );
-            }
+  function logout() {
+    if (confirm("Logout?")) location.reload();
+  }
 
-            renderTable(filtered);
-        }
-
-        function approveTx(id) {
-            const tx = transactions.find(t => t.id === id);
-            if (tx) {
-                tx.status = 'approved';
-                filterTable();
-            }
-        }
-
-        function rejectTx(id) {
-            const tx = transactions.find(t => t.id === id);
-            if (tx) {
-                tx.status = 'rejected';
-                filterTable();
-            }
-        }
-
-        // Initial render
-        window.onload = () => {
-            renderTable();
-        };
-    </script>
+  // Init
+  window.onload = () => {
+    renderTable();
+  };
+</script>
 </body>
 </html>
