@@ -70,11 +70,20 @@ footer{text-align:center;border-top:1px solid #242329;padding:18px;color:#777;fo
 <div class="field"><label>Payment / Transfer Reference (optional)</label>
 <input type="text" id="reference" placeholder="Enter your bank or payment reference"></div>
 
+<div class="field">
+  <label>Payment Proof (Screenshot / Receipt) *</label>
+  <input type="file" id="proof" accept="image/*,.pdf" required>
+  <div style="font-size:11px;color:#888;margin-top:6px">
+    Upload bank receipt, Easypaisa/JazzCash screenshot, or crypto transaction screenshot
+  </div>
+</div>
+
 <div class="howitworks">
 <div class="h">HOW IT WORKS</div>
 <ol>
 <li>Enter the amount and select your trading account.</li>
 <li>Select your payment method and add the payment reference if available.</li>
+<li>Upload payment proof (screenshot/receipt).</li>
 <li>Submit the request. It will appear in your transaction history as Pending until reviewed.</li>
 </ol>
 </div>
@@ -115,7 +124,7 @@ async function init(){
 
   if(error || !data){
     setupError.style.display = 'block';
-    setupError.innerHTML = '<b>Deposit setup incomplete.</b><br>Please make sure <code>supabase-wallet-update.sql</code> has been run in the Supabase SQL Editor, then refresh this page.';
+    setupError.innerHTML = '<b>Deposit setup incomplete.</b><br>Please make sure wallet setup has been run, then refresh this page.';
     walletBox.textContent = 'Wallet not found';
     submitBtn.disabled = true;
     return;
@@ -129,32 +138,69 @@ form.addEventListener('submit', async (e) => {
   e.preventDefault();
   if(!currentUser || !walletAccount) return;
 
+  const fileInput = document.getElementById('proof');
+  const file = fileInput.files[0];
+  
+  if(!file){
+    status.textContent = 'Please upload payment proof.';
+    status.style.color = '#ff8b8b';
+    status.style.display = 'block';
+    return;
+  }
+
+  if(file.size > 5 * 1024 * 1024){
+    status.textContent = 'File too large. Maximum 5MB allowed.';
+    status.style.color = '#ff8b8b';
+    status.style.display = 'block';
+    return;
+  }
+
   submitBtn.disabled = true;
-  submitBtn.textContent = 'Submitting…';
+  submitBtn.textContent = 'Uploading proof…';
   status.style.display = 'none';
 
-  const amount = parseFloat(document.getElementById('amount').value);
-  const methodLabel = document.getElementById('method').selectedOptions[0]?.text || '';
-  const reference = document.getElementById('reference').value.trim() || genReference();
+  try {
+    const amount = parseFloat(document.getElementById('amount').value);
+    const methodLabel = document.getElementById('method').selectedOptions[0]?.text || '';
+    const reference = document.getElementById('reference').value.trim() || genReference();
 
-  const { error } = await supabase.from('transactions').insert({
-    user_id: currentUser.id,
-    trading_account_id: walletAccount.id,
-    type: `Deposit - ${methodLabel}`,
-    amount: amount,
-    reference: reference,
-    status: 'Pending'
-  });
+    const ext = file.name.split('.').pop();
+    const filePath = `${currentUser.id}/${Date.now()}.${ext}`;
 
-  if(error){
-    status.textContent = error.message;
-    status.style.color = '#ff8b8b';
-  } else {
-    status.textContent = 'Deposit request submitted. It is now Pending review.';
+    const { error: uploadError } = await supabase.storage
+      .from('deposit-proofs')
+      .upload(filePath, file);
+
+    if(uploadError) throw uploadError;
+
+    const { data: urlData } = await supabase.storage
+      .from('deposit-proofs')
+      .createSignedUrl(filePath, 60 * 60 * 24 * 365);
+
+    const proofUrl = urlData?.signedUrl || filePath;
+
+    const { error } = await supabase.from('transactions').insert({
+      user_id: currentUser.id,
+      trading_account_id: walletAccount.id,
+      type: `Deposit - ${methodLabel}`,
+      amount: amount,
+      reference: reference,
+      status: 'Pending',
+      proof_url: proofUrl
+    });
+
+    if(error) throw error;
+
+    status.textContent = 'Deposit request + proof submitted successfully. It is now Pending review.';
     status.style.color = '#8ee0a5';
     form.reset();
     setTimeout(() => { location.href = 'client-dashboard.html#transactions'; }, 1800);
+
+  } catch (err) {
+    status.textContent = err.message || 'Something went wrong.';
+    status.style.color = '#ff8b8b';
   }
+
   status.style.display = 'block';
   submitBtn.disabled = false;
   submitBtn.textContent = 'Submit Deposit Request';
