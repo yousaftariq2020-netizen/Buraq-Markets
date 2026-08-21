@@ -1,49 +1,195 @@
-In admin-dashboard.html file, find the function named txRows and completely replace it with the following correct version. 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Buraq Markets</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        table { border-collapse: collapse; }
+        tr { transition: all 0.2s; }
+        tr:hover { background-color: #1f2937; }
+        .status-pending { background-color: #fee2e2; color: #ef4444; }
+        .status-approved { background-color: #dcfce7; color: #16a34a; }
+        .status-rejected { background-color: #fee2e2; color: #ef4444; }
+        .status-cancelled { background-color: #f3e8ff; color: #7c3aed; }
+        .status-completed { background-color: #dcfce7; color: #16a34a; }
+    </style>
+</head>
+<body class="bg-gray-950 text-white min-h-screen">
+    <div class="max-w-7xl mx-auto p-6">
+        <h1 class="text-4xl font-bold mb-8">Admin Dashboard</h1>
 
-Make sure:
-- All template literals use correct backticks
-- No syntax errors
-- The function returns proper HTML table
+        <!-- FILTERS -->
+        <div class="bg-gray-900 p-6 rounded-2xl mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div>
+                    <label class="block text-sm mb-1">Status Filter</label>
+                    <select id="statusFilter" onchange="filterTable()" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                        <option value="cancelled">Cancelled</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm mb-1">Date From</label>
+                    <input type="date" id="dateFrom" onchange="filterTable()" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3">
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">Date To</label>
+                    <input type="date" id="dateTo" onchange="filterTable()" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4">
+                </div>
+                
+                <div>
+                    <label class="block text-sm mb-1">Search User ID / Reference</label>
+                    <input type="text" id="searchInput" placeholder="Type here..." onkeyup="filterTable()" 
+                           class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500">
+                </div>
+            </div>
+        </div>
 
-Here is the correct function:
+        <!-- TABLE -->
+        <div class="bg-gray-900 rounded-3xl overflow-hidden">
+            <table class="w-full">
+                <thead class="bg-gray-800">
+                    <tr>
+                        <th class="px-6 py-4 text-left">Date</th>
+                        <th class="px-6 py-4 text-left">User ID</th>
+                        <th class="px-6 py-4 text-left">Type</th>
+                        <th class="px-6 py-4 text-left">Reference</th>
+                        <th class="px-6 py-4 text-right">Amount</th>
+                        <th class="px-6 py-4 text-left">Proof</th>
+                        <th class="px-6 py-4 text-left">Status</th>
+                        <th class="px-6 py-4 text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody" class="text-sm">
+                    <!-- JS se fill hoga -->
+                </tbody>
+            </table>
+        </div>
 
-function txRows(list, showActions) {
-  if (!list.length) return '<div class="empty">No records found.</div>';
-  return `<div class="table-wrap"><table>
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>User ID</th>
-        <th>Type</th>
-        <th>Reference</th>
-        <th>Amount</th>
-        <th>Proof</th>
-        <th>Status</th>
-        ${showActions ? '<th>Actions</th>' : ''}
-      </tr>
-    </thead>
-    <tbody>
-      ${list.map(r => {
-        const st = String(r.status || '').toLowerCase();
-        const cls = (st === 'approved' || st === 'completed') ? 'approved' : (st === 'rejected' || st === 'cancelled') ? 'rejected' : 'pending';
-        const amt = Number(r.amount || 0);
-        const proofBtn = r.proof_url
-          ? `<a href="${esc(r.proof_url)}" target="_blank" class="btn btn-ghost" style="padding:4px 8px;font-size:11px">View Proof</a>`
-          : '—';
-        return `<tr>
-          <td>${new Date(r.transaction_date).toLocaleString()}</td>
-          <td style="font-size:10px;max-width:120px;overflow:hidden;text-overflow:ellipsis">${esc(r.user_id)}</td>
-          <td>${esc(r.type)}</td>
-          <td>${esc(r.reference)}</td>
-          <td class="${amt >= 0 ? 'money-pos' : 'money-neg'}">${amt >= 0 ? '+' : ''}${money(amt)}</td>
-          <td>${proofBtn}</td>
-          <td><span class="status ${cls}">${esc(r.status)}</span></td>
-          ${showActions ? `<td class="actions">
-            <button class="btn btn-green" data-approve="${r.id}">Approve</button>
-            <button class="btn btn-red" data-reject="${r.id}">Reject</button>
-          </td>` : ''}
-        </tr>`;
-      }).join('')}
-    </tbody>
-  </table></div>`;
-}
+        <!-- NO RECORDS -->
+        <div id="noRecords" class="hidden text-center py-20">
+            <i class="fas fa-search text-6xl text-gray-600 mb-4"></i>
+            <p class="text-gray-400 text-xl">No transactions found</p>
+        </div>
+    </div>
+
+    <script>
+        // Sample data (agar real data nahi hai toh ye use karo)
+        let transactions = [
+            { id: 1, date: "2025-08-21", user_id: "USR12345", type: "Deposit", reference: "TXN-98765", amount: 5000, proof_url: "", status: "pending" },
+            { id: 2, date: "2025-08-20", user_id: "USR54321", type: "Withdrawal", reference: "TXN-87654", amount: 2500, proof_url: "https://example.com/proof.jpg", status: "approved" },
+            { id: 3, date: "2025-08-19", user_id: "USR11111", type: "Deposit", reference: "TXN-55555", amount: 15000, proof_url: "", status: "rejected" }
+        ];
+
+        function txRows(list, showActions) {
+            let html = '';
+            if (list.length === 0) {
+                document.getElementById('noRecords').classList.remove('hidden');
+                return '';
+            }
+            document.getElementById('noRecords').classList.add('hidden');
+
+            list.forEach(r => {
+                const st = r.status.toLowerCase();
+                let cls = '';
+                if (st === 'approved' || st === 'completed') cls = 'approved';
+                else if (st === 'rejected' || st === 'cancelled') cls = 'rejected';
+                else cls = 'pending';
+
+                const amt = Number(r.amount) || 0;
+                const money = (amt >= 0 ? '+' : '') + new Intl.NumberFormat('en-IN').format(amt) + ' PKR';
+
+                const proofBtn = r.proof_url 
+                    ? `<a href="${r.proof_url}" target="_blank" class="text-blue-400 hover:text-blue-300"><i class="fas fa-eye"></i> View Proof</a>` 
+                    : '<span class="text-gray-500">No proof</span>';
+
+                const showActionsHTML = showActions ? 
+                    `<button onclick="approveTx(${r.id})" class="bg-green-600 hover:bg-green-500 px-5 py-2 rounded-xl text-sm font-medium">Approve</button>
+                     <button onclick="rejectTx(${r.id})" class="bg-red-600 hover:bg-red-500 px-5 py-2 rounded-xl text-sm font-medium ml-2">Reject</button>` : '';
+
+                html += `
+                    <tr>
+                        <td class="px-6 py-4">${new Date(r.date).toLocaleDateString('en-GB')}</td>
+                        <td class="px-6 py-4 font-medium">${r.user_id}</td>
+                        <td class="px-6 py-4">${r.type}</td>
+                        <td class="px-6 py-4 text-blue-400">${r.reference}</td>
+                        <td class="px-6 py-4 text-right font-semibold">${money}</td>
+                        <td class="px-6 py-4">${proofBtn}</td>
+                        <td class="px-6 py-4">
+                            <span class="px-4 py-1 rounded-full text-xs font-medium ${cls}">${st}</span>
+                        </td>
+                        <td class="px-6 py-4">${showActionsHTML}</td>
+                    </tr>`;
+            });
+            return html;
+        }
+
+        function renderTable(filteredList = null) {
+            const tbody = document.getElementById('tableBody');
+            const dataToShow = filteredList || transactions;
+            tbody.innerHTML = txRows(dataToShow, true);
+        }
+
+        function filterTable() {
+            const status = document.getElementById('statusFilter').value;
+            const dateFrom = document.getElementById('dateFrom').value;
+            const dateTo = document.getElementById('dateTo').value;
+            const search = document.getElementById('searchInput').value.toLowerCase();
+
+            let filtered = transactions;
+
+            if (status) {
+                filtered = filtered.filter(t => t.status.toLowerCase() === status);
+            }
+
+            if (dateFrom) {
+                filtered = filtered.filter(t => t.date >= dateFrom);
+            }
+            if (dateTo) {
+                filtered = filtered.filter(t => t.date <= dateTo);
+            }
+
+            if (search) {
+                filtered = filtered.filter(t => 
+                    t.user_id.toLowerCase().includes(search) || 
+                    t.reference.toLowerCase().includes(search) || 
+                    t.type.toLowerCase().includes(search)
+                );
+            }
+
+            renderTable(filtered);
+        }
+
+        function approveTx(id) {
+            const tx = transactions.find(t => t.id === id);
+            if (tx) {
+                tx.status = 'approved';
+                filterTable();
+            }
+        }
+
+        function rejectTx(id) {
+            const tx = transactions.find(t => t.id === id);
+            if (tx) {
+                tx.status = 'rejected';
+                filterTable();
+            }
+        }
+
+        // Initial render
+        window.onload = () => {
+            renderTable();
+        };
+    </script>
+</body>
+</html>
