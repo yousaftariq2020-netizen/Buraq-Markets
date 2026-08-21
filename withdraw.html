@@ -214,12 +214,13 @@ form.addEventListener('submit', async (e) => {
   } else {
     status.textContent = 'Withdrawal request submitted. It is now Pending review.';
     status.style.color = '#8ee0a5';
-    sendNotification({
+    const emailResult = await sendNotification({
       to_email: currentUser.email,
       subject: 'Withdrawal Request Received — Buraq Markets',
       heading: 'Your withdrawal request has been received',
       message: `We received your withdrawal request of $${amount.toFixed(2)} via ${methodLabel} (Reference: ${reference}). It is now Pending review and you will be notified once it is processed.`
     });
+    if (!emailResult.ok) console.warn('Withdrawal saved, but client notification could not be sent.');
     form.reset();
     setTimeout(() => { location.href = 'client-dashboard.html#transactions'; }, 1800);
   }

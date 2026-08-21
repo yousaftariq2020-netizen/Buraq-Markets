@@ -172,12 +172,13 @@ function wireForm(){
       status.textContent = 'Documents submitted successfully. Your verification is now Pending review.';
       status.style.color = '#8ee0a5';
       status.style.display = 'block';
-      sendNotification({
+      const emailResult = await sendNotification({
         to_email: currentUser.email,
         subject: 'KYC Documents Received — Buraq Markets',
         heading: 'Your identity verification documents have been received',
         message: 'We received your ID document and selfie for identity verification. Your KYC status is now Pending review. This usually takes 1–2 business days.'
       });
+      if (!emailResult.ok) console.warn('KYC submission saved, but client notification could not be sent.');
       setTimeout(()=>{ location.href = 'client-dashboard.html'; }, 1800);
     } catch(err){
       status.textContent = err.message || 'Something went wrong. Please try again.';
