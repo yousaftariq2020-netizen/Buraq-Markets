@@ -16,11 +16,15 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ ok: false, error: 'Method not allowed.' });
   }
 
-  const gmailUser = clean(process.env.GMAIL_USER, 320);
-  const gmailPass = clean(process.env.GMAIL_PASS, 320);
+  // Support both GMAIL_PASS and GMAIL_APP_PASSWORD variable names
+  const gmailUser = clean(process.env.GMAIL_USER || process.env.GMAIL_ADDRESS, 320);
+  const gmailPass = clean(process.env.GMAIL_PASS || process.env.GMAIL_APP_PASSWORD, 320);
 
   if (!gmailUser || !gmailPass) {
-    return res.status(500).json({ ok: false, error: 'Gmail credentials missing in Vercel.' });
+    return res.status(500).json({ 
+      ok: false, 
+      error: 'Gmail credentials missing in Vercel. Please check GMAIL_USER and GMAIL_APP_PASSWORD.' 
+    });
   }
 
   const { to, subject, heading, message, name } = req.body || {};
