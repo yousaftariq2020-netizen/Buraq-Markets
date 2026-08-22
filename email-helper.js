@@ -1,4 +1,4 @@
-// Admin Panel Email Trigger Function
+// Email Helper with full functionality and Admin Panel Trigger
 
 async function triggerEmail(recipientEmail, recipientName, actionType, customMessage = '') {
   if (!recipientEmail) {
@@ -6,7 +6,7 @@ async function triggerEmail(recipientEmail, recipientName, actionType, customMes
     return;
   }
 
-  const isApproved = actionType.toLowerCase() === 'approve';
+  const isApproved = String(actionType).toLowerCase() === 'approve';
   const emailSubject = isApproved ? 'Transaction Approved — Buraq Markets' : 'Transaction Rejected — Buraq Markets';
   const emailHeading = isApproved ? 'Transaction Successful' : 'Transaction Declined';
   
@@ -45,3 +45,6 @@ async function triggerEmail(recipientEmail, recipientName, actionType, customMes
     alert('Failed to connect to email service.');
   }
 }
+
+// Window globally expose for admin-dashboard.html
+window.triggerEmail = triggerEmail;
