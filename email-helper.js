@@ -1,4 +1,4 @@
-// Complete Email Helper & Utility Script
+// Master Helper File for Email & Supabase Utility Support
 
 async function sendEmail({ to, subject, heading, message, name }) {
   try {
@@ -24,7 +24,7 @@ async function sendEmail({ to, subject, heading, message, name }) {
   }
 }
 
-// Global Email Functions for Admin Actions
+// Global Email Helpers
 window.sendDepositApprovedEmail = async function(clientEmail, clientName, amount, refNo) {
   return await sendEmail({
     to: clientEmail,
@@ -46,5 +46,14 @@ window.sendDepositRejectedEmail = async function(clientEmail, clientName, amount
   });
 };
 
-// Generic Fallback sendEmail helper (if called elsewhere)
 window.sendEmail = sendEmail;
+
+// Safe Wallet / User Session Fallback (Prevents Wallet Loading Freeze)
+window.getLoggedInUser = window.getLoggedInUser || function() {
+  try {
+    const userStr = localStorage.getItem('buraq_user') || localStorage.getItem('user');
+    return userStr ? JSON.parse(userStr) : null;
+  } catch (e) {
+    return null;
+  }
+};
