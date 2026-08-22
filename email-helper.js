@@ -1,57 +1,47 @@
-// Simplified Direct Fetch Email Helper
+// Admin Panel Email Trigger Function
 
-export async function sendEmail(options) {
+async function triggerEmail(recipientEmail, recipientName, actionType, customMessage = '') {
+  if (!recipientEmail) {
+    console.error('Email trigger failed: No recipient email provided.');
+    return;
+  }
+
+  const isApproved = actionType.toLowerCase() === 'approve';
+  const emailSubject = isApproved ? 'Transaction Approved — Buraq Markets' : 'Transaction Rejected — Buraq Markets';
+  const emailHeading = isApproved ? 'Transaction Successful' : 'Transaction Declined';
+  
+  const defaultMessage = isApproved 
+    ? 'Your request has been successfully processed and approved. Thank you for trading with Buraq Markets.' 
+    : 'Your request could not be processed at this time. Please contact support for further details.';
+
+  const payload = {
+    to: recipientEmail,
+    name: recipientName || 'Valued Trader',
+    subject: emailSubject,
+    heading: emailHeading,
+    message: customMessage || defaultMessage
+  };
+
   try {
-    const payload = typeof options === 'string' ? { message: options } : options;
-
-    const response = await fetch('/api/send-email', {
+    const response = await fetch('https://buraq-markets-dark-dashboard.vercel.app/api/send-email', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        to: payload.to || payload.email,
-        subject: payload.subject,
-        heading: payload.heading,
-        message: payload.message || payload.body || '',
-        name: payload.name || 'Valued Trader'
-      })
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
     });
 
-    const data = await response.json();
-    console.log('Email Response:', data);
-    return data;
-  } catch (err) {
-    console.error('Email Fetch Error:', err);
-    return { ok: false, error: err.message };
+    const result = await response.json();
+
+    if (response.ok && result.ok) {
+      console.log('Email sent successfully!');
+      alert('Notification email sent to user!');
+    } else {
+      console.error('Email API Error:', result);
+      alert('Email failed: ' + (result.error || 'Unknown error'));
+    }
+  } catch (error) {
+    console.error('Network Error sending email:', error);
+    alert('Failed to connect to email service.');
   }
-}
-
-export async function sendNotification(data) {
-  return await sendEmail(data);
-}
-
-export async function sendDepositApprovedEmail(email, name, amount, refNo) {
-  return await sendEmail({
-    to: email,
-    name: name,
-    subject: 'Deposit Approved — Buraq Markets',
-    heading: 'Deposit Successfully Approved',
-    message: `Your deposit request of $${amount} (Ref: ${refNo}) has been approved and credited to your trading account.`
-  });
-}
-
-export async function sendDepositRejectedEmail(email, name, amount, refNo, reason) {
-  return await sendEmail({
-    to: email,
-    name: name,
-    subject: 'Deposit Unsuccessful — Buraq Markets',
-    heading: 'Deposit Request Unsuccessful',
-    message: `Your deposit request of $${amount} (Ref: ${refNo}) was rejected. ${reason ? 'Reason: ' + reason : ''}`
-  });
-}
-
-if (typeof window !== 'undefined') {
-  window.sendEmail = sendEmail;
-  window.sendNotification = sendNotification;
-  window.sendDepositApprovedEmail = sendDepositApprovedEmail;
-  window.sendDepositRejectedEmail = sendDepositRejectedEmail;
 }
