@@ -13,8 +13,9 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(200).json({ ok: true, message: 'Email API Active' });
 
+  // Matching exact Vercel Environment Variable names
   const gmailUser = clean(process.env.GMAIL_USER || process.env.GMAIL_ADDRESS, 320);
-  const gmailPass = clean(process.env.GMAIL_PASS || process.env.GMAIL_APP_PASSWORD, 320);
+  const gmailPass = clean(process.env.GMAIL_APP_PASSWORD || process.env.GMAIL_PASS, 320);
 
   if (!gmailUser || !gmailPass) {
     return res.status(500).json({ ok: false, error: 'Gmail credentials missing in Vercel.' });
