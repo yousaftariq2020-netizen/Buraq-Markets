@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "description": "Buraq Markets static site with Vercel server-side Gmail notifications",
   "dependencies": {
-    "nodemailer": "^7.0.0"
+    "nodemailer": "^7.0.0",
+    "@supabase/supabase-js": "^2.45.0"
   }
 }
