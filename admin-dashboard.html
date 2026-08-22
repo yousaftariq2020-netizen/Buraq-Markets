@@ -113,7 +113,7 @@
     import { sendNotification } from './email-helper.js';
 
     const SUPABASE_URL = 'https://zlmoqiulzrqpnbxfeetp.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpsbW9xaXVsenJxcG5ieGZlZXRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzODU4ODIsImV4cCI6MjA1NTk2MTg4Mn0.9oXjB-9Y-R-728b7jP9x8w_z0Y8zX4z7Z_J8-Y_Z0Y8';
+    const SUPABASE_ANON_KEY = 'sb_secret_bqV6PCzh6Xn_7TRWYE1Bnw_b1ydeYfx';
     
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let currentTab = 'pending';
@@ -194,7 +194,6 @@
         return;
       }
 
-      // Dynamic Email Notification to Client
       if (clientEmail && clientEmail !== 'N/A') {
         await sendNotification(clientEmail, clientName, action);
       } else {
