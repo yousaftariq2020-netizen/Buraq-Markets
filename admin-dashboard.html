@@ -1,318 +1,474 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard — Buraq Markets</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js"></script>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background-color: #0b0e14; color: #e1e6ed; padding: 20px; }
-    .container { max-width: 1200px; margin: 0 auto; }
-    header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid #1e2638; margin-bottom: 20px; }
-    h1 { color: #38ef7d; font-size: 24px; }
-    .btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; text-decoration: none; display: inline-block; }
-    .btn-danger { background-color: #ff4d4d; color: white; }
-    .btn-success { background-color: #38ef7d; color: #0b0e14; }
-    .btn-sm { padding: 4px 8px; font-size: 12px; }
-    
-    .card { background: #131924; border: 1px solid #1e2638; border-radius: 8px; padding: 20px; margin-bottom: 25px; }
-    .card h2 { font-size: 18px; margin-bottom: 15px; color: #11998e; border-bottom: 1px solid #1e2638; padding-bottom: 8px; }
-    
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { text-align: left; padding: 12px; border-bottom: 1px solid #1e2638; font-size: 14px; }
-    th { background-color: #1a2232; color: #a0aec0; }
-    
-    .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
-    .badge-pending { background-color: #f6ad55; color: #1a202c; }
-    .badge-approved { background-color: #38ef7d; color: #0b0e14; }
-    .badge-rejected { background-color: #e53e3e; color: white; }
-    
-    .client-info { display: flex; flex-direction: column; }
-    .client-name { font-weight: bold; color: #ffffff; }
-    .client-email { font-size: 12px; color: #a0aec0; }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Buraq Markets — Admin Panel</title>
+<style>
+:root{--bg:#070b0d;--panel:#11181c;--border:#202a2e;--text:#f4f7f6;--muted:#8d999d;--gold:#d6a93b;--green:#18c879;--red:#ff5360;--blue:#4aa8ff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif;font-size:14px}
+a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}
+.top{height:64px;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;background:#0a1013;position:sticky;top:0;z-index:10}
+.brand{font-weight:800;color:var(--gold);font-size:18px}
+.top-right{margin-left:auto;display:flex;gap:12px;align-items:center}
+.badge{background:#30250b;color:var(--gold);padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.btn{border:0;border-radius:7px;padding:9px 14px;font-weight:700;font-size:12px}
+.btn-gold{background:linear-gradient(#f4cc6c,#dca83c);color:#111}
+.btn-green{background:#0d5a3b;color:#8ee0a5;border:1px solid #176d49}
+.btn-red{background:#3a1518;color:#ff8b8b;border:1px solid #5b2929}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:#ccc}
+.wrap{max-width:1300px;margin:0 auto;padding:24px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.tab{padding:10px 16px;border-radius:8px;border:1px solid var(--border);background:#0d1417;color:#aab5b7;font-weight:600;font-size:13px}
+.tab.active{background:#30250b;border-color:#5b4725;color:var(--gold)}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.panel-head{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.panel-title{font-size:16px;font-weight:700}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:700px}
+th,td{padding:12px 14px;text-align:left;border-bottom:1px solid #1c2529;font-size:12px}
+th{color:#7e8a8e;font-weight:500;background:#0d1417}
+td{color:#d7dddd}
+.status{display:inline-block;padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700;text-transform:uppercase}
+.pending{background:#33290d;color:#efc24b}
+.approved,.verified{background:#0d3020;color:#4be090}
+.rejected{background:#351316;color:#ff6d77}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+.empty{padding:40px;text-align:center;color:var(--muted)}
+.error{padding:16px;background:#1b0c0c;border:1px solid #5b2929;color:#ffb0b0;border-radius:10px;margin-bottom:16px}
+.loading{padding:60px;text-align:center;color:var(--muted)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.kpi{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px}
+.kpi span{display:block;color:var(--muted);font-size:11px;margin-bottom:6px}
+.kpi b{font-size:22px;font-weight:800}
+.money-pos{color:#2ddd84}.money-neg{color:#ff6670}
+input,select,textarea{background:#09090c;border:1px solid #36353c;border-radius:7px;color:#fff;padding:8px 10px;font-size:12px;outline:0}
+input:focus,select:focus,textarea:focus{border-color:var(--gold)}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;place-items:center;z-index:50;padding:16px}
+.modal-bg.show{display:grid}
+.modal{background:#11181c;border:1px solid #5b4725;border-radius:12px;padding:22px;width:min(440px,100%)}
+.modal h3{margin:0 0 12px;font-size:17px}
+.modal .field{margin-bottom:12px}
+.modal label{display:block;font-size:11px;margin-bottom:5px;color:#aaa}
+.modal .row{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+@media(max-width:800px){.kpis{grid-template-columns:1fr 1fr}.wrap{padding:14px}}
+@media(max-width:480px){.kpis{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Buraq Markets — Admin Panel</h1>
-      <button onclick="logout()" class="btn btn-danger">Logout</button>
-    </header>
+<header class="top">
+  <div class="brand">BURAQ ADMIN</div>
+  <div class="top-right">
+    <span class="badge" id="adminEmail">Admin</span>
+    <button class="btn btn-ghost" id="logoutBtn">Logout</button>
+  </div>
+</header>
 
-    <!-- Pending Deposit Requests -->
-    <div class="card">
-      <h2>Pending Deposit Requests</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Client Name / Email</th>
-            <th>Client ID</th>
-            <th>Amount</th>
-            <th>Proof / Slip</th>
-            <th>Date</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="depositsTable">
-          <tr><td colspan="6">Loading deposits...</td></tr>
-        </tbody>
-      </table>
-    </div>
+<main class="wrap" id="app">
+  <div class="loading">Loading admin panel…</div>
+</main>
 
-    <!-- Pending Withdrawal Requests -->
-    <div class="card">
-      <h2>Pending Withdrawal Requests</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Client Name / Email</th>
-            <th>Client ID</th>
-            <th>Amount</th>
-            <th>Account Details</th>
-            <th>Date</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="withdrawalsTable">
-          <tr><td colspan="6">Loading withdrawals...</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Recent Internal Transfers -->
-    <div class="card">
-      <h2>Recent Internal Transfers</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Client Name / Email</th>
-            <th>From Account</th>
-            <th>To Account</th>
-            <th>Amount</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-        <tbody id="transfersTable">
-          <tr><td colspan="5">Loading transfers...</td></tr>
-        </tbody>
-      </table>
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3 id="modalTitle">Action</h3>
+    <div id="modalBody"></div>
+    <div class="row">
+      <button class="btn btn-ghost" id="modalCancel">Cancel</button>
+      <button class="btn btn-gold" id="modalConfirm">Confirm</button>
     </div>
   </div>
+</div>
 
-  <script>
-    const supabase = window.supabaseClient;
+<script type="module">
+import { supabase } from './supabase-config.js';
+import { sendNotification } from './email-helper.js';
 
-    async function checkAdminAuth() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        window.location.href = 'client-login.html';
-        return;
-      }
-      const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-      if (!profile || profile.role !== 'admin') {
-        alert('Access denied: Admins only');
-        window.location.href = 'client-dashboard.html';
-        return;
-      }
-      loadAdminData();
+const app = document.getElementById('app');
+
+async function getClientEmail(userId) {
+  const { data } = await supabase.from('profiles').select('email, full_name').eq('id', userId).maybeSingle();
+  return data || null;
+}
+const money = n => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(Number(n||0));
+const esc = s => String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+let currentTab = 'pending';
+let modalCallback = null;
+
+const modalBg = document.getElementById('modalBg');
+document.getElementById('modalCancel').onclick = () => { modalBg.classList.remove('show'); modalCallback = null; };
+document.getElementById('modalConfirm').onclick = async () => {
+  if (modalCallback) await modalCallback();
+  modalBg.classList.remove('show');
+  modalCallback = null;
+};
+
+async function viewFile(bucket, path, btn) {
+  if (!path) { alert('No file uploaded.'); return; }
+  const original = btn ? btn.textContent : null;
+  if (btn) { btn.disabled = true; btn.textContent = 'Opening…'; }
+  const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, 300);
+  if (btn) { btn.disabled = false; btn.textContent = original; }
+  if (error || !data?.signedUrl) {
+    alert((error && error.message) || 'Could not open file. Make sure supabase-slip-view-setup.sql has been run.');
+    return;
+  }
+  window.open(data.signedUrl, '_blank');
+}
+
+function openModal(title, bodyHtml, onConfirm) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').innerHTML = bodyHtml;
+  modalCallback = onConfirm;
+  modalBg.classList.add('show');
+}
+
+async function ensureAdmin() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) { location.href = 'client-login.html?redirect=admin-dashboard.html'; return null; }
+  const { data: profile, error } = await supabase.from('profiles').select('*').eq('id', user.id).maybeSingle();
+  if (error) {
+    app.innerHTML = `<div class="error"><b>Setup issue</b><br>Could not load your profile (${esc(error.message)}). If this says "infinite recursion", re-run the latest supabase-admin-setup.sql.</div>`;
+    return null;
+  }
+  if (!profile || profile.role !== 'admin') {
+    app.innerHTML = `<div class="error"><b>Access Denied</b><br>This account is not an admin. Run supabase-admin-setup.sql and set your profile role to 'admin'.</div>
+      <p style="margin-top:16px"><a href="client-dashboard.html" style="color:var(--gold)">← Go to Client Dashboard</a></p>`;
+    return null;
+  }
+  document.getElementById('adminEmail').textContent = user.email;
+  return { user, profile };
+}
+
+async function loadStats() {
+  const [tx, kyc, clients] = await Promise.all([
+    supabase.from('transactions').select('id,status,type,amount'),
+    supabase.from('kyc_documents').select('id,status'),
+    supabase.from('profiles').select('id', { count: 'exact', head: true })
+  ]);
+  const txs = tx.data || [];
+  const pendingTx = txs.filter(t => String(t.status).toLowerCase() === 'pending').length;
+  const pendingKyc = (kyc.data || []).filter(k => String(k.status).toLowerCase() === 'pending').length;
+  return { pendingTx, pendingKyc, totalClients: clients.count || 0, totalTx: txs.length };
+}
+
+async function loadPendingTx() {
+  const { data, error } = await supabase.from('transactions')
+    .select('*, profiles:user_id(full_name, client_id, email)')
+    .ilike('status', 'pending')
+    .order('transaction_date', { ascending: false });
+
+  if (error) {
+    const res = await supabase.from('transactions').select('*').ilike('status', 'pending').order('transaction_date', { ascending: false });
+    return res.data || [];
+  }
+  return data || [];
+}
+
+async function loadAllTx() {
+  const { data, error } = await supabase.from('transactions')
+    .select('*, profiles:user_id(full_name, client_id, email)')
+    .order('transaction_date', { ascending: false })
+    .limit(100);
+
+  if (error) {
+    const res = await supabase.from('transactions').select('*').order('transaction_date', { ascending: false }).limit(100);
+    return res.data || [];
+  }
+  return data || [];
+}
+
+async function loadKyc() {
+  const { data } = await supabase.from('kyc_documents').select('*').order('submitted_at', { ascending: false });
+  return data || [];
+}
+
+async function loadClients() {
+  const { data } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
+  return data || [];
+}
+
+async function loadAccounts() {
+  const { data } = await supabase.from('trading_accounts').select('*').order('created_at', { ascending: false });
+  return data || [];
+}
+
+async function approveTx(row) {
+  const isDeposit = String(row.type || '').toLowerCase().includes('deposit');
+  const isWithdraw = String(row.type || '').toLowerCase().includes('withdraw');
+
+  // Update transaction status
+  const { error: e1 } = await supabase.from('transactions').update({ status: 'Approved' }).eq('id', row.id);
+  if (e1) { alert(e1.message); return; }
+
+  // Credit/debit wallet or trading account
+  if (row.trading_account_id && (isDeposit || isWithdraw)) {
+    const { data: acc } = await supabase.from('trading_accounts').select('*').eq('id', row.trading_account_id).maybeSingle();
+    if (acc) {
+      const amt = Number(row.amount || 0);
+      const delta = isDeposit ? Math.abs(amt) : -Math.abs(amt);
+      const newBal = Number(acc.balance || 0) + delta;
+      const newEq = Number(acc.equity || 0) + delta;
+      await supabase.from('trading_accounts').update({ balance: newBal, equity: newEq }).eq('id', acc.id);
     }
-
-    async function loadAdminData() {
-      loadDeposits();
-      loadWithdrawals();
-      loadTransfers();
+  } else if (isDeposit || isWithdraw) {
+    // fallback: credit user's wallet account
+    const { data: wallets } = await supabase.from('trading_accounts')
+      .select('*').eq('user_id', row.user_id).eq('is_wallet', true).limit(1);
+    const wallet = (wallets || [])[0];
+    if (wallet) {
+      const amt = Number(row.amount || 0);
+      const delta = isDeposit ? Math.abs(amt) : -Math.abs(amt);
+      await supabase.from('trading_accounts').update({
+        balance: Number(wallet.balance || 0) + delta,
+        equity: Number(wallet.equity || 0) + delta
+      }).eq('id', wallet.id);
     }
+  }
 
-    async function loadDeposits() {
-      const tbody = document.getElementById('depositsTable');
-      const { data, error } = await supabase
-        .from('deposits')
-        .select(`
-          *,
-          profiles (
-            full_name,
-            email,
-            client_id
-          )
-        `)
-        .eq('status', 'pending')
-        .order('created_at', { ascending: false });
+  const client = await getClientEmail(row.user_id);
+  const amt = Math.abs(Number(row.amount || 0));
+  const kind = isDeposit ? 'Deposit' : (isWithdraw ? 'Withdrawal' : 'Transaction');
+  const emailResult = await sendNotification({
+    to_email: client?.email,
+    to_name: client?.full_name,
+    subject: `${kind} Approved — Buraq Markets`,
+    heading: `Your ${kind.toLowerCase()} has been approved`,
+    message: `Your ${kind.toLowerCase()} request of $${amt.toFixed(2)} (Reference: ${row.reference || '—'}) has been approved and processed.`
+  });
+  if (!emailResult.ok) console.warn('Transaction status updated, but client notification failed.');
 
-      if (error) {
-        tbody.innerHTML = `<tr><td colspan="6">Error loading deposits: ${error.message}</td></tr>`;
-        return;
-      }
+  await render();
+}
 
-      if (!data || data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6">No pending deposits found.</td></tr>`;
-        return;
-      }
+async function rejectTx(row) {
+  const { error } = await supabase.from('transactions').update({ status: 'Rejected' }).eq('id', row.id);
+  if (error) { alert(error.message); return; }
 
-      tbody.innerHTML = data.map(item => {
-        const clientName = item.profiles?.full_name || 'N/A';
-        const clientEmail = item.profiles?.email || 'N/A';
-        const clientId = item.profiles?.client_id || item.user_id;
-        const proofUrl = item.proof_url ? `<a href="${item.proof_url}" target="_blank" style="color:#38ef7d;">View Proof</a>` : 'No Slip';
+  const isDeposit = String(row.type || '').toLowerCase().includes('deposit');
+  const isWithdraw = String(row.type || '').toLowerCase().includes('withdraw');
+  const kind = isDeposit ? 'Deposit' : (isWithdraw ? 'Withdrawal' : 'Transaction');
+  const amt = Math.abs(Number(row.amount || 0));
+  const client = await getClientEmail(row.user_id);
+  const emailResult = await sendNotification({
+    to_email: client?.email,
+    to_name: client?.full_name,
+    subject: `${kind} Rejected — Buraq Markets`,
+    heading: `Your ${kind.toLowerCase()} was not approved`,
+    message: `Your ${kind.toLowerCase()} request of $${amt.toFixed(2)} (Reference: ${row.reference || '—'}) was rejected. Please contact support if you have questions.`
+  });
+  if (!emailResult.ok) console.warn('Transaction status updated, but client notification failed.');
 
-        return `
-          <tr>
-            <td>
-              <div class="client-info">
-                <span class="client-name">${clientName}</span>
-                <span class="client-email">${clientEmail}</span>
-              </div>
-            </td>
-            <td>${clientId}</td>
-            <td><strong>$${item.amount}</strong></td>
-            <td>${proofUrl}</td>
-            <td>${new Date(item.created_at).toLocaleDateString()}</td>
-            <td>
-              <button onclick="approveDeposit('${item.id}', '${item.user_id}', ${item.amount})" class="btn btn-success btn-sm">Approve</button>
-              <button onclick="rejectDeposit('${item.id}')" class="btn btn-danger btn-sm">Reject</button>
-            </td>
-          </tr>
-        `;
-      }).join('');
-    }
+  await render();
+}
 
-    async function loadWithdrawals() {
-      const tbody = document.getElementById('withdrawalsTable');
-      const { data, error } = await supabase
-        .from('withdrawals')
-        .select(`
-          *,
-          profiles (
-            full_name,
-            email,
-            client_id
-          )
-        `)
-        .eq('status', 'pending')
-        .order('created_at', { ascending: false });
+async function setKyc(row, status) {
+  const { error: e1 } = await supabase.from('kyc_documents').update({
+    status,
+    reviewed_at: new Date().toISOString()
+  }).eq('id', row.id);
+  if (e1) { alert(e1.message); return; }
+  await supabase.from('profiles').update({ kyc_status: status }).eq('id', row.user_id);
 
-      if (error) {
-        tbody.innerHTML = `<tr><td colspan="6">Error loading withdrawals: ${error.message}</td></tr>`;
-        return;
-      }
+  const client = await getClientEmail(row.user_id);
+  const verified = status === 'Verified';
+  const emailResult = await sendNotification({
+    to_email: client?.email,
+    to_name: client?.full_name,
+    subject: `KYC ${status} — Buraq Markets`,
+    heading: verified ? 'Your identity has been verified' : 'Your KYC submission was not approved',
+    message: verified
+      ? 'Your identity verification is complete. You now have full access to deposits, withdrawals, and trading.'
+      : 'Your submitted documents could not be verified. Please review and resubmit your KYC documents, or contact support for help.'
+  });
+  if (!emailResult.ok) console.warn('KYC status updated, but client notification failed.');
 
-      if (!data || data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6">No pending withdrawals found.</td></tr>`;
-        return;
-      }
+  await render();
+}
 
-      tbody.innerHTML = data.map(item => {
-        const clientName = item.profiles?.full_name || 'N/A';
-        const clientEmail = item.profiles?.email || 'N/A';
-        const clientId = item.profiles?.client_id || item.user_id;
+async function updateBalance(accountId) {
+  openModal('Update Balance', `
+    <div class="field"><label>New Balance (USD)</label><input type="number" step="0.01" id="newBal" placeholder="0.00"></div>
+    <div class="field"><label>New Equity (USD)</label><input type="number" step="0.01" id="newEq" placeholder="Same as balance if empty"></div>
+  `, async () => {
+    const bal = Number(document.getElementById('newBal').value);
+    let eq = document.getElementById('newEq').value;
+    eq = eq === '' ? bal : Number(eq);
+    if (isNaN(bal)) { alert('Invalid balance'); return; }
+    const { error } = await supabase.from('trading_accounts').update({ balance: bal, equity: eq }).eq('id', accountId);
+    if (error) alert(error.message);
+    else await render();
+  });
+}
 
-        return `
-          <tr>
-            <td>
-              <div class="client-info">
-                <span class="client-name">${clientName}</span>
-                <span class="client-email">${clientEmail}</span>
-              </div>
-            </td>
-            <td>${clientId}</td>
-            <td><strong>$${item.amount}</strong></td>
-            <td>${item.details || 'N/A'}</td>
-            <td>${new Date(item.created_at).toLocaleDateString()}</td>
-            <td>
-              <button onclick="approveWithdrawal('${item.id}')" class="btn btn-success btn-sm">Approve</button>
-              <button onclick="rejectWithdrawal('${item.id}')" class="btn btn-danger btn-sm">Reject</button>
-            </td>
-          </tr>
-        `;
-      }).join('');
-    }
+function txRows(list, showActions) {
+  if (!list.length) return '<div class="empty">No records found.</div>';
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>Client Name</th><th>User ID</th><th>Type</th><th>Reference</th><th>Amount</th><th>Slip</th><th>Status</th>${showActions?'<th>Actions</th>':''}</tr></thead>
+    <tbody>${list.map(r => {
+      const st = String(r.status||'').toLowerCase();
+      const cls = st==='approved'||st==='completed'?'approved':(st==='rejected'||st==='cancelled'?'rejected':'pending');
+      const amt = Number(r.amount||0);
+      const fullName = r.profiles?.full_name ? esc(r.profiles.full_name) : '—';
+      return `<tr>
+        <td>${new Date(r.transaction_date).toLocaleString()}</td>
+        <td><b>${fullName}</b></td>
+        <td style="font-size:10px;max-width:120px;overflow:hidden;text-overflow:ellipsis">${esc(r.user_id)}</td>
+        <td>${esc(r.type)}</td>
+        <td>${esc(r.reference)}</td>
+        <td class="${amt>=0?'money-pos':'money-neg'}">${amt>=0?'+':''}${money(amt)}</td>
+        <td>${r.slip_path ? `<button class="btn btn-ghost" data-view-slip="${esc(r.slip_path)}">View</button>` : '—'}</td>
+        <td><span class="status ${cls}">${esc(r.status)}</span></td>
+        ${showActions?`<td class="actions">
+          <button class="btn btn-green" data-approve="${r.id}">Approve</button>
+          <button class="btn btn-red" data-reject="${r.id}">Reject</button>
+        </td>`:''}
+      </tr>`;
+    }).join('')}</tbody></table></div>`;
+}
 
-    async function loadTransfers() {
-      const tbody = document.getElementById('transfersTable');
-      const { data, error } = await supabase
-        .from('transfers')
-        .select(`
-          *,
-          profiles (
-            full_name,
-            email
-          )
-        `)
-        .order('created_at', { ascending: false })
-        .limit(10);
+async function render() {
+  const admin = await ensureAdmin();
+  if (!admin) return;
 
-      if (error) {
-        tbody.innerHTML = `<tr><td colspan="5">Error loading transfers: ${error.message}</td></tr>`;
-        return;
-      }
+  const stats = await loadStats();
+  let body = '';
 
-      if (!data || data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5">No recent transfers found.</td></tr>`;
-        return;
-      }
+  if (currentTab === 'pending') {
+    const list = await loadPendingTx();
+    body = txRows(list, true);
+  } else if (currentTab === 'transactions') {
+    const list = await loadAllTx();
+    body = txRows(list, false);
+  } else if (currentTab === 'kyc') {
+    const list = await loadKyc();
+    body = list.length ? `<div class="table-wrap"><table>
+      <thead><tr><th>Date</th><th>User</th><th>ID Type</th><th>ID Number</th><th>Documents</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>${list.map(r => {
+        const st = String(r.status||'').toLowerCase();
+        const cls = st==='verified'?'verified':(st==='rejected'?'rejected':'pending');
+        return `<tr>
+          <td>${new Date(r.submitted_at).toLocaleString()}</td>
+          <td style="font-size:10px">${esc(r.user_id)}</td>
+          <td>${esc(r.id_type)}</td>
+          <td>${esc(r.id_number)}</td>
+          <td class="actions">
+            <button class="btn btn-ghost" data-view-kyc="${esc(r.id_document_path||'')}">ID Doc</button>
+            <button class="btn btn-ghost" data-view-kyc="${esc(r.selfie_path||'')}">Selfie</button>
+          </td>
+          <td><span class="status ${cls}">${esc(r.status)}</span></td>
+          <td class="actions">
+            <button class="btn btn-green" data-kyc-ok="${r.id}">Verify</button>
+            <button class="btn btn-red" data-kyc-no="${r.id}">Reject</button>
+          </td>
+        </tr>`;
+      }).join('')}</tbody></table></div>` : '<div class="empty">No KYC submissions.</div>';
+  } else if (currentTab === 'clients') {
+    const list = await loadClients();
+    body = list.length ? `<div class="table-wrap"><table>
+      <thead><tr><th>Name</th><th>Client ID</th><th>Phone</th><th>Country</th><th>KYC</th><th>Role</th><th>Joined</th></tr></thead>
+      <tbody>${list.map(r => `<tr>
+        <td>${esc((r.full_name||'—').toUpperCase())}</td>
+        <td>${esc(r.client_id||'—')}</td>
+        <td>${esc(r.phone||'—')}</td>
+        <td>${esc(r.country||'—')}</td>
+        <td><span class="status ${String(r.kyc_status).toLowerCase()==='verified'?'verified':'pending'}">${esc(r.kyc_status)}</span></td>
+        <td>${esc(r.role||'client')}</td>
+        <td>${r.created_at ? new Date(r.created_at).toLocaleDateString() : '—'}</td>
+      </tr>`).join('')}</tbody></table></div>` : '<div class="empty">No clients.</div>';
+  } else if (currentTab === 'accounts') {
+    const list = await loadAccounts();
+    body = list.length ? `<div class="table-wrap"><table>
+      <thead><tr><th>Account #</th><th>Name</th><th>User</th><th>Balance</th><th>Equity</th><th>Platform</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody>${list.map(r => `<tr>
+        <td>${esc(r.account_number)}</td>
+        <td>${esc(r.account_name)}${r.is_wallet?' (Wallet)':''}</td>
+        <td style="font-size:10px">${esc(r.user_id)}</td>
+        <td>${money(r.balance)}</td>
+        <td>${money(r.equity)}</td>
+        <td>${esc(r.platform)}</td>
+        <td>${esc(r.status)}</td>
+        <td><button class="btn btn-gold" data-bal="${r.id}">Set Balance</button></td>
+      </tr>`).join('')}</tbody></table></div>` : '<div class="empty">No accounts.</div>';
+  }
 
-      tbody.innerHTML = data.map(item => {
-        const clientName = item.profiles?.full_name || 'N/A';
-        const clientEmail = item.profiles?.email || 'N/A';
+  app.innerHTML = `
+    <div class="kpis">
+      <div class="kpi"><span>Pending Transactions</span><b>${stats.pendingTx}</b></div>
+      <div class="kpi"><span>Pending KYC</span><b>${stats.pendingKyc}</b></div>
+      <div class="kpi"><span>Total Clients</span><b>${stats.totalClients}</b></div>
+      <div class="kpi"><span>Total Transactions</span><b>${stats.totalTx}</b></div>
+    </div>
+    <div class="tabs">
+      <button class="tab ${currentTab==='pending'?'active':''}" data-tab="pending">Pending Requests</button>
+      <button class="tab ${currentTab==='transactions'?'active':''}" data-tab="transactions">All Transactions</button>
+      <button class="tab ${currentTab==='kyc'?'active':''}" data-tab="kyc">KYC Review</button>
+      <button class="tab ${currentTab==='clients'?'active':''}" data-tab="clients">Clients</button>
+      <button class="tab ${currentTab==='accounts'?'active':''}" data-tab="accounts">Accounts / Balance</button>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title">${currentTab.toUpperCase()}</div>
+        <button class="btn btn-ghost" id="refreshBtn">Refresh</button>
+      </div>
+      ${body}
+    </div>
+  `;
 
-        return `
-          <tr>
-            <td>
-              <div class="client-info">
-                <span class="client-name">${clientName}</span>
-                <span class="client-email">${clientEmail}</span>
-              </div>
-            </td>
-            <td>${item.from_account}</td>
-            <td>${item.to_account}</td>
-            <td><strong>$${item.amount}</strong></td>
-            <td>${new Date(item.created_at).toLocaleDateString()}</td>
-          </tr>
-        `;
-      }).join('');
-    }
+  // bind tabs
+  app.querySelectorAll('[data-tab]').forEach(btn => btn.onclick = () => { currentTab = btn.dataset.tab; render(); });
+  document.getElementById('refreshBtn').onclick = () => render();
 
-    async function approveDeposit(id, userId, amount) {
-      if (!confirm('Approve this deposit request?')) return;
-      
-      const { error } = await supabase.from('deposits').update({ status: 'approved' }).eq('id', id);
-      if (error) {
-        alert('Error approving deposit: ' + error.message);
-        return;
-      }
+  // bind approve/reject
+  const pendingList = currentTab === 'pending' ? await loadPendingTx() : [];
+  app.querySelectorAll('[data-approve]').forEach(btn => {
+    btn.onclick = () => {
+      const row = pendingList.find(x => String(x.id) === btn.dataset.approve);
+      if (row) approveTx(row);
+    };
+  });
+  app.querySelectorAll('[data-reject]').forEach(btn => {
+    btn.onclick = () => {
+      const row = pendingList.find(x => String(x.id) === btn.dataset.reject);
+      if (row) rejectTx(row);
+    };
+  });
 
-      alert('Deposit approved successfully!');
-      loadAdminData();
-    }
+  // KYC
+  const kycList = currentTab === 'kyc' ? await loadKyc() : [];
+  app.querySelectorAll('[data-kyc-ok]').forEach(btn => {
+    btn.onclick = () => {
+      const row = kycList.find(x => String(x.id) === btn.dataset.kycOk);
+      if (row) setKyc(row, 'Verified');
+    };
+  });
+  app.querySelectorAll('[data-kyc-no]').forEach(btn => {
+    btn.onclick = () => {
+      const row = kycList.find(x => String(x.id) === btn.dataset.kycNo);
+      if (row) setKyc(row, 'Rejected');
+    };
+  });
 
-    async function rejectDeposit(id) {
-      if (!confirm('Reject this deposit request?')) return;
-      const { error } = await supabase.from('deposits').update({ status: 'rejected' }).eq('id', id);
-      if (error) alert('Error rejecting: ' + error.message);
-      else loadAdminData();
-    }
+  // balance
+  app.querySelectorAll('[data-bal]').forEach(btn => {
+    btn.onclick = () => updateBalance(btn.dataset.bal);
+  });
 
-    async function approveWithdrawal(id) {
-      if (!confirm('Approve this withdrawal request?')) return;
-      const { error } = await supabase.from('withdrawals').update({ status: 'approved' }).eq('id', id);
-      if (error) alert('Error approving: ' + error.message);
-      else loadAdminData();
-    }
+  // view deposit slip
+  app.querySelectorAll('[data-view-slip]').forEach(btn => {
+    btn.onclick = () => viewFile('deposit-proofs', btn.dataset.viewSlip, btn);
+  });
 
-    async function rejectWithdrawal(id) {
-      if (!confirm('Reject this withdrawal request?')) return;
-      const { error } = await supabase.from('withdrawals').update({ status: 'rejected' }).eq('id', id);
-      if (error) alert('Error rejecting: ' + error.message);
-      else loadAdminData();
-    }
+  // view kyc documents (id doc / selfie)
+  app.querySelectorAll('[data-view-kyc]').forEach(btn => {
+    btn.onclick = () => viewFile('kyc-documents', btn.dataset.viewKyc, btn);
+  });
+}
 
-    async function logout() {
-      await supabase.auth.signOut();
-      window.location.href = 'client-login.html';
-    }
+document.getElementById('logoutBtn').onclick = async () => {
+  await supabase.auth.signOut();
+  location.href = 'client-login.html';
+};
 
-    window.onload = checkAdminAuth;
-  </script>
+render();
+</script>
 </body>
 </html>
