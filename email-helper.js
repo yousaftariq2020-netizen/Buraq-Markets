@@ -1,10 +1,9 @@
-// Complete Fixed EmailJS Helper (No CDN Import Crash)
+// Complete Fixed EmailJS Helper
 
 const EMAILJS_SERVICE_ID = 'service_9w4z5q';
 const EMAILJS_TEMPLATE_ID = 'template_ly4i099';
 const EMAILJS_PUBLIC_KEY = 'srCNMfHCpU7OtJ4hJ';
 
-// Dynamically load EmailJS script safely
 function loadEmailSDK() {
   return new Promise((resolve) => {
     if (window.emailjs) return resolve(true);
@@ -24,10 +23,15 @@ export async function sendNotification(recipientEmail, recipientName, actionType
 }
 
 export async function triggerEmail(recipientEmail, recipientName, actionType, txDetails = {}) {
-  let safeEmail = typeof recipientEmail === 'string' ? recipientEmail.trim() : '';
+  let safeEmail = '';
+  if (typeof recipientEmail === 'string') {
+    safeEmail = recipientEmail.trim();
+  } else if (recipientEmail && typeof recipientEmail === 'object') {
+    safeEmail = String(recipientEmail.email || recipientEmail.to || '').trim();
+  }
 
   if (!safeEmail || !safeEmail.includes('@')) {
-    console.error('Email Trigger Failed: Invalid client email.');
+    console.error('Email Trigger Failed: Invalid client email.', recipientEmail);
     return false;
   }
 
@@ -40,8 +44,11 @@ export async function triggerEmail(recipientEmail, recipientName, actionType, tx
 
   const isApproved = String(actionType).toLowerCase() === 'approve';
 
+  // Parameters mapped to EmailJS standard template expectations
   const templateParams = {
     to_email: safeEmail,
+    email: safeEmail,
+    recipient_email: safeEmail,
     to_name: recipientName || 'Valued Trader',
     status_title: isApproved ? 'APPROVED' : 'DECLINED',
     email_heading: isApproved ? 'Transaction Successful' : 'Transaction Declined',
