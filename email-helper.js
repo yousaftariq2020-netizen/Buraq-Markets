@@ -1,6 +1,10 @@
-// Email Helper with full functionality and Admin Panel Trigger
+// Complete email-helper.js with all required exports and Admin Panel Email Trigger
 
-async function triggerEmail(recipientEmail, recipientName, actionType, customMessage = '') {
+export async function sendNotification(recipientEmail, recipientName, actionType, customMessage = '') {
+  return await triggerEmail(recipientEmail, recipientName, actionType, customMessage);
+}
+
+export async function triggerEmail(recipientEmail, recipientName, actionType, customMessage = '') {
   if (!recipientEmail) {
     console.error('Email trigger failed: No recipient email provided.');
     return;
@@ -36,15 +40,19 @@ async function triggerEmail(recipientEmail, recipientName, actionType, customMes
     if (response.ok && result.ok) {
       console.log('Email sent successfully!');
       alert('Notification email sent to user!');
+      return true;
     } else {
       console.error('Email API Error:', result);
       alert('Email failed: ' + (result.error || 'Unknown error'));
+      return false;
     }
   } catch (error) {
     console.error('Network Error sending email:', error);
     alert('Failed to connect to email service.');
+    return false;
   }
 }
 
-// Window globally expose for admin-dashboard.html
+// Global backup
+window.sendNotification = sendNotification;
 window.triggerEmail = triggerEmail;
