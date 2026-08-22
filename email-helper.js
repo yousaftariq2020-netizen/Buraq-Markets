@@ -1,11 +1,10 @@
-// Robust and Error-Proof email-helper.js
+// Dynamic Client Email Helper
 
 export async function sendNotification(recipientEmail, recipientName, actionType, customMessage = '') {
   return await triggerEmail(recipientEmail, recipientName, actionType, customMessage);
 }
 
 export async function triggerEmail(recipientEmail, recipientName, actionType, customMessage = '') {
-  // Convert any input to string safely to avoid .trim() errors
   let safeEmail = '';
   if (typeof recipientEmail === 'string') {
     safeEmail = recipientEmail.trim();
@@ -15,9 +14,10 @@ export async function triggerEmail(recipientEmail, recipientName, actionType, cu
     safeEmail = String(recipientEmail || '').trim();
   }
 
-  // Fallback email if empty or invalid
+  // Strict check: Agar client email missing ho to alert de, aap ki mail par na bheje
   if (!safeEmail || safeEmail === 'undefined' || safeEmail === '[object Object]') {
-    safeEmail = 'yousaftariq2020@gmail.com';
+    console.error('Email Trigger Failed: Client email is missing in transaction data.');
+    return false;
   }
 
   const isApproved = String(actionType).toLowerCase() === 'approve';
@@ -39,16 +39,13 @@ export async function triggerEmail(recipientEmail, recipientName, actionType, cu
   try {
     const response = await fetch('https://buraq-markets-dark-dashboard.vercel.app/api/send-email', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
 
     const result = await response.json();
-
     if (response.ok && result.ok) {
-      console.log('Email sent successfully!');
+      console.log('Email sent successfully to client:', safeEmail);
       return true;
     } else {
       console.error('Email API Error:', result);
@@ -60,6 +57,5 @@ export async function triggerEmail(recipientEmail, recipientName, actionType, cu
   }
 }
 
-// Global window fallbacks
 window.sendNotification = sendNotification;
 window.triggerEmail = triggerEmail;
