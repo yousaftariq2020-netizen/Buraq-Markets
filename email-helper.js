@@ -1,13 +1,23 @@
-// Complete Client Email Helper with Configured EmailJS Credentials
+// Complete Fixed EmailJS Helper (No CDN Import Crash)
 
-import emailjs from 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
-
-// Configured EmailJS IDs
 const EMAILJS_SERVICE_ID = 'service_9w4z5q';
 const EMAILJS_TEMPLATE_ID = 'template_ly4i099';
 const EMAILJS_PUBLIC_KEY = 'srCNMfHCpU7OtJ4hJ';
 
-emailjs.init(EMAILJS_PUBLIC_KEY);
+// Dynamically load EmailJS script safely
+function loadEmailSDK() {
+  return new Promise((resolve) => {
+    if (window.emailjs) return resolve(true);
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
+    script.onload = () => {
+      window.emailjs.init(EMAILJS_PUBLIC_KEY);
+      resolve(true);
+    };
+    script.onerror = () => resolve(false);
+    document.head.appendChild(script);
+  });
+}
 
 export async function sendNotification(recipientEmail, recipientName, actionType, txDetails = {}) {
   return await triggerEmail(recipientEmail, recipientName, actionType, txDetails);
@@ -18,6 +28,13 @@ export async function triggerEmail(recipientEmail, recipientName, actionType, tx
 
   if (!safeEmail || !safeEmail.includes('@')) {
     console.error('Email Trigger Failed: Invalid client email.');
+    return false;
+  }
+
+  await loadEmailSDK();
+
+  if (!window.emailjs) {
+    console.error('EmailJS SDK Failed to Load.');
     return false;
   }
 
@@ -37,7 +54,7 @@ export async function triggerEmail(recipientEmail, recipientName, actionType, tx
   };
 
   try {
-    const response = await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+    const response = await window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
     console.log('EmailJS Success:', response.status, response.text);
     return true;
   } catch (error) {
