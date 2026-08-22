@@ -127,29 +127,25 @@
     }
 
     async function fetchData() {
-      let query = supabaseClient
+      const { data: txs, error } = await supabaseClient
         .from('transactions')
         .select('*');
 
-      if (currentTab === 'pending') {
-        query = query.eq('status', 'PENDING');
-      }
-
-      const { data: txs, error } = await query;
-      
       if (error) {
         console.error('Fetch Error:', error);
       }
 
-      const { count: pendingCount } = await supabaseClient.from('transactions').select('*', { count: 'exact', head: true }).eq('status', 'PENDING');
-      const { count: totalCount } = await supabaseClient.from('transactions').select('*', { count: 'exact', head: true });
       const { count: clientCount } = await supabaseClient.from('profiles').select('*', { count: 'exact', head: true });
-
-      document.getElementById('statPendingCount').innerText = pendingCount || 0;
-      document.getElementById('statTotalCount').innerText = totalCount || 0;
       document.getElementById('statClientCount').innerText = clientCount || 0;
 
-      renderTable(txs || []);
+      const allTxs = txs || [];
+      const pendingTxs = allTxs.filter(t => (t.status || '').toLowerCase() === 'pending');
+
+      document.getElementById('statPendingCount').innerText = pendingTxs.length;
+      document.getElementById('statTotalCount').innerText = allTxs.length;
+
+      const displayTxs = currentTab === 'pending' ? pendingTxs : allTxs;
+      renderTable(displayTxs);
     }
 
     function renderTable(txs) {
@@ -163,6 +159,7 @@
         const clientEmail = tx.user_email || tx.email || tx.client_email || 'N/A';
         const clientName = tx.client_name || tx.full_name || 'Valued Trader';
         const date = tx.created_at ? new Date(tx.created_at).toLocaleString() : '-';
+        const statusClean = (tx.status || 'pending').toLowerCase();
         
         return `
           <tr>
@@ -171,9 +168,9 @@
             <td>${tx.type || 'Deposit'}</td>
             <td>${tx.reference || '-'}</td>
             <td style="color: var(--accent-gold); font-weight: bold;">$${tx.amount}</td>
-            <td><span class="badge badge-${(tx.status || 'pending').toLowerCase()}">${tx.status}</span></td>
+            <td><span class="badge badge-${statusClean}">${tx.status}</span></td>
             <td>
-              ${tx.status === 'PENDING' ? `
+              ${statusClean === 'pending' ? `
                 <button class="btn btn-approve" onclick="processTx('${tx.id}', '${clientEmail}', '${clientName}', 'approve')">Approve</button>
                 <button class="btn btn-reject" onclick="processTx('${tx.id}', '${clientEmail}', '${clientName}', 'reject')">Reject</button>
               ` : 'Done'}
