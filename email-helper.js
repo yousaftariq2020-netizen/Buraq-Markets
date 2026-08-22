@@ -1,6 +1,11 @@
 // Buraq Markets — server-side email notification helper
 // Browser code calls the Vercel /api/send-email endpoint.
 // Gmail credentials are NEVER exposed to the browser.
+//
+// The endpoint requires a logged-in Supabase session (see api/send-email.js),
+// so every call here must attach the current user's access token.
+
+import { supabase } from './supabase-config.js';
 
 export async function sendNotification({
   to_email,
@@ -17,10 +22,22 @@ export async function sendNotification({
     return { ok: false, error };
   }
 
+  const { data: sessionData } = await supabase.auth.getSession();
+  const accessToken = sessionData?.session?.access_token;
+
+  if (!accessToken) {
+    const error = new Error('No active session — cannot send notification email.');
+    console.error('[Buraq Email] Skipped:', error.message);
+    return { ok: false, error };
+  }
+
   try {
     const response = await fetch('/api/send-email', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`
+      },
       body: JSON.stringify({
         to_email: recipient,
         to_name: String(to_name || 'Client').trim() || 'Client',
