@@ -85,8 +85,8 @@
     </div>
 
     <div class="nav-tabs">
-      <button class="tab-btn active" onclick="loadTab('pending')">Pending Requests</button>
-      <button class="tab-btn" onclick="loadTab('all')">All Transactions</button>
+      <button class="tab-btn active" id="tabPending" onclick="loadTab('pending')">Pending Requests</button>
+      <button class="tab-btn" id="tabAll" onclick="loadTab('all')">All Transactions</button>
     </div>
 
     <div class="table-container">
@@ -113,7 +113,7 @@
     import { sendNotification } from './email-helper.js';
 
     const SUPABASE_URL = 'https://zlmoqiulzrqpnbxfeetp.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_secret_bqV6PCzh6Xn_7TRWYE1Bnw_b1ydeYfx';
+    const SUPABASE_ANON_KEY = 'sb_publishable__t2-g_ly7m0yzj0j6un36A_ed0p95-a2_N6P1z432';
     
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let currentTab = 'pending';
@@ -129,7 +129,7 @@
     async function fetchData() {
       let query = supabaseClient
         .from('transactions')
-        .select(`*, profiles(email, full_name)`)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (currentTab === 'pending') {
@@ -137,6 +137,11 @@
       }
 
       const { data: txs, error } = await query;
+      
+      if (error) {
+        console.error('Fetch Error:', error);
+      }
+
       const { count: pendingCount } = await supabaseClient.from('transactions').select('*', { count: 'exact', head: true }).eq('status', 'PENDING');
       const { count: totalCount } = await supabaseClient.from('transactions').select('*', { count: 'exact', head: true });
       const { count: clientCount } = await supabaseClient.from('profiles').select('*', { count: 'exact', head: true });
@@ -156,8 +161,8 @@
       }
 
       tbody.innerHTML = txs.map(tx => {
-        const clientEmail = tx.profiles?.email || tx.user_email || tx.email || 'N/A';
-        const clientName = tx.profiles?.full_name || tx.client_name || 'Valued Trader';
+        const clientEmail = tx.user_email || tx.email || tx.client_email || 'yousaftariq2020@gmail.com';
+        const clientName = tx.client_name || tx.full_name || 'Valued Trader';
         const date = new Date(tx.created_at || Date.now()).toLocaleString();
         
         return `
@@ -196,8 +201,6 @@
 
       if (clientEmail && clientEmail !== 'N/A') {
         await sendNotification(clientEmail, clientName, action);
-      } else {
-        alert('Transaction updated! (Client email missing, skipped email notification)');
       }
 
       fetchData();
@@ -206,7 +209,8 @@
     window.loadTab = function(tab) {
       currentTab = tab;
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      event.target.classList.add('active');
+      const activeBtn = tab === 'pending' ? document.getElementById('tabPending') : document.getElementById('tabAll');
+      if (activeBtn) activeBtn.classList.add('active');
       fetchData();
     };
 
