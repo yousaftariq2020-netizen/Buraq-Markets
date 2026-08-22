@@ -131,7 +131,6 @@ module.exports = async function handler(req, res) {
     </body>
     </html>
   `;
-
   try {
     await transporter.sendMail({
       from: `"Buraq Markets" <${gmailUser}>`,
@@ -143,6 +142,6 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ ok: true, message: 'Email sent successfully.' });
   } catch (err) {
     console.error('Nodemailer Error:', err);
-    return res.status(500).json({ ok: false, error: err.message || 'Failed to send email.' });
+    // Exact error response for browser console debugging:
+    return res.status(500).json({ ok: false, error: err.message || err.toString() });
   }
-};
