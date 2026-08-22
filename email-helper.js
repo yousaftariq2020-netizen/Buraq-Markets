@@ -1,4 +1,4 @@
-// Complete Professional Email Helper for Buraq Markets
+// Complete Email Helper & Utility Script
 
 async function sendEmail({ to, subject, heading, message, name }) {
   try {
@@ -24,7 +24,7 @@ async function sendEmail({ to, subject, heading, message, name }) {
   }
 }
 
-// Global Helper Functions for Admin Actions
+// Global Email Functions for Admin Actions
 window.sendDepositApprovedEmail = async function(clientEmail, clientName, amount, refNo) {
   return await sendEmail({
     to: clientEmail,
@@ -45,3 +45,6 @@ window.sendDepositRejectedEmail = async function(clientEmail, clientName, amount
     message: `We regret to inform you that your deposit request of <strong>$${amount} USD</strong> (Reference: <strong>${refNo}</strong>) could not be processed at this time following review by our compliance team.${customReason}`
   });
 };
+
+// Generic Fallback sendEmail helper (if called elsewhere)
+window.sendEmail = sendEmail;
