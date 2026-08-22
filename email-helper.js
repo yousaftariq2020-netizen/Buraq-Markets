@@ -1,87 +1,42 @@
-// Master Helper File for Email & Supabase Utility Support
+// Complete Working Email Helper File
 
-async function sendEmail({ to, subject, heading, message, name }) {
+window.sendEmail = async function({ to, subject, heading, message, name }) {
   try {
     const response = await fetch('/api/send-email', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        to,
-        subject,
-        heading,
-        message,
-        name: name || 'Valued Trader',
-      }),
+        to: to,
+        subject: subject,
+        heading: heading,
+        message: message,
+        name: name || 'Valued Trader'
+      })
     });
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error triggering email helper:', error);
-    return { ok: false, error: error.message };
+    return await response.json();
+  } catch (err) {
+    console.error('Email Trigger Error:', err);
+    return { ok: false, error: err.message };
   }
-}
+};
 
-// Global Email Helpers
 window.sendDepositApprovedEmail = async function(clientEmail, clientName, amount, refNo) {
-  return await sendEmail({
+  return await window.sendEmail({
     to: clientEmail,
     name: clientName,
     subject: 'Deposit Request Approved — Buraq Markets',
     heading: 'Deposit Successfully Approved',
-    message: `We are pleased to inform you that your deposit request of <strong>$${amount} USD</strong> (Reference: <strong>${refNo}</strong>) has been approved and credited to your trading account balance.`
+    message: `Your deposit request of $${amount} USD (Reference: ${refNo}) has been approved and credited to your trading account balance.`
   });
 };
 
 window.sendDepositRejectedEmail = async function(clientEmail, clientName, amount, refNo, reason) {
   const customReason = reason ? `<br><br><strong>Reason:</strong> ${reason}` : '';
-  return await sendEmail({
+  return await window.sendEmail({
     to: clientEmail,
     name: clientName,
     subject: 'Deposit Request Unsuccessful — Buraq Markets',
     heading: 'Deposit Request Unsuccessful',
-    message: `We regret to inform you that your deposit request of <strong>$${amount} USD</strong> (Reference: <strong>${refNo}</strong>) could not be processed at this time following review by our compliance team.${customReason}`
-  });
-};
-
-window.sendEmail = sendEmail;
-
-// Safe Wallet / User Session Fallback (Prevents Wallet Loading Freeze)
-window.getLoggedInUser = window.getLoggedInUser || function() {
-  try {
-    const userStr = localStorage.getItem('buraq_user') || localStorage.getItem('user');
-    return userStr ? JSON.parse(userStr) : null;
-  } catch (e) {
-    return null;
-  }
-};
-// Add ONLY at the end of email-helper.js
-window.sendDepositApprovedEmail = async function(clientEmail, clientName, amount, refNo) {
-  return await fetch('/api/send-email', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      to: clientEmail,
-      name: clientName,
-      subject: 'Deposit Request Approved — Buraq Markets',
-      heading: 'Deposit Successfully Approved',
-      message: `Your deposit request of $${amount} USD (Ref: ${refNo}) has been approved and credited to your balance.`
-    })
-  });
-};
-
-window.sendDepositRejectedEmail = async function(clientEmail, clientName, amount, refNo, reason) {
-  return await fetch('/api/send-email', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      to: clientEmail,
-      name: clientName,
-      subject: 'Deposit Request Unsuccessful — Buraq Markets',
-      heading: 'Deposit Request Unsuccessful',
-      message: `Your deposit request of $${amount} USD (Ref: ${refNo}) was rejected.`
-    })
+    message: `Your deposit request of $${amount} USD (Reference: ${refNo}) could not be processed at this time.${customReason}`
   });
 };
