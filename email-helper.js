@@ -1,15 +1,15 @@
-// Complete Working Email Helper File
+// Email Helper with Export Support for Buraq Markets
 
-window.sendEmail = async function({ to, subject, heading, message, name }) {
+export async function sendEmail({ to, subject, heading, message, name }) {
   try {
     const response = await fetch('/api/send-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        to: to,
-        subject: subject,
-        heading: heading,
-        message: message,
+        to,
+        subject,
+        heading,
+        message,
         name: name || 'Valued Trader'
       })
     });
@@ -18,25 +18,44 @@ window.sendEmail = async function({ to, subject, heading, message, name }) {
     console.error('Email Trigger Error:', err);
     return { ok: false, error: err.message };
   }
-};
+}
 
-window.sendDepositApprovedEmail = async function(clientEmail, clientName, amount, refNo) {
-  return await window.sendEmail({
+// Fixed: Required by deposit.html & admin panel
+export async function sendNotification(data) {
+  return await sendEmail({
+    to: data.to || data.email,
+    subject: data.subject || 'Notification — Buraq Markets',
+    heading: data.heading || data.title || 'Account Notice',
+    message: data.message || data.body || '',
+    name: data.name || 'Valued Trader'
+  });
+}
+
+export async function sendDepositApprovedEmail(clientEmail, clientName, amount, refNo) {
+  return await sendEmail({
     to: clientEmail,
     name: clientName,
     subject: 'Deposit Request Approved — Buraq Markets',
     heading: 'Deposit Successfully Approved',
     message: `Your deposit request of $${amount} USD (Reference: ${refNo}) has been approved and credited to your trading account balance.`
   });
-};
+}
 
-window.sendDepositRejectedEmail = async function(clientEmail, clientName, amount, refNo, reason) {
+export async function sendDepositRejectedEmail(clientEmail, clientName, amount, refNo, reason) {
   const customReason = reason ? `<br><br><strong>Reason:</strong> ${reason}` : '';
-  return await window.sendEmail({
+  return await sendEmail({
     to: clientEmail,
     name: clientName,
     subject: 'Deposit Request Unsuccessful — Buraq Markets',
     heading: 'Deposit Request Unsuccessful',
     message: `Your deposit request of $${amount} USD (Reference: ${refNo}) could not be processed at this time.${customReason}`
   });
-};
+}
+
+// Global window fallbacks
+if (typeof window !== 'undefined') {
+  window.sendEmail = sendEmail;
+  window.sendNotification = sendNotification;
+  window.sendDepositApprovedEmail = sendDepositApprovedEmail;
+  window.sendDepositRejectedEmail = sendDepositRejectedEmail;
+}
