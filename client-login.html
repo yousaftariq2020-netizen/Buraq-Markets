@@ -71,9 +71,22 @@ form.addEventListener('submit', async (e) => {
     return;
   }
 
-  // This is the CLIENT login page. Never route users to the admin panel
-  // from here. Admin access is protected separately by admin-dashboard.html.
-  location.href = 'client-dashboard.html';
+  // Figure out where to send this user. If the URL was opened with
+  // ?redirect=admin-dashboard.html (e.g. someone hit admin-dashboard.html
+  // directly without a session and got bounced here), and this account is
+  // actually an admin, honor it. Otherwise admins land on admin-dashboard.html
+  // automatically and everyone else lands on client-dashboard.html.
+  const params = new URLSearchParams(location.search);
+  const redirectParam = params.get('redirect');
+  const userId = signInData?.user?.id;
+  let destination = 'client-dashboard.html';
+  if (userId) {
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', userId).maybeSingle();
+    if (profile?.role === 'admin') {
+      destination = (redirectParam === 'admin-dashboard.html') ? redirectParam : 'admin-dashboard.html';
+    }
+  }
+  location.href = destination;
 });
 </script>
 </body>

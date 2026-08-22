@@ -124,9 +124,13 @@ function openModal(title, bodyHtml, onConfirm) {
 
 async function ensureAdmin() {
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) { location.href = 'client-login.html'; return null; }
+  if (!user) { location.href = 'client-login.html?redirect=admin-dashboard.html'; return null; }
   const { data: profile, error } = await supabase.from('profiles').select('*').eq('id', user.id).maybeSingle();
-  if (error || !profile || profile.role !== 'admin') {
+  if (error) {
+    app.innerHTML = `<div class="error"><b>Setup issue</b><br>Could not load your profile (${esc(error.message)}). If this says "infinite recursion", re-run the latest supabase-admin-setup.sql.</div>`;
+    return null;
+  }
+  if (!profile || profile.role !== 'admin') {
     app.innerHTML = `<div class="error"><b>Access Denied</b><br>This account is not an admin. Run supabase-admin-setup.sql and set your profile role to 'admin'.</div>
       <p style="margin-top:16px"><a href="client-dashboard.html" style="color:var(--gold)">← Go to Client Dashboard</a></p>`;
     return null;
