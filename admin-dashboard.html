@@ -126,11 +126,9 @@
       fetchData();
     }
 
-    async function fetchData() {
-      let query = supabaseClient
-        .from('transactions')
-        .select('*')
-        .order('created_at', { ascending: false });
+   let query = supabaseClient
+  .from('transactions')
+  .select('*');
 
       if (currentTab === 'pending') {
         query = query.eq('status', 'PENDING');
