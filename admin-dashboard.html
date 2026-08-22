@@ -128,7 +128,6 @@
     }
 
     async function fetchData() {
-      // Fetch Profiles to map UUID to real email
       const { data: profiles } = await supabaseClient.from('profiles').select('id, email, full_name');
       if (profiles) {
         profilesMap = {};
@@ -164,7 +163,6 @@
         let clientEmail = 'N/A';
         let clientName = tx.client_name || tx.full_name || 'Valued Trader';
 
-        // Check if rawUser is UUID or real email
         if (rawUser.includes('@')) {
           clientEmail = rawUser;
         } else if (profilesMap[rawUser]) {
@@ -174,19 +172,22 @@
 
         const date = tx.created_at ? new Date(tx.created_at).toLocaleString() : '-';
         const statusClean = (tx.status || 'pending').toLowerCase();
+        const txAmount = tx.amount || 0;
+        const txRef = tx.reference || '-';
+        const txType = tx.type || 'Deposit';
         
         return `
           <tr>
             <td>${date}</td>
             <td><strong>${clientEmail}</strong></td>
-            <td>${tx.type || 'Deposit'}</td>
-            <td>${tx.reference || '-'}</td>
-            <td style="color: var(--accent-gold); font-weight: bold;">$${tx.amount}</td>
+            <td>${txType}</td>
+            <td>${txRef}</td>
+            <td style="color: var(--accent-gold); font-weight: bold;">$${txAmount}</td>
             <td><span class="badge badge-${statusClean}">${tx.status}</span></td>
             <td>
               ${statusClean === 'pending' ? `
-                <button class="btn btn-approve" onclick="processTx('${tx.id}', '${clientEmail}', '${clientName}', 'approve')">Approve</button>
-                <button class="btn btn-reject" onclick="processTx('${tx.id}', '${clientEmail}', '${clientName}', 'reject')">Reject</button>
+                <button class="btn btn-approve" onclick="processTx('${tx.id}', '${clientEmail}', '${clientName}', 'approve', '${txAmount}', '${txRef}', '${txType}')">Approve</button>
+                <button class="btn btn-reject" onclick="processTx('${tx.id}', '${clientEmail}', '${clientName}', 'reject', '${txAmount}', '${txRef}', '${txType}')">Reject</button>
               ` : 'Done'}
             </td>
           </tr>
@@ -194,7 +195,7 @@
       }).join('');
     }
 
-    window.processTx = async function(id, clientEmail, clientName, action) {
+    window.processTx = async function(id, clientEmail, clientName, action, amount, reference, type) {
       if (!confirm(`Are you sure you want to ${action} this transaction?`)) return;
 
       const newStatus = action === 'approve' ? 'APPROVED' : 'REJECTED';
@@ -210,14 +211,15 @@
       }
 
       if (clientEmail && clientEmail.includes('@')) {
-        const emailSent = await sendNotification(clientEmail, clientName, action);
+        const txDetails = { amount, reference, type };
+        const emailSent = await sendNotification(clientEmail, clientName, action, txDetails);
         if (emailSent) {
-          alert(`Status ${newStatus} updated & Email sent to ${clientEmail}!`);
+          alert(`Status ${newStatus} updated & detailed email sent to ${clientEmail}!`);
         } else {
           alert(`Status updated to ${newStatus}, but email failed to send.`);
         }
       } else {
-        alert(`Status updated to ${newStatus}. (Cannot send email: No email address linked to User ID).`);
+        alert(`Status updated to ${newStatus}. (No valid email linked).`);
       }
 
       fetchData();
