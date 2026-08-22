@@ -1,59 +1,47 @@
-// Dynamic Client Email Helper with Detailed Professional Template
+// Complete Client Email Helper with Configured EmailJS Credentials
+
+import emailjs from 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
+
+// Configured EmailJS IDs
+const EMAILJS_SERVICE_ID = 'service_9w4z5q';
+const EMAILJS_TEMPLATE_ID = 'template_ly4i099';
+const EMAILJS_PUBLIC_KEY = 'srCNMfHCpU7OtJ4hJ';
+
+emailjs.init(EMAILJS_PUBLIC_KEY);
 
 export async function sendNotification(recipientEmail, recipientName, actionType, txDetails = {}) {
   return await triggerEmail(recipientEmail, recipientName, actionType, txDetails);
 }
 
 export async function triggerEmail(recipientEmail, recipientName, actionType, txDetails = {}) {
-  let safeEmail = '';
-  if (typeof recipientEmail === 'string') {
-    safeEmail = recipientEmail.trim();
-  } else if (recipientEmail && typeof recipientEmail === 'object') {
-    safeEmail = String(recipientEmail.email || recipientEmail.to || '').trim();
-  } else {
-    safeEmail = String(recipientEmail || '').trim();
-  }
+  let safeEmail = typeof recipientEmail === 'string' ? recipientEmail.trim() : '';
 
-  if (!safeEmail || safeEmail === 'undefined' || safeEmail === '[object Object]') {
-    console.error('Email Trigger Failed: Client email is missing.');
+  if (!safeEmail || !safeEmail.includes('@')) {
+    console.error('Email Trigger Failed: Invalid client email.');
     return false;
   }
 
   const isApproved = String(actionType).toLowerCase() === 'approve';
-  const emailSubject = isApproved 
-    ? 'Deposit Approved — Buraq Markets' 
-    : 'Deposit Declined — Buraq Markets';
-    
-  const emailHeading = isApproved ? 'Transaction Approved' : 'Transaction Declined';
-  
-  // Extract transaction details or set defaults
-  const amount = txDetails.amount ? `$${txDetails.amount}` : 'N/A';
-  const reference = txDetails.reference || 'N/A';
-  const txType = txDetails.type || 'Deposit';
 
-  const defaultMessage = isApproved 
-    ? `We are pleased to inform you that your request for <b>${txType} (${amount})</b> with Reference ID <b>${reference}</b> has been successfully verified and credited to your account.`
-    : `We regret to inform you that your request for <b>${txType} (${amount})</b> with Reference ID <b>${reference}</b> could not be processed. If you believe this is an error, please reach out to our support team.`;
-
-  const payload = {
-    to: safeEmail,
-    name: (typeof recipientName === 'string' && recipientName) ? recipientName : 'Valued Trader',
-    subject: emailSubject,
-    heading: emailHeading,
-    message: defaultMessage
+  const templateParams = {
+    to_email: safeEmail,
+    to_name: recipientName || 'Valued Trader',
+    status_title: isApproved ? 'APPROVED' : 'DECLINED',
+    email_heading: isApproved ? 'Transaction Successful' : 'Transaction Declined',
+    tx_type: txDetails.type || 'Deposit',
+    amount: txDetails.amount || '0',
+    reference_id: txDetails.reference || 'N/A',
+    custom_message: isApproved 
+      ? 'Your request has been successfully processed and credited to your trading account.' 
+      : 'Your request could not be processed at this time. Please contact support for further details.'
   };
 
   try {
-    const response = await fetch('https://buraq-markets-dark-dashboard.vercel.app/api/send-email', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    const result = await response.json();
-    return response.ok && result.ok;
+    const response = await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+    console.log('EmailJS Success:', response.status, response.text);
+    return true;
   } catch (error) {
-    console.error('Network Error sending email:', error);
+    console.error('EmailJS Failed:', error);
     return false;
   }
 }
