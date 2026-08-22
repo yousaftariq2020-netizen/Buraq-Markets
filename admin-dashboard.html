@@ -117,6 +117,7 @@
     
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let currentTab = 'pending';
+    let profilesMap = {};
 
     async function initAdmin() {
       const { data: { user } } = await supabaseClient.auth.getUser();
@@ -127,14 +128,19 @@
     }
 
     async function fetchData() {
-      const { data: txs, error } = await supabaseClient
-        .from('transactions')
-        .select('*');
+      // Fetch Profiles to map UUID to real email
+      const { data: profiles } = await supabaseClient.from('profiles').select('id, email, full_name');
+      if (profiles) {
+        profilesMap = {};
+        profiles.forEach(p => {
+          profilesMap[p.id] = p;
+        });
+      }
 
+      const { data: txs, error } = await supabaseClient.from('transactions').select('*');
       if (error) console.error('Fetch Error:', error);
 
-      const { count: clientCount } = await supabaseClient.from('profiles').select('*', { count: 'exact', head: true });
-      document.getElementById('statClientCount').innerText = clientCount || 0;
+      document.getElementById('statClientCount').innerText = profiles ? profiles.length : 0;
 
       const allTxs = txs || [];
       const pendingTxs = allTxs.filter(t => (t.status || '').toLowerCase() === 'pending');
@@ -154,9 +160,18 @@
       }
 
       tbody.innerHTML = txs.map(tx => {
-        // Checking all possible keys for user email in database
-        const clientEmail = tx.user_email || tx.email || tx.client_email || tx.user_id || 'N/A';
-        const clientName = tx.client_name || tx.full_name || 'Valued Trader';
+        let rawUser = tx.user_email || tx.email || tx.client_email || tx.user_id || '';
+        let clientEmail = 'N/A';
+        let clientName = tx.client_name || tx.full_name || 'Valued Trader';
+
+        // Check if rawUser is UUID or real email
+        if (rawUser.includes('@')) {
+          clientEmail = rawUser;
+        } else if (profilesMap[rawUser]) {
+          clientEmail = profilesMap[rawUser].email || 'N/A';
+          clientName = profilesMap[rawUser].full_name || clientName;
+        }
+
         const date = tx.created_at ? new Date(tx.created_at).toLocaleString() : '-';
         const statusClean = (tx.status || 'pending').toLowerCase();
         
@@ -194,16 +209,15 @@
         return;
       }
 
-      // Email Trigger
-      if (clientEmail && clientEmail !== 'N/A') {
+      if (clientEmail && clientEmail.includes('@')) {
         const emailSent = await sendNotification(clientEmail, clientName, action);
-        if(emailSent) {
-          alert(`Status ${newStatus} updated & Email Sent to ${clientEmail}!`);
+        if (emailSent) {
+          alert(`Status ${newStatus} updated & Email sent to ${clientEmail}!`);
         } else {
-          alert(`Status updated to ${newStatus}, but Email trigger failed (Check Vercel API logs).`);
+          alert(`Status updated to ${newStatus}, but email failed to send.`);
         }
       } else {
-        alert(`Status updated to ${newStatus}. (No valid client email address found to send mail).`);
+        alert(`Status updated to ${newStatus}. (Cannot send email: No email address linked to User ID).`);
       }
 
       fetchData();
