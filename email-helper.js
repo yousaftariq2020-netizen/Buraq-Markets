@@ -1,36 +1,26 @@
-// Master Email Helper with Supabase Auth Token Support
+// Simplified Direct Fetch Email Helper
 
 export async function sendEmail(options) {
   try {
     const payload = typeof options === 'string' ? { message: options } : options;
-    
-    // Retrieve Auth Token from Session / Storage
-    const token = localStorage.getItem('sb-access-token') || 
-                  localStorage.getItem('supabase.auth.token') || 
-                  sessionStorage.getItem('sb-access-token') || '';
-
-    const headers = { 'Content-Type': 'application/json' };
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
 
     const response = await fetch('/api/send-email', {
       method: 'POST',
-      headers: headers,
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        to: payload.to || payload.email || payload.recipient,
-        subject: payload.subject || 'Notification — Buraq Markets',
-        heading: payload.heading || payload.title || 'Account Notification',
-        message: payload.message || payload.body || payload.text || '',
-        name: payload.name || payload.user_name || 'Valued Trader'
+        to: payload.to || payload.email,
+        subject: payload.subject,
+        heading: payload.heading,
+        message: payload.message || payload.body || '',
+        name: payload.name || 'Valued Trader'
       })
     });
 
     const data = await response.json();
-    console.log('Email Status:', data);
+    console.log('Email Response:', data);
     return data;
   } catch (err) {
-    console.error('Email Error:', err);
+    console.error('Email Fetch Error:', err);
     return { ok: false, error: err.message };
   }
 }
@@ -39,24 +29,23 @@ export async function sendNotification(data) {
   return await sendEmail(data);
 }
 
-export async function sendDepositApprovedEmail(clientEmail, clientName, amount, refNo) {
+export async function sendDepositApprovedEmail(email, name, amount, refNo) {
   return await sendEmail({
-    to: clientEmail,
-    name: clientName,
-    subject: 'Deposit Request Approved — Buraq Markets',
+    to: email,
+    name: name,
+    subject: 'Deposit Approved — Buraq Markets',
     heading: 'Deposit Successfully Approved',
-    message: `Your deposit request of $${amount} USD (Reference: ${refNo}) has been approved and credited to your trading account balance.`
+    message: `Your deposit request of $${amount} (Ref: ${refNo}) has been approved and credited to your trading account.`
   });
 }
 
-export async function sendDepositRejectedEmail(clientEmail, clientName, amount, refNo, reason) {
-  const customReason = reason ? `<br><br><strong>Reason:</strong> ${reason}` : '';
+export async function sendDepositRejectedEmail(email, name, amount, refNo, reason) {
   return await sendEmail({
-    to: clientEmail,
-    name: clientName,
-    subject: 'Deposit Request Unsuccessful — Buraq Markets',
+    to: email,
+    name: name,
+    subject: 'Deposit Unsuccessful — Buraq Markets',
     heading: 'Deposit Request Unsuccessful',
-    message: `Your deposit request of $${amount} USD (Reference: ${refNo}) could not be processed at this time.${customReason}`
+    message: `Your deposit request of $${amount} (Ref: ${refNo}) was rejected. ${reason ? 'Reason: ' + reason : ''}`
   });
 }
 
