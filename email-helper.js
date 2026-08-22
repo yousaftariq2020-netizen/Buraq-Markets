@@ -57,3 +57,31 @@ window.getLoggedInUser = window.getLoggedInUser || function() {
     return null;
   }
 };
+// Add ONLY at the end of email-helper.js
+window.sendDepositApprovedEmail = async function(clientEmail, clientName, amount, refNo) {
+  return await fetch('/api/send-email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      to: clientEmail,
+      name: clientName,
+      subject: 'Deposit Request Approved — Buraq Markets',
+      heading: 'Deposit Successfully Approved',
+      message: `Your deposit request of $${amount} USD (Ref: ${refNo}) has been approved and credited to your balance.`
+    })
+  });
+};
+
+window.sendDepositRejectedEmail = async function(clientEmail, clientName, amount, refNo, reason) {
+  return await fetch('/api/send-email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      to: clientEmail,
+      name: clientName,
+      subject: 'Deposit Request Unsuccessful — Buraq Markets',
+      heading: 'Deposit Request Unsuccessful',
+      message: `Your deposit request of $${amount} USD (Ref: ${refNo}) was rejected.`
+    })
+  });
+};
