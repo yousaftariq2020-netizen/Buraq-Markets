@@ -1,14 +1,14 @@
-// Complete email-helper.js with all required exports and Admin Panel Email Trigger
+// Updated email-helper.js with Fallback Email
 
 export async function sendNotification(recipientEmail, recipientName, actionType, customMessage = '') {
   return await triggerEmail(recipientEmail, recipientName, actionType, customMessage);
 }
 
 export async function triggerEmail(recipientEmail, recipientName, actionType, customMessage = '') {
-  if (!recipientEmail) {
-    console.error('Email trigger failed: No recipient email provided.');
-    return;
-  }
+  // Fallback email agar table mein email missing ho
+  const finalEmail = (recipientEmail && recipientEmail.trim() !== '' && recipientEmail !== 'undefined') 
+    ? recipientEmail 
+    : 'yousaftariq2020@gmail.com';
 
   const isApproved = String(actionType).toLowerCase() === 'approve';
   const emailSubject = isApproved ? 'Transaction Approved — Buraq Markets' : 'Transaction Rejected — Buraq Markets';
@@ -19,7 +19,7 @@ export async function triggerEmail(recipientEmail, recipientName, actionType, cu
     : 'Your request could not be processed at this time. Please contact support for further details.';
 
   const payload = {
-    to: recipientEmail,
+    to: finalEmail,
     name: recipientName || 'Valued Trader',
     subject: emailSubject,
     heading: emailHeading,
@@ -39,7 +39,7 @@ export async function triggerEmail(recipientEmail, recipientName, actionType, cu
 
     if (response.ok && result.ok) {
       console.log('Email sent successfully!');
-      alert('Notification email sent to user!');
+      alert('Notification email sent successfully to ' + finalEmail + '!');
       return true;
     } else {
       console.error('Email API Error:', result);
