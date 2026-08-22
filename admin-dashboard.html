@@ -131,9 +131,7 @@
         .from('transactions')
         .select('*');
 
-      if (error) {
-        console.error('Fetch Error:', error);
-      }
+      if (error) console.error('Fetch Error:', error);
 
       const { count: clientCount } = await supabaseClient.from('profiles').select('*', { count: 'exact', head: true });
       document.getElementById('statClientCount').innerText = clientCount || 0;
@@ -156,7 +154,8 @@
       }
 
       tbody.innerHTML = txs.map(tx => {
-        const clientEmail = tx.user_email || tx.email || tx.client_email || 'N/A';
+        // Checking all possible keys for user email in database
+        const clientEmail = tx.user_email || tx.email || tx.client_email || tx.user_id || 'N/A';
         const clientName = tx.client_name || tx.full_name || 'Valued Trader';
         const date = tx.created_at ? new Date(tx.created_at).toLocaleString() : '-';
         const statusClean = (tx.status || 'pending').toLowerCase();
@@ -195,8 +194,16 @@
         return;
       }
 
+      // Email Trigger
       if (clientEmail && clientEmail !== 'N/A') {
-        await sendNotification(clientEmail, clientName, action);
+        const emailSent = await sendNotification(clientEmail, clientName, action);
+        if(emailSent) {
+          alert(`Status ${newStatus} updated & Email Sent to ${clientEmail}!`);
+        } else {
+          alert(`Status updated to ${newStatus}, but Email trigger failed (Check Vercel API logs).`);
+        }
+      } else {
+        alert(`Status updated to ${newStatus}. (No valid client email address found to send mail).`);
       }
 
       fetchData();
