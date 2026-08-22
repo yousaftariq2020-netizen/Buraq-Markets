@@ -1,74 +1,47 @@
-// Buraq Markets — server-side email notification helper
-// Browser code calls the Vercel /api/send-email endpoint.
-// Gmail credentials are NEVER exposed to the browser.
-//
-// The endpoint requires a logged-in Supabase session (see api/send-email.js),
-// so every call here must attach the current user's access token.
+// Complete Professional Email Helper for Buraq Markets
 
-import { supabase } from './supabase-config.js';
-
-export async function sendNotification({
-  to_email,
-  to_name = 'Client',
-  subject,
-  heading,
-  message
-}) {
-  const recipient = String(to_email || '').trim();
-
-  if (!recipient) {
-    const error = new Error('No recipient email address was provided.');
-    console.error('[Buraq Email] Skipped:', error.message);
-    return { ok: false, error };
-  }
-
-  const { data: sessionData } = await supabase.auth.getSession();
-  const accessToken = sessionData?.session?.access_token;
-
-  if (!accessToken) {
-    const error = new Error('No active session — cannot send notification email.');
-    console.error('[Buraq Email] Skipped:', error.message);
-    return { ok: false, error };
-  }
-
+async function sendEmail({ to, subject, heading, message, name }) {
   try {
     const response = await fetch('/api/send-email', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`
       },
       body: JSON.stringify({
-        to_email: recipient,
-        to_name: String(to_name || 'Client').trim() || 'Client',
-        subject: String(subject || '').trim(),
-        heading: String(heading || '').trim(),
-        message: String(message || '').trim()
-      })
+        to,
+        subject,
+        heading,
+        message,
+        name: name || 'Valued Trader',
+      }),
     });
 
-    let result = {};
-    try {
-      result = await response.json();
-    } catch (_) {
-      result = {};
-    }
-
-    if (!response.ok || !result.ok) {
-      const error = new Error(result.error || `Email request failed (${response.status}).`);
-      console.error('[Buraq Email] Send failed:', error.message);
-      return { ok: false, error };
-    }
-
-    console.info('[Buraq Email] Sent successfully:', {
-      messageId: result.messageId,
-      to: recipient,
-      subject
-    });
-
-    return { ok: true, response: result };
+    const data = await response.json();
+    return data;
   } catch (error) {
-    console.error('[Buraq Email] Network/API error:', error);
-    return { ok: false, error };
+    console.error('Error triggering email helper:', error);
+    return { ok: false, error: error.message };
   }
 }
+
+// Global Helper Functions for Admin Actions
+window.sendDepositApprovedEmail = async function(clientEmail, clientName, amount, refNo) {
+  return await sendEmail({
+    to: clientEmail,
+    name: clientName,
+    subject: 'Deposit Request Approved — Buraq Markets',
+    heading: 'Deposit Successfully Approved',
+    message: `We are pleased to inform you that your deposit request of <strong>$${amount} USD</strong> (Reference: <strong>${refNo}</strong>) has been approved and credited to your trading account balance.`
+  });
+};
+
+window.sendDepositRejectedEmail = async function(clientEmail, clientName, amount, refNo, reason) {
+  const customReason = reason ? `<br><br><strong>Reason:</strong> ${reason}` : '';
+  return await sendEmail({
+    to: clientEmail,
+    name: clientName,
+    subject: 'Deposit Request Unsuccessful — Buraq Markets',
+    heading: 'Deposit Request Unsuccessful',
+    message: `We regret to inform you that your deposit request of <strong>$${amount} USD</strong> (Reference: <strong>${refNo}</strong>) could not be processed at this time following review by our compliance team.${customReason}`
+  });
+};
