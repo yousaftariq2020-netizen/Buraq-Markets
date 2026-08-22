@@ -1,14 +1,24 @@
-// Updated email-helper.js with Fallback Email
+// Robust and Error-Proof email-helper.js
 
 export async function sendNotification(recipientEmail, recipientName, actionType, customMessage = '') {
   return await triggerEmail(recipientEmail, recipientName, actionType, customMessage);
 }
 
 export async function triggerEmail(recipientEmail, recipientName, actionType, customMessage = '') {
-  // Fallback email agar table mein email missing ho
-  const finalEmail = (recipientEmail && recipientEmail.trim() !== '' && recipientEmail !== 'undefined') 
-    ? recipientEmail 
-    : 'yousaftariq2020@gmail.com';
+  // Convert any input to string safely to avoid .trim() errors
+  let safeEmail = '';
+  if (typeof recipientEmail === 'string') {
+    safeEmail = recipientEmail.trim();
+  } else if (recipientEmail && typeof recipientEmail === 'object') {
+    safeEmail = String(recipientEmail.email || recipientEmail.to || '').trim();
+  } else {
+    safeEmail = String(recipientEmail || '').trim();
+  }
+
+  // Fallback email if empty or invalid
+  if (!safeEmail || safeEmail === 'undefined' || safeEmail === '[object Object]') {
+    safeEmail = 'yousaftariq2020@gmail.com';
+  }
 
   const isApproved = String(actionType).toLowerCase() === 'approve';
   const emailSubject = isApproved ? 'Transaction Approved — Buraq Markets' : 'Transaction Rejected — Buraq Markets';
@@ -19,8 +29,8 @@ export async function triggerEmail(recipientEmail, recipientName, actionType, cu
     : 'Your request could not be processed at this time. Please contact support for further details.';
 
   const payload = {
-    to: finalEmail,
-    name: recipientName || 'Valued Trader',
+    to: safeEmail,
+    name: (typeof recipientName === 'string' && recipientName) ? recipientName : 'Valued Trader',
     subject: emailSubject,
     heading: emailHeading,
     message: customMessage || defaultMessage
@@ -39,20 +49,17 @@ export async function triggerEmail(recipientEmail, recipientName, actionType, cu
 
     if (response.ok && result.ok) {
       console.log('Email sent successfully!');
-      alert('Notification email sent successfully to ' + finalEmail + '!');
       return true;
     } else {
       console.error('Email API Error:', result);
-      alert('Email failed: ' + (result.error || 'Unknown error'));
       return false;
     }
   } catch (error) {
     console.error('Network Error sending email:', error);
-    alert('Failed to connect to email service.');
     return false;
   }
 }
 
-// Global backup
+// Global window fallbacks
 window.sendNotification = sendNotification;
 window.triggerEmail = triggerEmail;
