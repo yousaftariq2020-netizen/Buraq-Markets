@@ -73,8 +73,8 @@
 .btn-outline{background:#0c1a26;color:#3b9dff;border:1px solid #1a3650;border-radius:8px;padding:10px 18px;font-weight:700;font-size:12px;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;justify-content:center}
 .btn-outline:hover{background:#102233}
 
+/* HIDDEN BY DEFAULT: ONLY SHOWS WHEN CUSTOM TRADING ACCOUNTS EXIST */
 .accounts-container{display:none;margin-bottom:18px}
-.accounts-container.has-data{display:block}
 .panel{background:#0a0f12;border:1px solid var(--border);border-radius:12px;margin-bottom:18px}
 .panel-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border)}
 .panel-title{font-size:18px;font-weight:700;color:#fff}
@@ -209,7 +209,8 @@
       </div>
     </section>
 
-    <section class="panel accounts-container" id="accountsSection">
+    <!-- ACTIVE ACCOUNTS: Hidden until user creates an MT4/MT5/cTrader account -->
+    <section class="panel accounts-container" id="accountsSection" style="display:none;">
       <div class="panel-head">
         <div class="panel-title">Active Accounts</div>
       </div>
@@ -466,8 +467,11 @@ async function loadData() {
       ]);
 
       const profile = profileRes.data || {};
-      const accounts = accountsRes.data || [];
+      let accounts = accountsRes.data || [];
       const transactions = txRes.data || [];
+
+      // EXCLUDE DEFAULT AUTO-GENERATED WALLETS (LIKE platform === 'Internal' or non-MT/cTrader)
+      accounts = accounts.filter(a => a.platform && a.platform !== 'Internal');
 
       const fullName = profile.full_name || currentUser.email.split('@')[0];
       const upperName = fullName.toUpperCase();
@@ -493,8 +497,9 @@ async function loadData() {
 
       const accountsSection = document.getElementById('accountsSection');
 
+      // IF USER HAS CREATED CUSTOM MT4 / MT5 / CTRADER ACCOUNTS: SHOW PANEL
       if (accounts.length > 0) {
-        accountsSection.classList.add('has-data');
+        accountsSection.style.display = 'block';
         const totalBalance = accounts.reduce((x,v)=>x+Number(v.balance||0),0);
         const equity = accounts.reduce((x,v)=>x+Number(v.equity||0),0);
         const freeMargin = accounts.reduce((x,v)=>x+Number(v.free_margin||v.balance||0),0);
@@ -522,10 +527,15 @@ async function loadData() {
           </tr>
         `).join('');
       } else {
-        accountsSection.classList.remove('has-data');
+        // HIDE PANEL COMPLETELY IF NO CREATED ACCOUNTS EXIST
+        accountsSection.style.display = 'none';
+        document.getElementById('valBalance').textContent = '$0.00';
+        document.getElementById('valEquity').textContent = '$0.00';
+        document.getElementById('valMargin').textContent = '$0.00';
+        document.getElementById('valPL').textContent = '+$0.00';
       }
 
-      if (transactions.length > 0) {
+      if (transactions && transactions.length > 0) {
         document.getElementById('transactionsList').innerHTML = transactions.map(t => {
           const dateStr = t.created_at ? new Date(t.created_at).toLocaleDateString() : 'N/A';
           let statusBadge = `<span class="badge-completed">Completed</span>`;
