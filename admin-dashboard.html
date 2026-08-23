@@ -40,6 +40,7 @@ body{margin:0;background:#080a0c;color:#e1e7ec;font-family:Inter,Arial,sans-seri
 .badge-role{padding:3px 7px;border-radius:4px;font-size:10px;text-transform:uppercase;font-weight:bold}
 .role-client{background:#1e293b;color:#94a3b8;border:1px solid #334155}
 .role-admin{background:#3b2d12;color:#f4cf72;border:1px solid #785a21}
+.doc-link{color:#f4cf72;text-decoration:underline;font-weight:bold;display:inline-block;margin-right:8px}
 </style>
 </head>
 <body>
@@ -72,8 +73,8 @@ body{margin:0;background:#080a0c;color:#e1e7ec;font-family:Inter,Arial,sans-seri
 </div>
 
 <div class="tabs">
-  <button class="tab-btn active" id="pendingTab">Pending Requests</button>
-  <button class="tab-btn" id="kycTab">KYC Requests</button>
+  <button class="tab-btn active" id="pendingTab">Pending Transactions</button>
+  <button class="tab-btn" id="kycTab">Pending KYC Requests</button>
   <button class="tab-btn" id="allTxTab">All Transactions</button>
   <button class="tab-btn" id="clientsTab">Clients Detail</button>
 </div>
@@ -107,12 +108,13 @@ body{margin:0;background:#080a0c;color:#e1e7ec;font-family:Inter,Arial,sans-seri
         <th>Email</th>
         <th>Phone</th>
         <th>Country</th>
+        <th>Attached Documents</th>
         <th>KYC Status</th>
         <th>Actions</th>
       </tr>
     </thead>
     <tbody id="kycTableBody">
-      <tr><td colspan="6" style="text-align:center;">Loading KYC requests...</td></tr>
+      <tr><td colspan="7" style="text-align:center;">Loading KYC requests...</td></tr>
     </tbody>
   </table>
 </div>
@@ -190,7 +192,6 @@ async function loadProfilesMap() {
     allProfiles = data;
     totalClientsCount.textContent = data.length;
     
-    // Pending KYC calculation
     const pendingKycList = data.filter(p => (p.kyc_status || 'Pending').toLowerCase() === 'pending');
     pendingKycCount.textContent = pendingKycList.length;
 
@@ -287,23 +288,38 @@ function renderKYCRequests() {
   const pendingKyc = allProfiles.filter(p => (p.kyc_status || 'Pending').toLowerCase() === 'pending');
 
   if (pendingKyc.length === 0) {
-    kycTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No pending KYC requests.</td></tr>`;
+    kycTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">No pending KYC requests.</td></tr>`;
     return;
   }
 
-  kycTableBody.innerHTML = pendingKyc.map(c => `
-    <tr>
-      <td><b>${c.full_name || c.name || 'N/A'}</b></td>
-      <td>${c.email || 'N/A'}</td>
-      <td>${c.phone || c.phone_number || '-'}</td>
-      <td>${c.country || '-'}</td>
-      <td><span class="status-badge status-pending">Pending</span></td>
-      <td>
-        <button class="action-btn approve-btn" data-id="${c.id}" data-action="approve-kyc">Approve KYC</button>
-        <button class="action-btn reject-btn" data-id="${c.id}" data-action="reject-kyc">Reject</button>
-      </td>
-    </tr>
-  `).join('');
+  kycTableBody.innerHTML = pendingKyc.map(c => {
+    let docsLinks = [];
+    
+    Object.keys(c).forEach(key => {
+      const val = String(c[key] || '');
+      if (val.startsWith('http') || val.includes('/storage/') || val.match(/\.(jpg|jpeg|png|pdf|webp)$/i)) {
+        const label = key.replace(/_/g, ' ').toUpperCase();
+        docsLinks.push(`<a href="${val}" target="_blank" class="doc-link">📄 ${label}</a>`);
+      }
+    });
+
+    const docsHtml = docsLinks.length > 0 ? docsLinks.join('<br>') : '<span style="color:#8899a6">No File Attached</span>';
+
+    return `
+      <tr>
+        <td><b>${c.full_name || c.name || 'N/A'}</b></td>
+        <td>${c.email || 'N/A'}</td>
+        <td>${c.phone || c.phone_number || '-'}</td>
+        <td>${c.country || '-'}</td>
+        <td>${docsHtml}</td>
+        <td><span class="status-badge status-pending">Pending</span></td>
+        <td>
+          <button class="action-btn approve-btn" data-id="${c.id}" data-action="approve-kyc">Approve KYC</button>
+          <button class="action-btn reject-btn" data-id="${c.id}" data-action="reject-kyc">Reject</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
 
   document.querySelectorAll('#kycTableBody .action-btn').forEach(btn => {
     btn.addEventListener('click', handleKycAction);
