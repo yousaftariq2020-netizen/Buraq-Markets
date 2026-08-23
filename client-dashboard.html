@@ -6,42 +6,42 @@
 <title>Dashboard — Buraq Markets</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#080b0e;color:#d1d5db;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:24px;min-height:100vh}
+body{background:#06080a;color:#d1d5db;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:24px;min-height:100vh}
 
-/* Top Navigation Bar */
-.top-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-.nav-left{display:flex;align-items:center;gap:15px}
-.hamburger{cursor:pointer;display:flex;flex-direction:column;gap:4px}
-.hamburger span{width:18px;height:2px;background:#9ca3af}
-.page-title{font-size:18px;font-weight:600;color:#fff}
-.nav-right{display:flex;align-items:center;gap:12px}
-.icon-btn{width:32px;height:32px;border-radius:50%;background:#11161d;border:1px solid #1f2937;display:flex;align-items:center;justify-content:center;color:#9ca3af;cursor:pointer;position:relative}
-.badge-count{position:absolute;top:-2px;right:-2px;background:#10b981;color:#000;font-size:10px;font-weight:bold;width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center}
-.user-profile{display:flex;align-items:center;gap:10px;background:#0d1117;padding:4px 10px 4px 4px;border-radius:20px;border:1px solid #1f2937}
-.avatar{width:32px;height:32px;border-radius:50%;object-fit:cover}
-.user-details{display:flex;flex-direction:column;line-height:1.2}
+/* Top Header Navigation */
+.top-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+.header-left{display:flex;align-items:center;gap:16px}
+.menu-icon{cursor:pointer;display:flex;flex-direction:column;gap:4px}
+.menu-icon span{width:18px;height:2px;background:#9ca3af;border-radius:1px}
+.page-heading{font-size:18px;font-weight:700;color:#fff}
+.header-right{display:flex;align-items:center;gap:14px}
+.icon-btn{width:34px;height:34px;border-radius:50%;background:#0d1117;border:1px solid #1f2937;display:flex;align-items:center;justify-content:center;color:#9ca3af;cursor:pointer;position:relative;font-size:13px}
+.notif-badge{position:absolute;top:-2px;right:-2px;background:#10b981;color:#000;font-size:10px;font-weight:bold;width:15px;height:15px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.user-pill{display:flex;align-items:center;gap:10px;background:#0d1117;padding:4px 10px 4px 4px;border-radius:20px;border:1px solid #1f2937}
+.avatar-img{width:32px;height:32px;border-radius:50%;object-fit:cover;background:#1f2937}
+.user-info-text{display:flex;flex-direction:column;line-height:1.2}
 .user-name{font-size:12px;font-weight:700;color:#fff}
 .user-role{font-size:10px;color:#6b7280}
 
-/* Hero Welcome Banner */
-.hero-banner{background:linear-gradient(135deg, #1c180a 0%, #0c1810 50%, #080b0e 100%);border:1px solid #2d2613;border-radius:12px;padding:28px 32px;display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;position:relative;overflow:hidden}
+/* Welcome Hero Banner */
+.hero-banner{background:linear-gradient(135deg, #1c180a 0%, #0c1810 50%, #080b0e 100%);border:1px solid #2d2613;border-radius:12px;padding:28px 32px;display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;position:relative;overflow:hidden}
 .hero-text h2{font-size:14px;color:#9ca3af;font-weight:400;margin-bottom:6px}
 .hero-text h1{font-size:28px;font-weight:800;color:#ffffff;letter-spacing:0.5px;margin-bottom:6px}
 .hero-text p{font-size:13px;color:#6b7280}
-.brand-logo-card{background:#000;border:1px solid #2d2613;padding:12px 20px;border-radius:8px;display:flex;align-items:center;gap:12px}
-.brand-logo-card img{height:36px}
+.brand-logo-card{background:#000000;border:1px solid #2d2613;padding:12px 20px;border-radius:8px;display:flex;align-items:center}
+.brand-title{color:#f4cf72;font-weight:bold;font-size:18px;letter-spacing:1px;font-family:Georgia,serif}
 
-/* Metrics 4 Cards Grid */
-.metrics-grid{display:grid;grid-template-columns:repeat(4, 1fr);gap:16px;margin-bottom:30px}
-.metric-card{background:#0d1117;border:1px solid #1f2937;border-radius:10px;padding:18px 20px;display:flex;flex-direction:column;justify-content:space-between}
-.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.card-title{font-size:12px;color:#8b949e;font-weight:500}
-.chevron{color:#484f58;font-size:12px}
+/* 4 Metrics Summary Grid */
+.metrics-grid{display:grid;grid-template-columns:repeat(4, 1fr);gap:16px;margin-bottom:32px}
+.metric-card{background:#0d1117;border:1px solid #1f2937;border-radius:10px;padding:20px;display:flex;flex-direction:column;justify-content:space-between}
+.card-header-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.card-title{font-size:13px;color:#8b949e;font-weight:500}
+.chevron-icon{color:#484f58;font-size:12px}
 
-/* Wallet Badge inside Total Balance Card */
-.wallet-badge{background:rgba(244,207,114,0.1);color:#f4cf72;border:1px solid rgba(244,207,114,0.25);padding:2px 7px;border-radius:4px;font-size:11px;font-weight:600}
+/* Dynamic Wallet Badge inside Total Balance Card */
+.wallet-badge{background:rgba(244,207,114,0.12);color:#f4cf72;border:1px solid rgba(244,207,114,0.25);padding:2px 7px;border-radius:4px;font-size:11px;font-weight:600}
 
-.card-value{font-size:26px;font-weight:700;color:#ffffff;margin-bottom:6px}
+.card-value{font-size:28px;font-weight:700;color:#ffffff;margin-bottom:6px}
 .card-subtext{font-size:11px;color:#484f58}
 .text-green{color:#10b981 !important}
 
@@ -50,9 +50,11 @@ body{background:#080b0e;color:#d1d5db;font-family:-apple-system,BlinkMacSystemFo
 .section-title{font-size:18px;font-weight:700;color:#fff}
 .action-buttons{display:flex;gap:12px}
 .btn-demo{background:#0d233a;color:#3892f6;border:1px solid #1c3b5e;padding:9px 18px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer}
+.btn-demo:hover{background:#122e4d}
 .btn-live{background:#c0932b;color:#000000;border:none;padding:9px 18px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer}
+.btn-live:hover{background:#d4a433}
 
-/* Table Design */
+/* Table Container */
 .table-card{background:#0d1117;border:1px solid #1f2937;border-radius:10px;overflow:hidden}
 .accounts-table{width:100%;border-collapse:collapse;text-align:left;font-size:12px}
 .accounts-table th{background:#11161d;padding:14px 20px;color:#6b7280;font-weight:500;border-bottom:1px solid #1f2937}
@@ -66,25 +68,25 @@ body{background:#080b0e;color:#d1d5db;font-family:-apple-system,BlinkMacSystemFo
 <body>
 
 <!-- Top Navigation Bar -->
-<div class="top-nav">
-  <div class="nav-left">
-    <div class="hamburger">
+<div class="top-header">
+  <div class="header-left">
+    <div class="menu-icon">
       <span></span><span></span><span></span>
     </div>
-    <div class="page-title">Dashboard</div>
+    <div class="page-heading">Dashboard</div>
   </div>
-  <div class="nav-right">
+  <div class="header-right">
     <div class="icon-btn">☽</div>
     <div class="icon-btn">
-      🔔 <span class="badge-count">2</span>
+      🔔 <span class="notif-badge">2</span>
     </div>
-    <div class="user-profile">
-      <img src="https://via.placeholder.com/32" alt="Avatar" class="avatar" id="userAvatar">
-      <div class="user-details">
+    <div class="user-pill">
+      <img src="https://ui-avatars.com/api/?name=AQEEL&background=1f2937&color=fff" alt="Avatar" class="avatar-img" id="userAvatar">
+      <div class="user-info-text">
         <span class="user-name" id="navUserName">AQEEL</span>
         <span class="user-role">Client</span>
       </div>
-      <span style="color:#6b7280;font-size:10px;">∨</span>
+      <span style="color:#6b7280;font-size:10px;margin-left:4px;">∨</span>
     </div>
   </div>
 </div>
@@ -97,15 +99,16 @@ body{background:#080b0e;color:#d1d5db;font-family:-apple-system,BlinkMacSystemFo
     <p>Here's what's happening with your accounts today.</p>
   </div>
   <div class="brand-logo-card">
-    <div style="color:#f4cf72;font-weight:bold;font-size:16px;letter-spacing:1px;">BURAQ MARKETS</div>
+    <div class="brand-title">BURAQ MARKETS</div>
   </div>
 </div>
 
-<!-- Metrics Cards (With Wallet Badge on Total Balance) -->
+<!-- Summary Metrics Cards Grid -->
 <div class="metrics-grid">
-  <!-- Total Balance Card -->
+
+  <!-- Total Balance Card (Wallet ID on Top-Right Badge) -->
   <div class="metric-card">
-    <div class="card-top">
+    <div class="card-header-row">
       <span class="card-title">Total Balance</span>
       <span class="wallet-badge" id="walletBadge">Wallet: Loading...</span>
     </div>
@@ -115,9 +118,9 @@ body{background:#080b0e;color:#d1d5db;font-family:-apple-system,BlinkMacSystemFo
 
   <!-- Total Equity Card -->
   <div class="metric-card">
-    <div class="card-top">
+    <div class="card-header-row">
       <span class="card-title">Total Equity</span>
-      <span class="chevron">›</span>
+      <span class="chevron-icon">›</span>
     </div>
     <div class="card-value" id="totalEquityVal">$0.00</div>
     <div class="card-subtext">Current account equity</div>
@@ -125,9 +128,9 @@ body{background:#080b0e;color:#d1d5db;font-family:-apple-system,BlinkMacSystemFo
 
   <!-- Total Free Margin Card -->
   <div class="metric-card">
-    <div class="card-top">
+    <div class="card-header-row">
       <span class="card-title">Total Free Margin</span>
-      <span class="chevron">›</span>
+      <span class="chevron-icon">›</span>
     </div>
     <div class="card-value" id="freeMarginVal">$0.00</div>
     <div class="card-subtext">Equity minus used margin</div>
@@ -135,16 +138,17 @@ body{background:#080b0e;color:#d1d5db;font-family:-apple-system,BlinkMacSystemFo
 
   <!-- Total P/L Card -->
   <div class="metric-card">
-    <div class="card-top">
+    <div class="card-header-row">
       <span class="card-title">Total P/L</span>
-      <span class="chevron">›</span>
+      <span class="chevron-icon">›</span>
     </div>
     <div class="card-value text-green" id="plVal">+$0.00</div>
     <div class="card-subtext text-green" id="plPercentVal">0.00% from balance</div>
   </div>
+
 </div>
 
-<!-- Trading Accounts Table Section -->
+<!-- Trading Accounts Section -->
 <div class="section-header">
   <div class="section-title">Trading Accounts</div>
   <div class="action-buttons">
@@ -187,7 +191,7 @@ async function initDashboard() {
     return;
   }
 
-  // Fetch client data from supabase
+  // Fetch client data from profiles and clients tables
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
@@ -202,28 +206,31 @@ async function initDashboard() {
 
   const merged = { ...profile, ...client };
 
-  // Set Username
+  // Dynamic Name Display
   const userName = merged.first_name || merged.full_name || user.email.split('@')[0];
   document.getElementById('heroUserName').textContent = userName.toUpperCase();
   document.getElementById('navUserName').textContent = userName.toUpperCase();
 
-  // Primary Wallet ID logic (client_id priority)
-  const walletNo = merged.client_id || merged.account_number || merged.wallet_address || 'N/A';
+  // Primary Wallet ID Logic (Client ID Priority)
+  const walletNo = merged.client_id || merged.account_number || merged.wallet_address || merged.id || 'N/A';
   document.getElementById('walletBadge').textContent = 'Wallet: #' + walletNo;
 
-  // Values calculation
+  // Numeric Values Formatting
   const bal = parseFloat(merged.balance || 0);
   const eq = parseFloat(merged.equity || bal);
   const freeMargin = parseFloat(merged.free_margin || eq);
   const pl = parseFloat(merged.profit_loss || 0);
 
-  document.getElementById('totalBalanceVal').textContent = '$' + bal.toLocaleString('en-US', {minimumFractionDigits: 2});
-  document.getElementById('totalEquityVal').textContent = '$' + eq.toLocaleString('en-US', {minimumFractionDigits: 2});
-  document.getElementById('freeMarginVal').textContent = '$' + freeMargin.toLocaleString('en-US', {minimumFractionDigits: 2});
+  document.getElementById('totalBalanceVal').textContent = '$' + bal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  document.getElementById('totalEquityVal').textContent = '$' + eq.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  document.getElementById('freeMarginVal').textContent = '$' + freeMargin.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
   
   const plEl = document.getElementById('plVal');
   plEl.textContent = (pl >= 0 ? '+' : '') + '$' + pl.toFixed(2);
-  if (pl < 0) plEl.classList.remove('text-green');
+  if (pl < 0) {
+    plEl.classList.remove('text-green');
+    plEl.style.color = '#ef4444';
+  }
 }
 
 initDashboard();
