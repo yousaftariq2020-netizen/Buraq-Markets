@@ -1,240 +1,292 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Dashboard — Buraq Markets</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Client Portal — Buraq Markets</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:#06080a;color:#d1d5db;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:24px;min-height:100vh}
+*{box-sizing:border-box}
+body{margin:0;background:#080a0c;color:#e1e7ec;font-family:Inter,Arial,sans-serif;padding:24px}
 
-/* Top Header Navigation */
-.top-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
-.header-left{display:flex;align-items:center;gap:16px}
-.menu-icon{cursor:pointer;display:flex;flex-direction:column;gap:4px}
-.menu-icon span{width:18px;height:2px;background:#9ca3af;border-radius:1px}
-.page-heading{font-size:18px;font-weight:700;color:#fff}
-.header-right{display:flex;align-items:center;gap:14px}
-.icon-btn{width:34px;height:34px;border-radius:50%;background:#0d1117;border:1px solid #1f2937;display:flex;align-items:center;justify-content:center;color:#9ca3af;cursor:pointer;position:relative;font-size:13px}
-.notif-badge{position:absolute;top:-2px;right:-2px;background:#10b981;color:#000;font-size:10px;font-weight:bold;width:15px;height:15px;border-radius:50%;display:flex;align-items:center;justify-content:center}
-.user-pill{display:flex;align-items:center;gap:10px;background:#0d1117;padding:4px 10px 4px 4px;border-radius:20px;border:1px solid #1f2937}
-.avatar-img{width:32px;height:32px;border-radius:50%;object-fit:cover;background:#1f2937}
-.user-info-text{display:flex;flex-direction:column;line-height:1.2}
-.user-name{font-size:12px;font-weight:700;color:#fff}
-.user-role{font-size:10px;color:#6b7280}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
+.brand{font:bold 22px Georgia,serif;color:#f4cf72}
+.user-info{display:flex;align-items:center;gap:15px}
+.user-email{background:#11161d;padding:8px 14px;border-radius:6px;border:1px solid #1f2933;font-size:12px;color:#f4cf72}
+.btn{padding:9px 16px;border-radius:6px;border:none;font-weight:bold;font-size:13px;cursor:pointer}
+.logout-btn{background:#e63946;color:#fff}.logout-btn:hover{background:#c72c38}
+.deposit-btn{background:#f4cf72;color:#080a0c}.deposit-btn:hover{background:#e0ba5c}
 
-/* Welcome Hero Banner */
-.hero-banner{background:linear-gradient(135deg, #1c180a 0%, #0c1810 50%, #080b0e 100%);border:1px solid #2d2613;border-radius:12px;padding:28px 32px;display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;position:relative;overflow:hidden}
-.hero-text h2{font-size:14px;color:#9ca3af;font-weight:400;margin-bottom:6px}
-.hero-text h1{font-size:28px;font-weight:800;color:#ffffff;letter-spacing:0.5px;margin-bottom:6px}
-.hero-text p{font-size:13px;color:#6b7280}
-.brand-logo-card{background:#000000;border:1px solid #2d2613;padding:12px 20px;border-radius:8px;display:flex;align-items:center}
-.brand-title{color:#f4cf72;font-weight:bold;font-size:18px;letter-spacing:1px;font-family:Georgia,serif}
-
-/* 4 Metrics Summary Grid */
-.metrics-grid{display:grid;grid-template-columns:repeat(4, 1fr);gap:16px;margin-bottom:32px}
-.metric-card{background:#0d1117;border:1px solid #1f2937;border-radius:10px;padding:20px;display:flex;flex-direction:column;justify-content:space-between}
-.card-header-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
-.card-title{font-size:13px;color:#8b949e;font-weight:500}
-.chevron-icon{color:#484f58;font-size:12px}
-
-/* Dynamic Wallet Badge inside Total Balance Card */
-.wallet-badge{background:rgba(244,207,114,0.12);color:#f4cf72;border:1px solid rgba(244,207,114,0.25);padding:2px 7px;border-radius:4px;font-size:11px;font-weight:600}
-
-.card-value{font-size:28px;font-weight:700;color:#ffffff;margin-bottom:6px}
-.card-subtext{font-size:11px;color:#484f58}
+/* Top Stats Cards Grid */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:30px}
+.stat-card{background:#0d1117;border:1px solid #1f2937;border-radius:12px;padding:20px;display:flex;flex-direction:column;justify-content:space-between}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.stat-card .title{font-size:13px;color:#9ca3af;font-weight:500}
+.stat-card .chevron{color:#6b7280;font-size:14px}
+.stat-card .value{font-size:24px;font-weight:700;color:#ffffff;margin-bottom:6px}
+.stat-card .subtext{font-size:12px;color:#6b7280}
 .text-green{color:#10b981 !important}
 
-/* Trading Accounts Section */
-.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-.section-title{font-size:18px;font-weight:700;color:#fff}
-.action-buttons{display:flex;gap:12px}
-.btn-demo{background:#0d233a;color:#3892f6;border:1px solid #1c3b5e;padding:9px 18px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer}
-.btn-demo:hover{background:#122e4d}
-.btn-live{background:#c0932b;color:#000000;border:none;padding:9px 18px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer}
-.btn-live:hover{background:#d4a433}
+/* Table Design */
+.section-title{font-size:16px;font-weight:bold;margin-bottom:12px;color:#fff}
+.table-container{background:#0d1117;border:1px solid #1f2937;border-radius:12px;overflow-x:auto}
+.data-table{width:100%;border-collapse:collapse;text-align:left;font-size:13px}
+.data-table th{background:#161b22;padding:14px 16px;color:#9ca3af;font-weight:600;border-bottom:1px solid #1f2937}
+.data-table td{padding:14px 16px;border-bottom:1px solid #161b22;color:#d1d5db}
 
-/* Table Container */
-.table-card{background:#0d1117;border:1px solid #1f2937;border-radius:10px;overflow:hidden}
-.accounts-table{width:100%;border-collapse:collapse;text-align:left;font-size:12px}
-.accounts-table th{background:#11161d;padding:14px 20px;color:#6b7280;font-weight:500;border-bottom:1px solid #1f2937}
-.accounts-table td{padding:14px 20px;border-bottom:1px solid #161b22;color:#9ca3af}
-.empty-msg{text-align:center;padding:40px 20px;color:#6b7280;font-size:13px}
-
-@media(max-width:1024px){.metrics-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:640px){.metrics-grid{grid-template-columns:1fr}}
+/* Modal Popup for Deposit */
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);justify-content:center;align-items:center;z-index:999}
+.modal-box{background:#11161d;border:1px solid #1f2933;border-radius:12px;padding:25px;width:100%;max-width:420px;color:#fff}
+.modal-box h3{margin-top:0;color:#f4cf72}
+.form-group{margin-bottom:15px}
+.form-group label{display:block;font-size:12px;color:#8899a6;margin-bottom:6px}
+.form-group input{width:100%;padding:10px;border-radius:6px;border:1px solid #1f2933;background:#080a0c;color:#fff;font-size:13px}
+.form-group input[readonly]{background:#161d26;color:#f4cf72;cursor:not-allowed}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+.cancel-btn{background:#374151;color:#fff}
 </style>
 </head>
 <body>
 
-<!-- Top Navigation Bar -->
-<div class="top-header">
-  <div class="header-left">
-    <div class="menu-icon">
-      <span></span><span></span><span></span>
-    </div>
-    <div class="page-heading">Dashboard</div>
-  </div>
-  <div class="header-right">
-    <div class="icon-btn">☽</div>
-    <div class="icon-btn">
-      🔔 <span class="notif-badge">2</span>
-    </div>
-    <div class="user-pill">
-      <img src="https://ui-avatars.com/api/?name=AQEEL&background=1f2937&color=fff" alt="Avatar" class="avatar-img" id="userAvatar">
-      <div class="user-info-text">
-        <span class="user-name" id="navUserName">AQEEL</span>
-        <span class="user-role">Client</span>
-      </div>
-      <span style="color:#6b7280;font-size:10px;margin-left:4px;">∨</span>
-    </div>
+<div class="header">
+  <div class="brand">BURAQ MARKETS</div>
+  <div class="user-info">
+    <div class="user-email" id="clientEmail">Loading...</div>
+    <button class="btn deposit-btn" id="openDepositModalBtn">+ Deposit</button>
+    <button class="btn logout-btn" id="logoutBtn">Logout</button>
   </div>
 </div>
 
-<!-- Welcome Hero Banner -->
-<div class="hero-banner">
-  <div class="hero-text">
-    <h2>Welcome back,</h2>
-    <h1 id="heroUserName">AQEEL</h1>
-    <p>Here's what's happening with your accounts today.</p>
-  </div>
-  <div class="brand-logo-card">
-    <div class="brand-title">BURAQ MARKETS</div>
-  </div>
-</div>
-
-<!-- Summary Metrics Cards Grid -->
-<div class="metrics-grid">
-
-  <!-- Total Balance Card (Wallet ID on Top-Right Badge) -->
-  <div class="metric-card">
-    <div class="card-header-row">
-      <span class="card-title">Total Balance</span>
-      <span class="wallet-badge" id="walletBadge">Wallet: Loading...</span>
+<!-- Top Summary Cards -->
+<div class="stats-grid">
+  <!-- Wallet Account Card -->
+  <div class="stat-card">
+    <div class="card-header">
+      <span class="title">Wallet Account</span>
+      <span class="chevron">›</span>
     </div>
-    <div class="card-value" id="totalBalanceVal">$0.00</div>
-    <div class="card-subtext">All trading accounts combined</div>
+    <div class="value" id="walletAccountVal" style="color:#f4cf72;">Fetching...</div>
+    <div class="subtext">Primary deposit account</div>
+  </div>
+
+  <!-- Total Balance Card -->
+  <div class="stat-card">
+    <div class="card-header">
+      <span class="title">Total Balance</span>
+      <span class="chevron">›</span>
+    </div>
+    <div class="value" id="totalBalanceVal">$0.00</div>
+    <div class="subtext">All trading accounts combined</div>
   </div>
 
   <!-- Total Equity Card -->
-  <div class="metric-card">
-    <div class="card-header-row">
-      <span class="card-title">Total Equity</span>
-      <span class="chevron-icon">›</span>
+  <div class="stat-card">
+    <div class="card-header">
+      <span class="title">Total Equity</span>
+      <span class="chevron">›</span>
     </div>
-    <div class="card-value" id="totalEquityVal">$0.00</div>
-    <div class="card-subtext">Current account equity</div>
+    <div class="value" id="totalEquityVal">$0.00</div>
+    <div class="subtext">Current account equity</div>
   </div>
 
   <!-- Total Free Margin Card -->
-  <div class="metric-card">
-    <div class="card-header-row">
-      <span class="card-title">Total Free Margin</span>
-      <span class="chevron-icon">›</span>
+  <div class="stat-card">
+    <div class="card-header">
+      <span class="title">Total Free Margin</span>
+      <span class="chevron">›</span>
     </div>
-    <div class="card-value" id="freeMarginVal">$0.00</div>
-    <div class="card-subtext">Equity minus used margin</div>
+    <div class="value" id="freeMarginVal">$0.00</div>
+    <div class="subtext">Equity minus used margin</div>
   </div>
 
   <!-- Total P/L Card -->
-  <div class="metric-card">
-    <div class="card-header-row">
-      <span class="card-title">Total P/L</span>
-      <span class="chevron-icon">›</span>
+  <div class="stat-card">
+    <div class="card-header">
+      <span class="title">Total P/L</span>
+      <span class="chevron">›</span>
     </div>
-    <div class="card-value text-green" id="plVal">+$0.00</div>
-    <div class="card-subtext text-green" id="plPercentVal">0.00% from balance</div>
-  </div>
-
-</div>
-
-<!-- Trading Accounts Section -->
-<div class="section-header">
-  <div class="section-title">Trading Accounts</div>
-  <div class="action-buttons">
-    <button class="btn-demo">+ Open Demo Account</button>
-    <button class="btn-live">+ Open Live Account</button>
+    <div class="value text-green" id="plVal">+$0.00</div>
+    <div class="subtext text-green">0.00% from balance</div>
   </div>
 </div>
 
-<div class="table-card">
-  <table class="accounts-table">
+<!-- Transaction History -->
+<div class="section-title">Recent Transactions</div>
+<div class="table-container">
+  <table class="data-table">
     <thead>
       <tr>
-        <th>Account</th>
+        <th>Date</th>
+        <th>Wallet Account</th>
         <th>Type</th>
-        <th>Platform</th>
-        <th>Balance</th>
-        <th>Equity</th>
-        <th>P/L</th>
+        <th>Reference ID</th>
+        <th>Amount</th>
         <th>Status</th>
-        <th>Action</th>
       </tr>
     </thead>
-    <tbody id="tradingAccountsBody">
-      <tr>
-        <td colspan="8" class="empty-msg">
-          No trading account opened yet. Click "Open Live Account" or "Open Demo Account" to create one.
-        </td>
-      </tr>
+    <tbody id="txHistoryBody">
+      <tr><td colspan="6" style="text-align:center;">Loading transactions...</td></tr>
     </tbody>
   </table>
+</div>
+
+<!-- Deposit Modal Popup -->
+<div class="modal-overlay" id="depositModal">
+  <div class="modal-box">
+    <h3>Deposit Funds</h3>
+    <form id="depositForm">
+      <div class="form-group">
+        <label>Selected Wallet Account Number</label>
+        <input type="text" id="depositWalletInput" readonly>
+      </div>
+      <div class="form-group">
+        <label>Amount ($)</label>
+        <input type="number" id="depositAmount" placeholder="Enter amount e.g. 500" required step="0.01">
+      </div>
+      <div class="form-group">
+        <label>Transaction Reference / TxID</label>
+        <input type="text" id="depositRef" placeholder="Transaction Hash or Bank Ref" required>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn cancel-btn" id="closeDepositModalBtn">Cancel</button>
+        <button type="submit" class="btn deposit-btn">Submit Deposit</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <script type="module">
 import { supabase } from './supabase-config.js';
 
-async function initDashboard() {
+let currentUser = null;
+let currentWalletNo = '-';
+
+const clientEmailEl = document.getElementById('clientEmail');
+const walletAccountVal = document.getElementById('walletAccountVal');
+const totalBalanceVal = document.getElementById('totalBalanceVal');
+const totalEquityVal = document.getElementById('totalEquityVal');
+const freeMarginVal = document.getElementById('freeMarginVal');
+const plVal = document.getElementById('plVal');
+const txHistoryBody = document.getElementById('txHistoryBody');
+
+const depositModal = document.getElementById('depositModal');
+const openDepositModalBtn = document.getElementById('openDepositModalBtn');
+const closeDepositModalBtn = document.getElementById('closeDepositModalBtn');
+const depositForm = document.getElementById('depositForm');
+const depositWalletInput = document.getElementById('depositWalletInput');
+
+// Check Login Status & Load Data
+async function initClientDashboard() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     location.href = 'client-login.html';
     return;
   }
+  
+  currentUser = user;
+  clientEmailEl.textContent = user.email;
 
-  // Fetch client data from profiles and clients tables
+  await loadClientProfile();
+  await loadTransactions();
+}
+
+// Fetch Profile Metrics and Wallet Account
+async function loadClientProfile() {
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
-    .eq('id', user.id)
-    .maybeSingle();
+    .eq('id', currentUser.id)
+    .single();
 
-  const { data: client } = await supabase
+  const { data: clientData } = await supabase
     .from('clients')
     .select('*')
-    .or(`id.eq.${user.id},user_id.eq.${user.id}`)
+    .or(`id.eq.${currentUser.id},user_id.eq.${currentUser.id}`)
     .maybeSingle();
 
-  const merged = { ...profile, ...client };
+  const merged = { ...profile, ...clientData };
 
-  // Dynamic Name Display
-  const userName = merged.first_name || merged.full_name || user.email.split('@')[0];
-  document.getElementById('heroUserName').textContent = userName.toUpperCase();
-  document.getElementById('navUserName').textContent = userName.toUpperCase();
+  // Set Wallet Account Number
+  currentWalletNo = merged.account_number || merged.wallet_address || merged.client_id || `#${currentUser.id.substring(0, 8)}`;
+  walletAccountVal.textContent = currentWalletNo;
+  depositWalletInput.value = currentWalletNo;
 
-  // Primary Wallet ID Logic (Client ID Priority)
-  const walletNo = merged.client_id || merged.account_number || merged.wallet_address || merged.id || 'N/A';
-  document.getElementById('walletBadge').textContent = 'Wallet: #' + walletNo;
-
-  // Numeric Values Formatting
+  // Set Financial Summary Metrics
   const bal = parseFloat(merged.balance || 0);
   const eq = parseFloat(merged.equity || bal);
   const freeMargin = parseFloat(merged.free_margin || eq);
   const pl = parseFloat(merged.profit_loss || 0);
 
-  document.getElementById('totalBalanceVal').textContent = '$' + bal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-  document.getElementById('totalEquityVal').textContent = '$' + eq.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-  document.getElementById('freeMarginVal').textContent = '$' + freeMargin.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-  
-  const plEl = document.getElementById('plVal');
-  plEl.textContent = (pl >= 0 ? '+' : '') + '$' + pl.toFixed(2);
-  if (pl < 0) {
-    plEl.classList.remove('text-green');
-    plEl.style.color = '#ef4444';
-  }
+  totalBalanceVal.textContent = '$' + bal.toFixed(2);
+  totalEquityVal.textContent = '$' + eq.toFixed(2);
+  freeMarginVal.textContent = '$' + freeMargin.toFixed(2);
+  plVal.textContent = (pl >= 0 ? '+' : '') + '$' + pl.toFixed(2);
 }
 
-initDashboard();
-</script>
+// Fetch Client Transactions
+async function loadTransactions() {
+  const { data: txs } = await supabase
+    .from('transactions')
+    .select('*')
+    .or(`user_id.eq.${currentUser.id},email.eq.${currentUser.email}`)
+    .order('created_at', { ascending: false });
 
+  if (!txs || txs.length === 0) {
+    txHistoryBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No transaction history found.</td></tr>`;
+    return;
+  }
+
+  txHistoryBody.innerHTML = txs.map(t => {
+    return `
+      <tr>
+        <td>${t.created_at ? new Date(t.created_at).toLocaleDateString() : 'Today'}</td>
+        <td style="color:#f4cf72;font-weight:bold;">${t.wallet_address || currentWalletNo}</td>
+        <td>${t.type || 'Deposit'}</td>
+        <td>${t.reference || t.ref_id || '-'}</td>
+        <td style="color:#10b981;font-weight:bold;">$${parseFloat(t.amount || 0).toFixed(2)}</td>
+        <td><span style="color:${t.status === 'Approved' ? '#10b981' : '#f4cf72'}">${t.status || 'Pending'}</span></td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// Deposit Form Submit Handling
+depositForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const amount = document.getElementById('depositAmount').value;
+  const ref = document.getElementById('depositRef').value;
+
+  const { error } = await supabase.from('transactions').insert([
+    {
+      user_id: currentUser.id,
+      email: currentUser.email,
+      wallet_address: currentWalletNo, // Lock transaction with active wallet number
+      amount: parseFloat(amount),
+      type: 'Deposit',
+      reference: ref,
+      status: 'Pending'
+    }
+  ]);
+
+  if (error) {
+    alert('Deposit Failed: ' + error.message);
+  } else {
+    alert('Deposit request submitted successfully!');
+    depositModal.style.display = 'none';
+    depositForm.reset();
+    depositWalletInput.value = currentWalletNo;
+    await loadTransactions();
+  }
+});
+
+// Modal Controls
+openDepositModalBtn.addEventListener('click', () => depositModal.style.display = 'flex');
+closeDepositModalBtn.addEventListener('click', () => depositModal.style.display = 'none');
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+  await supabase.auth.signOut();
+  location.href = 'client-login.html';
+});
+
+initClientDashboard();
+</script>
 </body>
 </html>
