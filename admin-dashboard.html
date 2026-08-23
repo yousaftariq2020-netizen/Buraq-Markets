@@ -37,7 +37,7 @@ body{margin:0;background:#080a0c;color:#e1e7ec;font-family:Inter,Arial,sans-seri
 .action-btn{padding:6px 12px;border-radius:5px;border:none;font-size:12px;font-weight:bold;cursor:pointer;margin-right:5px}
 .approve-btn{background:#10b981;color:#fff}.approve-btn:hover{background:#059669}
 .reject-btn{background:#ef4444;color:#fff}.reject-btn:hover{background:#dc2626}
-.doc-link{color:#f4cf72;text-decoration:underline;font-weight:bold;display:inline-block;margin-right:8px}
+.doc-link{color:#f4cf72;text-decoration:underline;font-weight:bold;display:inline-block;margin-bottom:4px}
 </style>
 </head>
 <body>
@@ -164,6 +164,15 @@ const pendingKycCount = document.getElementById('pendingKycCount');
 const totalClientsCount = document.getElementById('totalClientsCount');
 const totalTxCount = document.getElementById('totalTxCount');
 
+function resolveDocumentUrl(path) {
+  if (!path) return '#';
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  
+  const cleanPath = path.startsWith('/') ? path.substring(1) : path;
+  const { data } = supabase.storage.from('kyc-documents').getPublicUrl(cleanPath);
+  return data ? data.publicUrl : path;
+}
+
 async function checkAuth() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
@@ -207,11 +216,7 @@ async function fetchAllTables() {
   const pendingTx = allTransactions.filter(t => String(t.status || 'pending').toLowerCase() === 'pending');
   pendingTxCount.textContent = pendingTx.length;
 
-  const pendingKyc = combinedClients.filter(c => {
-    const st = String(c.kyc_status || c.status || '').toLowerCase();
-    return st !== 'approved' && st !== 'verified';
-  });
-  pendingKycCount.textContent = pendingKyc.length || kycDocsList.length;
+  pendingKycCount.textContent = combinedClients.length;
 
   renderTransactions();
   renderKYCRequests();
@@ -232,7 +237,7 @@ function renderTransactions() {
     const isPending = String(t.status || 'pending').toLowerCase() === 'pending';
     let statusClass = 'status-pending';
     const st = String(t.status || '').toLowerCase();
-    if (st === 'approved' || st === 'success') statusClass = 'status-approved';
+    if (st === 'approved' || st === 'success' || st === 'verified') statusClass = 'status-approved';
     if (st === 'declined' || st === 'rejected') statusClass = 'status-rejected';
 
     return `
@@ -259,36 +264,42 @@ function renderTransactions() {
 }
 
 function renderKYCRequests() {
-  const pendingClients = combinedClients.filter(c => {
-    const st = String(c.kyc_status || c.status || '').toLowerCase();
-    return st !== 'approved' && st !== 'verified';
-  });
-
-  const displayList = pendingClients.length > 0 ? pendingClients : kycDocsList;
-
-  if (displayList.length === 0) {
+  if (combinedClients.length === 0) {
     kycTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">No pending KYC requests found.</td></tr>`;
     return;
   }
 
-  kycTableBody.innerHTML = displayList.map(c => {
+  kycTableBody.innerHTML = combinedClients.map(c => {
     let docsLinks = [];
+    
     Object.keys(c).forEach(key => {
-      const val = String(c[key] || '');
-      if (val.startsWith('http') || val.includes('/storage/') || val.match(/\.(jpg|jpeg|png|pdf|webp)$/i)) {
-        docsLinks.push(`<a href="${val}" target="_blank" class="doc-link">📄 ${key.replace(/_/g, ' ').toUpperCase()}</a>`);
+      const val = c[key];
+      if (typeof val === 'string' && val.trim().length > 0) {
+        if (key.includes('path') || key.includes('doc') || key.includes('selfie') || val.match(/\.(jpg|jpeg|png|pdf|webp)$/i)) {
+          const finalUrl = resolveDocumentUrl(val);
+          docsLinks.push(`<a href="${finalUrl}" target="_blank" class="doc-link">📄 ${key.replace(/_/g, ' ').toUpperCase()}</a>`);
+        }
       }
     });
 
     const matchedDocs = kycDocsList.filter(d => d.client_id === c.client_id || d.user_id === c.id);
     matchedDocs.forEach(d => {
       Object.keys(d).forEach(k => {
-        const v = String(d[k] || '');
-        if (v.startsWith('http') || v.includes('/storage/') || v.match(/\.(jpg|jpeg|png|pdf|webp)$/i)) {
-          docsLinks.push(`<a href="${v}" target="_blank" class="doc-link">📄 ${k.replace(/_/g, ' ').toUpperCase()}</a>`);
+        const v = d[k];
+        if (typeof v === 'string' && v.trim().length > 0) {
+          if (k.includes('path') || k.includes('doc') || k.includes('selfie') || v.match(/\.(jpg|jpeg|png|pdf|webp)$/i)) {
+            const finalUrl = resolveDocumentUrl(v);
+            docsLinks.push(`<a href="${finalUrl}" target="_blank" class="doc-link">📄 ${k.replace(/_/g, ' ').toUpperCase()}</a>`);
+          }
         }
       });
     });
+
+    const currentStatus = c.kyc_status || c.status || 'Pending';
+    let badgeClass = 'status-pending';
+    const stClass = String(currentStatus).toLowerCase();
+    if (stClass === 'verified' || stClass === 'approved') badgeClass = 'status-approved';
+    if (stClass === 'rejected' || stClass === 'declined') badgeClass = 'status-rejected';
 
     return `
       <tr>
@@ -297,7 +308,7 @@ function renderKYCRequests() {
         <td>${c.phone || c.phone_number || '-'}</td>
         <td>${c.country || '-'}</td>
         <td>${docsLinks.length > 0 ? docsLinks.join('<br>') : 'No File Attached'}</td>
-        <td><span class="status-badge status-pending">${c.kyc_status || 'Pending'}</span></td>
+        <td><span class="status-badge ${badgeClass}">${currentStatus}</span></td>
         <td>
           <button class="action-btn approve-btn" data-id="${c.id || c.client_id}" data-action="approve-kyc">Approve KYC</button>
           <button class="action-btn reject-btn" data-id="${c.id || c.client_id}" data-action="reject-kyc">Reject</button>
@@ -317,17 +328,25 @@ function loadClientsDetail() {
     return;
   }
 
-  clientsTableBody.innerHTML = combinedClients.map(c => `
-    <tr>
-      <td><b>${c.full_name || c['full name'] || 'N/A'}</b></td>
-      <td>${c.client_id || c.id || '-'}</td>
-      <td>${c.phone || '-'}</td>
-      <td>${c.preferred_platform || c.account_type || '-'}</td>
-      <td><span class="status-badge status-pending">${c.kyc_status || 'Pending'}</span></td>
-      <td>${c.country || '-'}</td>
-      <td>${c.created_at ? new Date(c.created_at).toLocaleDateString() : 'Recent'}</td>
-    </tr>
-  `).join('');
+  clientsTableBody.innerHTML = combinedClients.map(c => {
+    const currentStatus = c.kyc_status || c.status || 'Pending';
+    let badgeClass = 'status-pending';
+    const stClass = String(currentStatus).toLowerCase();
+    if (stClass === 'verified' || stClass === 'approved') badgeClass = 'status-approved';
+    if (stClass === 'rejected' || stClass === 'declined') badgeClass = 'status-rejected';
+
+    return `
+      <tr>
+        <td><b>${c.full_name || c['full name'] || 'N/A'}</b></td>
+        <td>${c.client_id || c.id || '-'}</td>
+        <td>${c.phone || '-'}</td>
+        <td>${c.preferred_platform || c.account_type || '-'}</td>
+        <td><span class="status-badge ${badgeClass}">${currentStatus}</span></td>
+        <td>${c.country || '-'}</td>
+        <td>${c.created_at ? new Date(c.created_at).toLocaleDateString() : 'Recent'}</td>
+      </tr>
+    `;
+  }).join('');
 }
 
 async function handleTxAction(e) {
