@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Buraq Markets — Client Login</title>
+<title>Buraq Markets — Portal Login</title>
 <style>
 :root{--bg:#070b0d;--panel:#10171b;--border:#202a2e;--text:#f4f7f6;--muted:#8d999d;--gold:#d6a93b}
 *{box-sizing:border-box}
@@ -24,7 +24,7 @@ button:hover{opacity:0.9}
 <div class="login-card">
   <img src="buraq-logo.jpg" alt="Buraq Markets" class="logo">
   <h2>Sign In to Portal</h2>
-  <p>Enter your credentials to access client area</p>
+  <p>Enter your credentials to access portal area</p>
   
   <div id="errorBox" class="error"></div>
 
@@ -44,16 +44,36 @@ button:hover{opacity:0.9}
 <script type="module">
 import { supabase } from './supabase-config.js';
 
-// Auto Check: Agar user pehle se logged in hai toh dashboard par bhej do
+// Auto Role-based Redirect Logic
+async function handleUserRedirect(user) {
+  if (!user) return;
+
+  // Check user role from profiles table
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .maybeSingle();
+
+  // Redirect based on exact role
+  if (profile?.role === 'admin') {
+    window.location.href = 'admin-dashboard.html';
+  } else {
+    window.location.href = 'client-dashboard.html';
+  }
+}
+
+// 1. Initial Check on Page Load
 const { data: { user } } = await supabase.auth.getUser();
 if (user) {
-  window.location.href = 'client-dashboard.html';
+  await handleUserRedirect(user);
 }
 
 const loginForm = document.getElementById('loginForm');
 const errorBox = document.getElementById('errorBox');
 const submitBtn = document.getElementById('submitBtn');
 
+// 2. Form Submit Handler
 loginForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   errorBox.style.display = 'none';
@@ -71,8 +91,8 @@ loginForm.addEventListener('submit', async (e) => {
     submitBtn.textContent = 'Sign In';
     submitBtn.disabled = false;
   } else {
-    // Correct Redirect Target
-    window.location.href = 'client-dashboard.html';
+    // Redirect user to their respective dashboard
+    await handleUserRedirect(data.user);
   }
 });
 </script>
