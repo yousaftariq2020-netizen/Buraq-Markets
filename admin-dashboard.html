@@ -102,14 +102,16 @@ body{margin:0;background:#080a0c;color:#e1e7ec;font-family:Inter,Arial,sans-seri
   <table class="data-table">
     <thead>
       <tr>
-        <th>Client Email</th>
-        <th>User ID</th>
+        <th>Full Name</th>
+        <th>Email</th>
+        <th>Phone Number</th>
         <th>Role</th>
+        <th>Country</th>
         <th>Joined Date</th>
       </tr>
     </thead>
     <tbody id="clientsTableBody">
-      <tr><td colspan="4" style="text-align:center;">Loading clients...</td></tr>
+      <tr><td colspan="6" style="text-align:center;">Loading clients...</td></tr>
     </tbody>
   </table>
 </div>
@@ -163,17 +165,32 @@ async function loadClientsCount() {
 }
 
 async function loadData() {
+  // Safe Fetch: Join with profiles table to ensure client email is always available
   const { data, error } = await supabase
     .from('transactions')
-    .select('*')
+    .select('*, profiles(email, full_name)')
     .order('created_at', { ascending: false });
 
   if (error) {
-    txTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#ef4444;">Error: ${error.message}</td></tr>`;
-    return;
+    // Fallback simple fetch if join is not configured in schema
+    const { data: simpleData, error: simpleErr } = await supabase
+      .from('transactions')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (simpleErr) {
+      txTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#ef4444;">Error: ${simpleErr.message}</td></tr>`;
+      return;
+    }
+    allTransactions = simpleData || [];
+  } else {
+    allTransactions = (data || []).map(t => ({
+      ...t,
+      user_email: t.user_email || t.profiles?.email || 'N/A',
+      user_name: t.profiles?.full_name || 'Valued Trader'
+    }));
   }
 
-  allTransactions = data || [];
   totalTxCount.textContent = allTransactions.length;
   
   const pendingList = allTransactions.filter(t => (t.status || '').toLowerCase() === 'pending');
@@ -203,7 +220,7 @@ function renderTransactions() {
     return `
       <tr>
         <td>${dateStr}</td>
-        <td><b>${t.user_email || 'N/A'}</b></td>
+        <td><b>${t.user_email}</b></td>
         <td>${t.type || 'Deposit'}</td>
         <td>${t.reference || '-'}</td>
         <td style="color:#f4cf72;font-weight:bold;">$${t.amount || 0}</td>
@@ -246,8 +263,8 @@ async function handleAction(e) {
     return;
   }
 
-  if (tx && tx.user_email) {
-    await triggerEmail(tx.user_email, 'Valued Trader', action, {
+  if (tx && tx.user_email && tx.user_email !== 'N/A') {
+    await triggerEmail(tx.user_email, tx.user_name || 'Valued Trader', action, {
       type: tx.type || 'Deposit',
       amount: tx.amount,
       reference: tx.reference
@@ -258,7 +275,7 @@ async function handleAction(e) {
 }
 
 async function loadClientsDetail() {
-  clientsTableBody.innerHTML = `<tr><td colspan="4" style="text-align:center;">Loading clients...</td></tr>`;
+  clientsTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Loading clients...</td></tr>`;
 
   const { data: clients, error } = await supabase
     .from('profiles')
@@ -266,7 +283,7 @@ async function loadClientsDetail() {
     .order('created_at', { ascending: false });
 
   if (error || !clients || clients.length === 0) {
-    clientsTableBody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No clients found.</td></tr>`;
+    clientsTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No clients found.</td></tr>`;
     return;
   }
 
@@ -274,9 +291,11 @@ async function loadClientsDetail() {
 
   clientsTableBody.innerHTML = clients.map(c => `
     <tr>
-      <td><b>${c.email || 'N/A'}</b></td>
-      <td style="font-size:11px;color:#8899a6;">${c.id}</td>
+      <td><b>${c.full_name || c.name || 'N/A'}</b></td>
+      <td>${c.email || 'N/A'}</td>
+      <td>${c.phone || c.phone_number || '-'}</td>
       <td><span class="badge-role ${c.role === 'admin' ? 'role-admin' : 'role-client'}">${c.role || 'client'}</span></td>
+      <td>${c.country || '-'}</td>
       <td>${c.created_at ? new Date(c.created_at).toLocaleDateString() : '-'}</td>
     </tr>
   `).join('');
