@@ -33,6 +33,8 @@
 .save-btn{background:var(--gold);color:#000;border:none;padding:12px;border-radius:8px;font-weight:700;cursor:pointer;margin-top:10px}
 .save-btn:hover:not(:disabled){opacity:.9}
 .save-btn:disabled{opacity:0.6;cursor:not-allowed}
+.back-dash-btn{background:transparent;color:#cdd5d7;border:1px solid #2f3e46;padding:12px;border-radius:8px;font-weight:600;cursor:pointer;text-align:center;width:100%;margin-top:4px;display:block}
+.back-dash-btn:hover{background:#172227;color:#fff}
 
 @media(max-width:1100px){.kpis{grid-template-columns:repeat(2,1fr)}.quick-grid{grid-template-columns:repeat(2,1fr)}.lower{grid-template-columns:1fr}.hero-logo{width:170px;right:25px}.hero{padding-right:220px}}
 @media(max-width:760px){.sidebar{width:min(320px,88vw)}.layout{display:block}.logo-wrap{height:76px}.side-nav{display:grid;grid-template-columns:repeat(2,1fr);padding:10px}.side-bottom{display:none}.side-link{font-size:12px;padding:10px}.topbar{height:62px;padding:0 15px}.top-actions{gap:8px}.user-name,.user-role,.chev{display:none}.content{padding:15px}.hero{padding:23px;min-height:150px}.hero-logo{opacity:.22;width:190px;right:15px;top:25px}.hero h1{font-size:28px}.kpis{grid-template-columns:1fr 1fr;gap:8px}.kpi{padding:15px}.kpi-value{font-size:19px}.kpi-icon{width:34px;height:34px}.quick-grid{grid-template-columns:1fr}.quick-icon{width:36px;height:36px;flex:0 0 36px}.lower{grid-template-columns:1fr}.top-title{font-size:17px}.hamb{margin-right:12px}}
@@ -115,7 +117,6 @@ let inactivityTimer;
 function resetInactivityTimer() {
   clearTimeout(inactivityTimer);
   inactivityTimer = setTimeout(async () => {
-    showToast("Inactivity detected! Security reasons ki wajah se aap auto-logout ho gaye hain.", "error");
     await supabase.auth.signOut();
     location.href = 'client-login.html';
   }, 2 * 60 * 1000);
@@ -198,7 +199,7 @@ function renderDashboard() {
   <section class="panel accounts-panel" id="accounts"><div class="panel-head"><div class="panel-title">Trading Accounts</div><a class="btn-primary" href="new-account.html">＋ Open New Account</a></div><div class="table-wrap"><table class="account-table"><thead><tr><th>Account</th><th>Type</th><th>Platform</th><th>Balance</th><th>Equity</th><th>P/L</th><th>Status</th><th>Action</th></tr></thead><tbody>
   ${currentAccounts.length?currentAccounts.map(v=>{const isDemo=String(v.account_type||'').toLowerCase().includes('demo')||String(v.account_name||'').toLowerCase().includes('demo');const type=String(v.account_type||v.account_name||'Standard');const pL=Number(v.today_pl||0);return `<tr><td><span class="pill ${isDemo?'demo':'live'}">${isDemo?'Demo':'Live'}</span><div class="account-main" style="margin-top:8px">${esc(v.account_number||'—')}</div><div class="account-sub">${esc(type)} / ${esc(v.leverage||'1:500')} / ${esc(v.currency||'USD')}</div></td><td><span class="pill ${type.toLowerCase().includes('ecn')?'ecn':'standard'}">${esc(type)}</span></td><td><div class="platform"><span class="mt5">M</span> ${esc(v.platform||'MT5')}</div></td><td>${money(v.balance)}</td><td>${money(v.equity)}</td><td class="${pL>=0?'positive':'red-text'}">${pL>=0?'+':''}${money(pL)}</td><td><span class="pill ${isDemo?'demo':'active'}">${isDemo?'Demo':esc(v.status||'Active')}</span></td><td><button class="manage" onclick="location.href='new-account.html'">Manage⌄</button></td></tr>`}).join(''):'<tr><td colspan="8" class="empty-row">No trading account has been created yet.</td></tr>'}
   </tbody></table></div></section>
-  <section class="panel quick-panel" id="funds"><div class="panel-title">Quick Actions</div><div class="quick-grid"><a class="quick" href="deposit.html"><span class="quick-icon q-green"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 19h14"/></svg></span><div><b>Deposit Funds</b><span>Add money to wallet</span></div></a><a class="quick" href="withdraw.html"><span class="quick-icon q-red"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 21V9"/><path d="M7 14l5-5 5 5"/><path d="M5 5h14"/></svg></span><div><b>Withdraw Funds</b><span>Withdraw to bank account</span></div></a><a class="quick" href="transfer.html"><span class="quick-icon q-blue"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 16l-4-4 4-4"/><path d="M3 12h11"/><path d="M17 8l4 4-4 4"/><path d="M21 12H10"/></svg></span><div><b>Transfer Funds</b><span>Internal transfer</span></div></a><a class="quick" href="#" onclick="showToast('Connect your MT5/WebTrader integration here.', 'success');return false"><span class="quick-icon q-purple"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><rect x="4" y="17" width="16" height="4" rx="1"/></svg></span><div><b>Download MT5</b><span>Windows / Android / iOS</span></div></a><a class="quick" href="contact.html"><span class="quick-icon q-gold"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg></span><div><b>Contact Support</b><span>We're here to help</span></div></a></div></section>
+  <section class="panel quick-panel" id="funds"><div class="panel-title">Quick Actions</div><div class="quick-grid"><a class="quick" href="deposit.html"><span class="quick-icon q-green"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 19h14"/></svg></span><div><b>Deposit Funds</b><span>Add money to wallet</span></div></a><a class="quick" href="withdraw.html"><span class="quick-icon q-red"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 21V9"/><path d="M7 14l5-5 5 5"/><path d="M5 5h14"/></svg></span><div><b>Withdraw Funds</b><span>Withdraw to bank account</span></div></a><a class="quick" href="transfer.html"><span class="quick-icon q-blue"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 16l-4-4 4-4"/><path d="M3 12h11"/><path d="M17 8l4 4-4 4"/><path d="M21 12H10"/></svg></span><div><b>Transfer Funds</b><span>Internal transfer</span></div></a><a class="quick" href="#" onclick="return false"><span class="quick-icon q-purple"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><rect x="4" y="17" width="16" height="4" rx="1"/></svg></span><div><b>Download MT5</b><span>Windows / Android / iOS</span></div></a><a class="quick" href="contact.html"><span class="quick-icon q-gold"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg></span><div><b>Contact Support</b><span>We're here to help</span></div></a></div></section>
   <section class="lower"><div class="panel" id="transactions"><div class="panel-title" style="margin-bottom:12px">Recent Transactions</div>${currentTx.length?`<div class="table-wrap"><table class="tx-table"><tr><th>Date</th><th>Type</th><th>Reference</th><th>Amount</th><th>Status</th></tr>${currentTx.map(v=>{const st=String(v.status||'').toLowerCase();const cls=st==='approved'||st==='completed'?'green':(st==='cancelled'||st==='rejected'?'red':'pending');return `<tr><td>${new Date(v.transaction_date).toLocaleDateString()}</td><td>${esc(v.type)}</td><td>${esc(v.reference)}</td><td class="${Number(v.amount)>=0?'green-text':'red-text'}">${Number(v.amount)>=0?'+':''}${money(v.amount)}</td><td><span class="statusbadge ${cls}">${esc(v.status)}</span></td></tr>`}).join('')}</table></div>`:'<div class="empty">No transactions yet.</div>'}</div>
   <div class="panel"><div class="panel-title" style="margin-bottom:12px">Account Summary</div><div class="row"><span>Account Holder</span><b>${esc((currentProfile.full_name||'—').toUpperCase())}</b></div><div class="row"><span>Client ID</span><b>${esc(currentProfile.client_id||'—')}</b></div><div class="row"><span>Email</span><b>${esc(currentUser.email)}</b></div><div class="row"><span>KYC Status</span><b class="${(currentProfile.kyc_status||'Pending')==='Verified'?'green-text':'gold-text'}">${esc(currentProfile.kyc_status||'Pending')}</b></div></div></section>`;
 }
@@ -237,12 +238,19 @@ function renderProfileSettings() {
         <input type="text" id="phoneInput" class="form-input" value="${esc(currentProfile.phone || '')}" placeholder="+92 300 1234567" />
       </div>
       <button type="submit" class="save-btn" id="saveProfileBtn">Save Changes</button>
+      <button type="button" class="back-dash-btn" id="backToDashBtn">← Back to Dashboard</button>
     </form>
   </div>`;
 
   const changeAvatarBtn = document.getElementById('changeAvatarBtn');
   const avatarInput = document.getElementById('avatarInput');
   const profileForm = document.getElementById('profileForm');
+  const backToDashBtn = document.getElementById('backToDashBtn');
+
+  backToDashBtn.addEventListener('click', () => {
+    activeTab = 'dashboard';
+    render();
+  });
 
   changeAvatarBtn.addEventListener('click', () => avatarInput.click());
 
@@ -256,12 +264,9 @@ function renderProfileSettings() {
       document.getElementById('avatarPreview').innerHTML = `<img src="${base64Image}"/>`;
       
       const { error } = await supabase.from('profiles').update({ avatar_url: base64Image }).eq('id', currentUser.id);
-      if (error) {
-        showToast("Photo update karne me masla aaya.", "error");
-      } else {
+      if (!error) {
         currentProfile.avatar_url = base64Image;
         updateHeaderAndSidebar();
-        showToast("Profile photo successfully update ho gayi hai!", "success");
       }
     };
     reader.readAsDataURL(file);
@@ -271,37 +276,24 @@ function renderProfileSettings() {
     e.preventDefault();
     const newPhone = document.getElementById('phoneInput').value;
     const saveBtn = document.getElementById('saveProfileBtn');
+    
     saveBtn.textContent = 'Saving...';
     saveBtn.disabled = true;
 
     const { error } = await supabase.from('profiles').update({ phone: newPhone }).eq('id', currentUser.id);
     
-    saveBtn.textContent = 'Save Changes';
-    saveBtn.disabled = false;
-
-    if (error) {
-      showToast("Phone number update nahi ho saka.", "error");
-    } else {
+    if (!error) {
       currentProfile.phone = newPhone;
-      showToast("Phone number successfully update ho gaya hai!", "success");
+      saveBtn.textContent = 'Saved!';
+    } else {
+      saveBtn.textContent = 'Error!';
     }
-  });
-}
 
-function showToast(message, type = 'success') {
-  let toast = document.createElement('div');
-  toast.style.cssText = `
-    position: fixed; top: 20px; right: 20px; z-index: 9999;
-    padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 13px;
-    background: ${type === 'success' ? '#18c879' : '#ff5360'}; color: #000;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4); transition: opacity 0.3s;
-  `;
-  toast.textContent = message;
-  document.body.appendChild(toast);
-  setTimeout(() => {
-    toast.style.opacity = '0';
-    setTimeout(() => toast.remove(), 300);
-  }, 3000);
+    setTimeout(() => {
+      saveBtn.textContent = 'Save Changes';
+      saveBtn.disabled = false;
+    }, 2000);
+  });
 }
 
 // Sidebar Navigation Actions
