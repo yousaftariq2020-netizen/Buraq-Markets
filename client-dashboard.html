@@ -40,11 +40,9 @@
 .profile-menu-item{display:flex;align-items:center;gap:10px;padding:10px 14px;color:#cdd5d7;font-size:12px;cursor:pointer}
 .profile-menu-item:hover{background:#172227;color:#fff}
 
-/* KYC ALERT BANNER */
 .kyc-alert{background:linear-gradient(90deg,#3b2707,#1d1303);border:1px solid #735118;padding:12px 28px;display:flex;align-items:center;justify-content:space-between;color:#e3be6b;font-weight:500;font-size:12px;gap:10px;flex-wrap:wrap}
 .kyc-alert button{background:var(--gold);color:#000;border:0;padding:6px 14px;border-radius:6px;font-weight:700;cursor:pointer}
 
-/* MARKET TICKER */
 .market-ticker{background:#0a0f12;border-bottom:1px solid var(--border);padding:8px 28px;display:flex;gap:24px;overflow-x:auto;font-size:12px}
 .ticker-item{display:flex;align-items:center;gap:8px;white-space:nowrap}
 .ticker-sym{font-weight:700;color:#fff}
@@ -54,7 +52,6 @@
 
 .content{padding:24px 28px 36px;max-width:1450px;margin:auto}
 
-/* HERO SECTION DESKTOP & MOBILE RESPONSIVE FIX */
 .hero{position:relative;overflow:hidden;min-height:150px;border:1px solid #5b4817;border-radius:12px;background:linear-gradient(110deg,#241c09,#171208 56%,#211a08);padding:24px 28px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
 .hero-line{position:absolute;right:-4%;bottom:12px;width:58%;height:100px;opacity:.35;background:linear-gradient(135deg,transparent 0 15%,rgba(214,169,59,.2) 16% 17%,transparent 18% 29%,rgba(214,169,59,.35) 30% 31%,transparent 32% 43%,rgba(214,169,59,.6) 44% 45%,transparent 46% 58%,rgba(214,169,59,.72) 59% 60%,transparent 61% 72%,rgba(214,169,59,.8) 73% 74%,transparent 75%);transform:skewY(-13deg);pointer-events:none}
 .hero-copy{position:relative;z-index:2;flex:1;min-width:240px}
@@ -74,7 +71,6 @@
 .kpi-sub{font-size:11px;color:var(--muted);margin-top:6px;font-weight:400}
 .green-text{color:#18c879!important}
 
-/* PLATFORMS BAR */
 .download-bar{background:#0d1317;border:1px solid var(--border);border-radius:12px;padding:16px 22px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
 .download-title{font-weight:700;color:#fff;display:flex;align-items:center;gap:8px}
 .download-links{display:flex;gap:10px;flex-wrap:wrap}
@@ -95,7 +91,6 @@
 .btn-outline{background:#0c1a26;color:#3b9dff;border:1px solid #1a3650;border-radius:8px;padding:8px 14px;font-weight:700;font-size:11px;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;justify-content:center}
 .btn-outline:hover{background:#102233}
 
-/* CHART CONTAINER */
 .chart-card{background:#0d1317;border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:18px}
 .chart-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .chart-title{font-weight:700;color:#fff;font-size:15px}
@@ -153,7 +148,6 @@
 .form-control:focus{border-color:var(--gold)}
 .modal-footer{margin-top:20px;display:flex;justify-content:flex-end;gap:10px}
 
-/* --- SPECIAL MOBILE BREAKPOINTS --- */
 @media (max-width: 768px) {
   .topbar { padding: 0 14px; height: 60px; }
   .hamb { margin-right: 12px; }
@@ -162,14 +156,12 @@
   .market-ticker { padding: 8px 14px; font-size: 11px; gap: 16px; }
   .content { padding: 14px; }
   
-  /* Hero Overlap Fix */
   .hero { padding: 16px; flex-direction: column; align-items: flex-start; }
   .hero-logo-wrap { order: -1; width: 100%; justify-content: flex-start; margin-bottom: 4px; }
   .hero-logo { width: 130px; }
   .hero h1 { font-size: 22px; }
   .hero-line { display: none; }
 
-  /* Download buttons 2x2 on mobile */
   .download-bar { padding: 14px; }
   .download-links { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .dl-btn { justify-content: center; }
@@ -231,7 +223,6 @@
 
 <main class="content">
   <div id="app">
-    <!-- MOBILE FIXED HERO BANNER -->
     <section class="hero">
       <div class="hero-line"></div>
       <div class="hero-copy">
@@ -632,10 +623,13 @@ async function loadData() {
       ]);
 
       const profile = profileRes.data || {};
-      let accounts = accountsRes.data || [];
+      let allAccounts = accountsRes.data || [];
       const transactions = txRes.data || [];
 
-      accounts = accounts.filter(a => a.platform && a.platform !== 'Internal');
+      // Wallet rows (platform = 'Internal' or is_wallet = true) hold deposited
+      // funds that haven't been assigned to an MT4/MT5/cTrader trading account yet.
+      const walletAccounts = allAccounts.filter(a => a.is_wallet || a.platform === 'Internal');
+      const tradingAccounts = allAccounts.filter(a => a.platform && a.platform !== 'Internal' && !a.is_wallet);
 
       const fullName = profile.full_name || currentUser.email.split('@')[0];
       const upperName = fullName.toUpperCase();
@@ -664,22 +658,35 @@ async function loadData() {
 
       const accountsSection = document.getElementById('accountsSection');
 
-      if (accounts.length > 0) {
+      // Totals now include BOTH the wallet balance and any real trading accounts,
+      // so a deposit shows up immediately on the dashboard even before the user
+      // opens a Live/Demo trading account.
+      const walletBalance = walletAccounts.reduce((x,v)=>x+Number(v.balance||0),0);
+      const walletEquity = walletAccounts.reduce((x,v)=>x+Number(v.equity||v.balance||0),0);
+
+      const tradingBalance = tradingAccounts.reduce((x,v)=>x+Number(v.balance||0),0);
+      const tradingEquity = tradingAccounts.reduce((x,v)=>x+Number(v.equity||0),0);
+      const tradingFreeMargin = tradingAccounts.reduce((x,v)=>x+Number(v.free_margin||v.balance||0),0);
+      const totalPL = tradingAccounts.reduce((x,v)=>x+Number(v.profit_loss||0),0);
+
+      const totalBalance = walletBalance + tradingBalance;
+      const totalEquity = walletEquity + tradingEquity;
+      const totalFreeMargin = walletBalance + tradingFreeMargin;
+
+      document.getElementById('valBalance').textContent = money(totalBalance);
+      document.getElementById('valEquity').textContent = money(totalEquity);
+      document.getElementById('valMargin').textContent = money(totalFreeMargin);
+      document.getElementById('valPL').textContent = (totalPL >= 0 ? '+' : '') + money(totalPL);
+
+      equityChart.data.datasets[0].data = [0, totalBalance * 0.2, totalBalance * 0.5, totalBalance * 0.8, totalEquity, totalEquity, totalEquity];
+      equityChart.update();
+
+      // "Active Accounts" table stays focused on real trading accounts only —
+      // the wallet is reflected in the KPI cards above, not as a row here.
+      if (tradingAccounts.length > 0) {
         accountsSection.style.display = 'block';
-        const totalBalance = accounts.reduce((x,v)=>x+Number(v.balance||0),0);
-        const equity = accounts.reduce((x,v)=>x+Number(v.equity||0),0);
-        const freeMargin = accounts.reduce((x,v)=>x+Number(v.free_margin||v.balance||0),0);
-        const totalPL = accounts.reduce((x,v)=>x+Number(v.profit_loss||0),0);
 
-        document.getElementById('valBalance').textContent = money(totalBalance);
-        document.getElementById('valEquity').textContent = money(equity);
-        document.getElementById('valMargin').textContent = money(freeMargin);
-        document.getElementById('valPL').textContent = (totalPL >= 0 ? '+' : '') + money(totalPL);
-
-        equityChart.data.datasets[0].data = [0, totalBalance * 0.2, totalBalance * 0.5, totalBalance * 0.8, equity, equity, equity];
-        equityChart.update();
-
-        document.getElementById('accountsList').innerHTML = accounts.map(a => `
+        document.getElementById('accountsList').innerHTML = tradingAccounts.map(a => `
           <tr>
             <td>
               <span class="acc-tag ${a.type && a.type.toLowerCase() === 'demo' ? 'demo' : ''}">${a.type || 'Live'}</span>
@@ -696,7 +703,7 @@ async function loadData() {
           </tr>
         `).join('');
 
-        document.getElementById('gridViewContainer').innerHTML = accounts.map(a => `
+        document.getElementById('gridViewContainer').innerHTML = tradingAccounts.map(a => `
           <div class="acc-card">
             <div class="acc-card-head">
               <div>
@@ -716,10 +723,6 @@ async function loadData() {
 
       } else {
         accountsSection.style.display = 'none';
-        document.getElementById('valBalance').textContent = '$0.00';
-        document.getElementById('valEquity').textContent = '$0.00';
-        document.getElementById('valMargin').textContent = '$0.00';
-        document.getElementById('valPL').textContent = '+$0.00';
       }
 
       if (transactions && transactions.length > 0) {
