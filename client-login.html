@@ -22,6 +22,8 @@ input:focus{border-color:var(--gold)}
 .toggle-password svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 button[type="submit"]{width:100%;background:var(--gold);color:#000;border:none;padding:12px;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;margin-top:8px}
 button[type="submit"]:hover{opacity:0.9}
+.back-home{display:block;text-align:center;margin-top:20px;color:var(--muted);text-decoration:none;font-size:13px;transition:color 0.2s}
+.back-home:hover{color:var(--gold)}
 .error{background:#2a1113;border:1px solid #5a1d22;color:#ff6d77;padding:10px;border-radius:6px;font-size:12px;margin-bottom:16px;display:none}
 </style>
 </head>
@@ -52,6 +54,9 @@ button[type="submit"]:hover{opacity:0.9}
     </div>
     <button type="submit" id="submitBtn">Sign In</button>
   </form>
+
+  <!-- Back to Home Link -->
+  <a href="index.html" class="back-home">← Back to Home Page</a>
 </div>
 
 <script type="module">
@@ -66,7 +71,6 @@ togglePasswordBtn.addEventListener('click', () => {
   const isPassword = passwordInput.type === 'password';
   passwordInput.type = isPassword ? 'text' : 'password';
   
-  // Icon update (Eye / Eye Off)
   if (isPassword) {
     eyeIcon.innerHTML = `
       <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
