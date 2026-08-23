@@ -1,4 +1,4 @@
-// Single Template EmailJS Helper
+// Single Template EmailJS Helper (Fixed Export)
 
 const EMAILJS_SERVICE_ID = 'service_94w4z5q';
 const EMAILJS_TEMPLATE_ID = 'template_ly4i099'; // AAPKA MAIN SINGLE TEMPLATE
@@ -34,6 +34,9 @@ export async function triggerEmail(recipientEmail, recipientName, actionType, tx
       : 'Your request could not be processed at this time. Please contact support for further details.'
   });
 }
+
+// Alias export for admin dashboard compatibility
+export const sendNotification = triggerEmail;
 
 // 2. Deposit Request Received Email
 export async function sendDepositRequestEmail(recipientEmail, recipientName, amount, reference, type = 'Deposit') {
@@ -88,5 +91,6 @@ async function sendGenericEmail(params) {
 }
 
 window.triggerEmail = triggerEmail;
+window.sendNotification = sendNotification;
 window.sendLoginEmail = sendLoginEmail;
 window.sendDepositRequestEmail = sendDepositRequestEmail;
