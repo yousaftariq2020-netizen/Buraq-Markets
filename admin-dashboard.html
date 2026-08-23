@@ -122,6 +122,7 @@ import { triggerEmail } from './email-helper.js';
 
 let currentTab = 'pending';
 let allTransactions = [];
+let profilesMap = {};
 
 const adminEmailEl = document.getElementById('adminEmail');
 const logoutBtn = document.getElementById('logoutBtn');
@@ -153,22 +154,22 @@ async function checkAuth() {
   }
   
   adminEmailEl.textContent = user.email;
+  await loadProfilesMap();
   loadData();
-  loadClientsCount();
 }
 
-async function loadClientsCount() {
-  const { data } = await supabase.from('profiles').select('id');
+async function loadProfilesMap() {
+  const { data } = await supabase.from('profiles').select('*');
   if (data) {
     totalClientsCount.textContent = data.length;
+    data.forEach(p => {
+      profilesMap[p.id] = p;
+    });
   }
 }
 
 async function loadData() {
-  // Simple select without column order dependency to prevent 400 Bad Request
-  const { data, error } = await supabase
-    .from('transactions')
-    .select('*');
+  const { data, error } = await supabase.from('transactions').select('*');
 
   if (error) {
     txTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#ef4444;">Error: ${error.message}</td></tr>`;
@@ -197,8 +198,15 @@ function renderTransactions() {
 
   txTableBody.innerHTML = list.map(t => {
     const isPending = (t.status || '').toLowerCase() === 'pending';
-    const dateVal = t.created_at || t.date || t.created_date;
-    const dateStr = dateVal ? new Date(dateVal).toLocaleDateString() : '-';
+    
+    // Dynamic Date mapping
+    const rawDate = t.created_at || t.date || t.created_date || t.timestamp;
+    const dateStr = rawDate ? new Date(rawDate).toLocaleDateString() : '-';
+
+    // Dynamic Email mapping (Transaction fields OR matched Profile)
+    const matchedProfile = t.user_id ? profilesMap[t.user_id] : null;
+    const clientEmail = t.user_email || t.email || t.client_email || matchedProfile?.email || 'N/A';
+
     let statusClass = 'status-pending';
     if ((t.status || '').toLowerCase() === 'approved') statusClass = 'status-approved';
     if ((t.status || '').toLowerCase() === 'declined' || (t.status || '').toLowerCase() === 'rejected') statusClass = 'status-rejected';
@@ -206,9 +214,9 @@ function renderTransactions() {
     return `
       <tr>
         <td>${dateStr}</td>
-        <td><b>${t.user_email || t.email || 'N/A'}</b></td>
+        <td><b>${clientEmail}</b></td>
         <td>${t.type || 'Deposit'}</td>
-        <td>${t.reference || '-'}</td>
+        <td>${t.reference || t.ref_id || '-'}</td>
         <td style="color:#f4cf72;font-weight:bold;">$${t.amount || 0}</td>
         <td><span class="status-badge ${statusClass}">${t.status || 'Pending'}</span></td>
         <td>
@@ -249,12 +257,15 @@ async function handleAction(e) {
     return;
   }
 
-  const targetEmail = tx?.user_email || tx?.email;
+  // Preserve original email trigger logic
+  const matchedProfile = tx?.user_id ? profilesMap[tx.user_id] : null;
+  const targetEmail = tx?.user_email || tx?.email || tx?.client_email || matchedProfile?.email;
+
   if (targetEmail) {
     await triggerEmail(targetEmail, 'Valued Trader', action, {
       type: tx.type || 'Deposit',
       amount: tx.amount,
-      reference: tx.reference
+      reference: tx.reference || tx.ref_id
     });
   }
 
@@ -264,9 +275,7 @@ async function handleAction(e) {
 async function loadClientsDetail() {
   clientsTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Loading clients...</td></tr>`;
 
-  const { data: clients, error } = await supabase
-    .from('profiles')
-    .select('*');
+  const { data: clients, error } = await supabase.from('profiles').select('*');
 
   if (error || !clients || clients.length === 0) {
     clientsTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No clients found.</td></tr>`;
@@ -276,8 +285,8 @@ async function loadClientsDetail() {
   totalClientsCount.textContent = clients.length;
 
   clientsTableBody.innerHTML = clients.map(c => {
-    const dateVal = c.created_at || c.date || c.joined_at;
-    const dateStr = dateVal ? new Date(dateVal).toLocaleDateString() : '-';
+    const rawDate = c.created_at || c.date || c.joined_at;
+    const dateStr = rawDate ? new Date(rawDate).toLocaleDateString() : '-';
     
     return `
       <tr>
