@@ -149,9 +149,16 @@ function renderDashboard() {
   const pl = currentAccounts.reduce((x, v) => x + Number(v.today_pl || 0), 0);
   const name = (currentProfile.full_name || currentUser.email.split('@')[0] || 'Client').toUpperCase();
 
+  // FILTER: Default Wallet/Internal account filter out kar rahe hain taake trading list mein na aaye
+  const filteredAccounts = currentAccounts.filter(v => {
+    const typeStr = String(v.account_type || v.account_name || '').toLowerCase();
+    const isWallet = typeStr.includes('wallet') || String(v.platform || '').toLowerCase().includes('internal');
+    return !isWallet;
+  });
+
   let accountsHtml = '';
-  if (currentAccounts.length > 0) {
-    accountsHtml = currentAccounts.map(v => {
+  if (filteredAccounts.length > 0) {
+    accountsHtml = filteredAccounts.map(v => {
       const isDemo = String(v.account_type || '').toLowerCase().includes('demo') || String(v.account_name || '').toLowerCase().includes('demo');
       const type = String(v.account_type || v.account_name || 'Standard');
       const pL = Number(v.today_pl || 0);
@@ -173,7 +180,7 @@ function renderDashboard() {
       '</tr>';
     }).join('');
   } else {
-    accountsHtml = '<tr><td colspan="8" class="empty-row">No trading account has been created yet.</td></tr>';
+    accountsHtml = '<tr><td colspan="8" class="empty-row">No trading account opened yet. Click "Open Live Account" or "Open Demo Account" to create one.</td></tr>';
   }
 
   let txHtml = '';
@@ -247,13 +254,11 @@ function renderDashboard() {
   });
 }
 
-// User Dropdown logic
 const trigger = document.getElementById('userDropdownTrigger');
 const menu = document.getElementById('profileMenu');
 trigger?.addEventListener('click', (e) => { e.stopPropagation(); menu?.classList.toggle('show'); });
 document.addEventListener('click', () => menu?.classList.remove('show'));
 
-// Logout logic
 const handleLogout = async (e) => {
   e.preventDefault();
   await supabase.auth.signOut();
