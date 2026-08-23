@@ -59,21 +59,20 @@
 .kpi-sub{font-size:11px;color:var(--muted);margin-top:8px;font-weight:400}
 .green-text{color:#18c879!important}
 
-.action-cards-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
-@media(max-width:600px){.action-cards-grid{grid-template-columns:1fr}}
-.create-card{background:#0d1317;border:1px dashed var(--border);border-radius:12px;padding:22px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:.2s}
+.quick-actions-title{font-size:16px;font-weight:700;color:#fff;margin-bottom:12px}
+.action-cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:18px}
+.create-card{background:#0d1317;border:1px solid var(--border);border-radius:12px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:.2s}
 .create-card:hover{border-color:var(--gold);background:#10171d}
 .create-card.live-card{border:1px solid #3c2d0b;background:linear-gradient(90deg,#141006,#0d1317)}
 .create-card.live-card:hover{border-color:var(--gold)}
-.card-info h4{margin:0 0 4px;font-size:16px;color:#fff}
-.card-info p{margin:0;font-size:12px;color:var(--muted)}
+.card-info h4{margin:0 0 4px;font-size:14px;color:#fff}
+.card-info p{margin:0;font-size:11px;color:var(--muted)}
 
-.btn-gold{background:var(--gold);color:#000;border:0;border-radius:8px;padding:10px 18px;font-weight:700;font-size:12px;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;justify-content:center}
+.btn-gold{background:var(--gold);color:#000;border:0;border-radius:8px;padding:8px 14px;font-weight:700;font-size:11px;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;justify-content:center}
 .btn-gold:hover{background:var(--gold-hover)}
-.btn-outline{background:#0c1a26;color:#3b9dff;border:1px solid #1a3650;border-radius:8px;padding:10px 18px;font-weight:700;font-size:12px;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;justify-content:center}
+.btn-outline{background:#0c1a26;color:#3b9dff;border:1px solid #1a3650;border-radius:8px;padding:8px 14px;font-weight:700;font-size:11px;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;justify-content:center}
 .btn-outline:hover{background:#102233}
 
-/* HIDDEN BY DEFAULT: ONLY SHOWS WHEN CUSTOM TRADING ACCOUNTS EXIST */
 .accounts-container{display:none;margin-bottom:18px}
 .panel{background:#0a0f12;border:1px solid var(--border);border-radius:12px;margin-bottom:18px}
 .panel-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border)}
@@ -192,24 +191,43 @@
       </div>
     </section>
 
+    <!-- QUICK ACTIONS PANEL -->
+    <div class="quick-actions-title">Quick Actions</div>
     <section class="action-cards-grid">
       <div class="create-card live-card" id="btnOpenLive">
         <div class="card-info">
           <h4>Open Live Account</h4>
-          <p>Trade with real market funds & leverage</p>
+          <p>Trade real funds & leverage</p>
         </div>
         <button class="btn-gold">+ Live</button>
       </div>
+
       <div class="create-card" id="btnOpenDemo">
         <div class="card-info">
           <h4>Open Demo Account</h4>
-          <p>Practice strategies with virtual balance</p>
+          <p>Practice strategies</p>
         </div>
         <button class="btn-outline">+ Demo</button>
       </div>
+
+      <a href="deposit.html" class="create-card" style="text-decoration:none;">
+        <div class="card-info">
+          <h4>Deposit Funds</h4>
+          <p>Add capital instantly</p>
+        </div>
+        <button class="btn-gold" style="background:#18c879;color:#000;">↓ Deposit</button>
+      </a>
+
+      <a href="transfer.html" class="create-card" style="text-decoration:none;">
+        <div class="card-info">
+          <h4>Internal Transfer</h4>
+          <p>Move funds between accounts</p>
+        </div>
+        <button class="btn-outline">⇄ Transfer</button>
+      </a>
     </section>
 
-    <!-- ACTIVE ACCOUNTS: Hidden until user creates an MT4/MT5/cTrader account -->
+    <!-- ACTIVE ACCOUNTS: Hidden until custom trading accounts are created -->
     <section class="panel accounts-container" id="accountsSection" style="display:none;">
       <div class="panel-head">
         <div class="panel-title">Active Accounts</div>
@@ -470,7 +488,6 @@ async function loadData() {
       let accounts = accountsRes.data || [];
       const transactions = txRes.data || [];
 
-      // EXCLUDE DEFAULT AUTO-GENERATED WALLETS (LIKE platform === 'Internal' or non-MT/cTrader)
       accounts = accounts.filter(a => a.platform && a.platform !== 'Internal');
 
       const fullName = profile.full_name || currentUser.email.split('@')[0];
@@ -497,7 +514,6 @@ async function loadData() {
 
       const accountsSection = document.getElementById('accountsSection');
 
-      // IF USER HAS CREATED CUSTOM MT4 / MT5 / CTRADER ACCOUNTS: SHOW PANEL
       if (accounts.length > 0) {
         accountsSection.style.display = 'block';
         const totalBalance = accounts.reduce((x,v)=>x+Number(v.balance||0),0);
@@ -527,7 +543,6 @@ async function loadData() {
           </tr>
         `).join('');
       } else {
-        // HIDE PANEL COMPLETELY IF NO CREATED ACCOUNTS EXIST
         accountsSection.style.display = 'none';
         document.getElementById('valBalance').textContent = '$0.00';
         document.getElementById('valEquity').textContent = '$0.00';
