@@ -1,6 +1,6 @@
 // Complete EmailJS Integration Helper
 
-const EMAILJS_SERVICE_ID = 'service_9w4z5q';
+const EMAILJS_SERVICE_ID = 'service_94w4z5q';
 const EMAILJS_TEMPLATE_ID = 'template_ly4i099';
 const EMAILJS_PUBLIC_KEY = 'srCNMfHCpU7OtJ4hJ';
 
