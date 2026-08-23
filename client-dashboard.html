@@ -19,6 +19,31 @@
 .table-wrap{overflow:auto}.account-table{width:100%;border-collapse:collapse;min-width:880px}.account-table th{padding:12px 20px;text-align:left;color:#7e8a8e;font-size:11px;font-weight:500;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}.account-table td{padding:15px 20px;border-bottom:1px solid #1c2529;color:#d7dddd;font-size:12px;vertical-align:middle}.account-table tr:last-child td{border-bottom:0}.account-main{font-size:15px;font-weight:800;color:#eef4f2}.account-sub{color:#899598;font-size:11px;margin-top:4px}.pill{display:inline-flex;align-items:center;border-radius:5px;padding:6px 9px;font-size:10px;font-weight:700}.live{background:#0d3a27;color:#39dc8b}.demo{background:#082e54;color:#4eafff}.standard{background:#0b355b;color:#5bb5ff}.ecn{background:#2d1849;color:#bd8aff}.active{background:#0d3a27;color:#4de292}.platform{display:flex;align-items:center;gap:7px;font-weight:700}.mt5{width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,#17c878,#0c7650);display:grid;place-items:center;font-size:11px}.positive{color:#2ddd84;font-weight:700}.manage{background:transparent;border:1px solid #334047;color:#dce4e3;border-radius:7px;padding:8px 12px;font-size:11px;cursor:pointer}.manage:hover{border-color:#4a666e}.empty-row{text-align:center;color:#778487;padding:35px!important}
 .quick-panel{margin-top:18px;padding:20px}.quick-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:14px}.quick{border:1px solid #273238;background:#0c1418;border-radius:99px;padding:16px;display:flex;align-items:center;gap:12px;cursor:pointer}.quick:hover{border-color:#31504a;background:#0e191c}.quick-icon{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:18px;flex:0 0 40px}.q-green{background:#0b2b1e;color:#19cf79}.q-red{background:#351318;color:#ff6370}.q-blue{background:#092c47;color:#4aa9ff}.q-purple{background:#29173c;color:#aa74ff}.q-gold{background:#32270d;color:#e8b940}.quick b{display:block;font-size:12px}.quick span{display:block;color:#7f8c90;font-size:10px;margin-top:4px}
 .lower{display:grid;grid-template-columns:1.4fr .8fr;gap:15px;margin-top:18px}.lower .panel{padding:20px}.tx-table{width:100%;border-collapse:collapse;font-size:11px}.tx-table th,.tx-table td{padding:11px 7px;border-bottom:1px solid #20292d;text-align:left}.tx-table th{color:#7f8b8f;font-weight:500}.tx-table td{color:#cbd4d3}.statusbadge{display:inline-block;padding:4px 8px;border-radius:20px;font-size:9px;font-weight:700;text-transform:uppercase}.statusbadge.pending{background:#33290d;color:#efc24b;border:1px solid #594811}.statusbadge.green{background:#0d3020;color:#4be090;border:1px solid #1b5a39}.statusbadge.red{background:#351316;color:#ff6d77;border:1px solid #5a1d22}.row{display:flex;justify-content:space-between;gap:15px;padding:11px 0;border-bottom:1px solid #20292d;font-size:11px}.row span{color:#7f8b8f}.row b{color:#dbe3e2;text-align:right}.green-text{color:#2ddd84!important}.red-text{color:#ff6670!important}.gold-text{color:#e3b64e!important}.empty{color:#778487;font-size:12px;padding:20px 0}.loading{padding:80px;text-align:center;color:#9ba6a8}
+
+/* Custom Notification Toast */
+.custom-toast {
+  position: fixed;
+  top: 25px;
+  right: 25px;
+  background: #151d21;
+  border: 1px solid #ff5360;
+  border-left: 5px solid #ff5360;
+  color: #fff;
+  padding: 14px 20px;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 9999;
+  animation: slideIn 0.3s ease-out forwards;
+}
+.custom-toast strong { display: block; font-size: 13px; color: #ff5360; }
+.custom-toast p { margin: 2px 0 0; font-size: 12px; color: #aeb8ba; }
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
 </style>
 
 <style id="buraq-gold-theme">
@@ -97,6 +122,27 @@ let currentProfile = {};
 let currentAccounts = [];
 let currentTx = [];
 
+function showKycToast(message) {
+  const existing = document.querySelector('.custom-toast');
+  if (existing) existing.remove();
+
+  const toast = document.createElement('div');
+  toast.className = 'custom-toast';
+  toast.innerHTML = `
+    <div style="font-size:22px;color:#ff5360">⚠️</div>
+    <div>
+      <strong>Verification Required!</strong>
+      <p>${message}</p>
+    </div>
+  `;
+  document.body.appendChild(toast);
+
+  setTimeout(() => {
+    toast.remove();
+    window.location.href = 'verify-identity.html';
+  }, 2200);
+}
+
 async function loadData() {
   try {
     const { data: { user }, error: authErr } = await supabase.auth.getUser();
@@ -149,7 +195,6 @@ function renderDashboard() {
   const pl = currentAccounts.reduce((x, v) => x + Number(v.today_pl || 0), 0);
   const name = (currentProfile.full_name || currentUser.email.split('@')[0] || 'Client').toUpperCase();
 
-  // FILTER: Default Wallet/Internal account filter out kar rahe hain taake trading list mein na aaye
   const filteredAccounts = currentAccounts.filter(v => {
     const typeStr = String(v.account_type || v.account_name || '').toLowerCase();
     const isWallet = typeStr.includes('wallet') || String(v.platform || '').toLowerCase().includes('internal');
@@ -243,13 +288,13 @@ function renderDashboard() {
     '</section>';
 
   document.getElementById('btnOpenDemo')?.addEventListener('click', () => { location.href = 'new-demo-account.html'; });
+
   document.getElementById('btnOpenLive')?.addEventListener('click', () => {
     const kyc = String(currentProfile.kyc_status || '').toLowerCase();
     if (kyc === 'verified' || kyc === 'approved') {
       location.href = 'new-account.html';
     } else {
-      alert('Account Verification Required!\n\nPlease complete your KYC Verification first to open a Live Trading Account.');
-      location.href = 'verify-identity.html';
+      showKycToast('Please complete KYC Verification first to open a Live Account.');
     }
   });
 }
