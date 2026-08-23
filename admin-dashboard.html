@@ -185,24 +185,23 @@ async function loadData() {
   renderTransactions();
 }
 
+function formatDate(val) {
+  if (!val) return 'Today';
+  const d = new Date(val);
+  if (!isNaN(d.getTime())) {
+    return d.toLocaleDateString();
+  }
+  return String(val);
+}
+
 function extractDate(obj) {
-  if (!obj) return '-';
-  // Check common date keys dynamically
-  const keys = ['created_at', 'date', 'created_date', 'timestamp', 'time', 'createdAt', 'tx_date'];
-  for (let key of keys) {
-    if (obj[key]) {
-      const d = new Date(obj[key]);
-      if (!isNaN(d.getTime())) return d.toLocaleDateString();
-    }
-  }
-  // If key contains 'date' or 'time'
+  if (!obj) return 'Today';
   for (let key in obj) {
-    if (key.toLowerCase().includes('date') || key.toLowerCase().includes('time')) {
-      const d = new Date(obj[key]);
-      if (!isNaN(d.getTime())) return d.toLocaleDateString();
+    if (key.toLowerCase().includes('date') || key.toLowerCase().includes('created') || key.toLowerCase().includes('time')) {
+      if (obj[key]) return formatDate(obj[key]);
     }
   }
-  return '-';
+  return 'Today';
 }
 
 function renderTransactions() {
