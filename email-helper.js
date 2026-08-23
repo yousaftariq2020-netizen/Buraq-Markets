@@ -1,8 +1,11 @@
-// Complete EmailJS Integration Helper
+// Updated EmailJS Integration Helper
 
 const EMAILJS_SERVICE_ID = 'service_94w4z5q';
-const EMAILJS_TEMPLATE_ID = 'template_ly4i099';
 const EMAILJS_PUBLIC_KEY = 'srCNMfHCpU7OtJ4hJ';
+
+// Template IDs
+const TEMPLATE_STATUS = 'template_ly4i099'; // Admin Approval/Decline/Request
+const TEMPLATE_LOGIN = 'template_5mlh8in';   // Login Notification
 
 function loadEmailSDK() {
   return new Promise((resolve) => {
@@ -18,10 +21,7 @@ function loadEmailSDK() {
   });
 }
 
-export async function sendNotification(recipientEmail, recipientName, actionType, txDetails = {}) {
-  return await triggerEmail(recipientEmail, recipientName, actionType, txDetails);
-}
-
+// 1. Admin Approve / Reject Email Trigger
 export async function triggerEmail(recipientEmail, recipientName, actionType, txDetails = {}) {
   let safeEmail = typeof recipientEmail === 'string' ? recipientEmail.trim() : '';
 
@@ -55,8 +55,8 @@ export async function triggerEmail(recipientEmail, recipientName, actionType, tx
   };
 
   try {
-    const response = await window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
-    console.log('EmailJS Success:', response.status, response.text);
+    const response = await window.emailjs.send(EMAILJS_SERVICE_ID, TEMPLATE_STATUS, templateParams);
+    console.log('Status Email Sent:', response.status, response.text);
     return true;
   } catch (error) {
     console.error('EmailJS Failed:', error);
@@ -64,5 +64,60 @@ export async function triggerEmail(recipientEmail, recipientName, actionType, tx
   }
 }
 
-window.sendNotification = sendNotification;
+// 2. Client Login Email Trigger
+export async function sendLoginEmail(recipientEmail, recipientName) {
+  let safeEmail = typeof recipientEmail === 'string' ? recipientEmail.trim() : '';
+  if (!safeEmail || !safeEmail.includes('@')) return false;
+
+  await loadEmailSDK();
+
+  const templateParams = {
+    to_email: safeEmail,
+    email: safeEmail,
+    to_name: recipientName || 'Valued Trader',
+    login_time: new Date().toLocaleString()
+  };
+
+  try {
+    const response = await window.emailjs.send(EMAILJS_SERVICE_ID, TEMPLATE_LOGIN, templateParams);
+    console.log('Login Email Sent:', response.status, response.text);
+    return true;
+  } catch (error) {
+    console.error('Login Email Failed:', error);
+    return false;
+  }
+}
+
+// 3. Client Deposit Request Submitted Email Trigger
+export async function sendDepositRequestEmail(recipientEmail, recipientName, amount, reference, type = 'Deposit') {
+  let safeEmail = typeof recipientEmail === 'string' ? recipientEmail.trim() : '';
+  if (!safeEmail || !safeEmail.includes('@')) return false;
+
+  await loadEmailSDK();
+
+  const templateParams = {
+    to_email: safeEmail,
+    email: safeEmail,
+    recipient_email: safeEmail,
+    to_name: recipientName || 'Valued Trader',
+    status_title: 'PENDING',
+    email_heading: 'Deposit Request Received',
+    tx_type: type,
+    amount: amount || '0',
+    reference_id: reference || 'N/A',
+    custom_message: 'Your deposit request has been received and is currently pending review. Our team will verify and credit your account shortly.'
+  };
+
+  try {
+    const response = await window.emailjs.send(EMAILJS_SERVICE_ID, TEMPLATE_STATUS, templateParams);
+    console.log('Deposit Request Email Sent:', response.status, response.text);
+    return true;
+  } catch (error) {
+    console.error('Deposit Request Email Failed:', error);
+    return false;
+  }
+}
+
 window.triggerEmail = triggerEmail;
+window.sendLoginEmail = sendLoginEmail;
+window.sendDepositRequestEmail = sendDepositRequestEmail;
