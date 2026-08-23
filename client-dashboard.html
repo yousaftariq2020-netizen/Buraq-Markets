@@ -7,6 +7,7 @@
 :root{--bg:#070b0d;--sidebar:#090f12;--panel:#11181c;--panel2:#0d1417;--border:#202a2e;--text:#f4f7f6;--muted:#8d999d;--green:#18c879;--green2:#0d5a3b;--gold:#d6a93b;--blue:#4aa8ff;--purple:#9b68ff;--red:#ff5360}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 75% 0%,#10221a 0,transparent 28%),var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif;font-size:14px}a{text-decoration:none;color:inherit}button{font:inherit}
 .layout{min-height:100vh;display:flex}.sidebar{width:248px;position:fixed;inset:0 auto 0 0;background:linear-gradient(180deg,#0b1216,#070b0d);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:40;transform:translateX(-105%);transition:transform .24s ease;box-shadow:18px 0 45px rgba(0,0,0,.28);overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;height:100%;max-height:100dvh;overscroll-behavior:contain;touch-action:pan-y}.sidebar.open{transform:translateX(0)}.sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,.58);backdrop-filter:blur(2px);z-index:35;opacity:0;visibility:hidden;transition:opacity .2s ease,visibility .2s ease}.sidebar-overlay.show{opacity:1;visibility:visible}.main{margin-left:0;min-width:0;flex:1}.logo-wrap{height:96px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:14px 22px;border-bottom:1px solid var(--border)}.logo{width:175px;height:auto;display:block;object-fit:contain}.side-nav{padding:18px 13px;display:flex;flex-direction:column;gap:5px;flex:1 1 auto}.side-link{display:flex;align-items:center;gap:13px;padding:12px 13px;border-radius:99px;color:#b8c1c3;font-size:14px;font-weight:600;transition:.18s;flex-shrink:0;cursor:pointer}.side-link:hover{background:#101b1f;color:#fff}.side-link.active{background:linear-gradient(90deg,#0d5d3d,#10442f);color:#fff;box-shadow:inset 0 0 0 1px #176d49}.ico{width:22px;text-align:center;font-size:18px}.kyc-dot{margin-left:auto;background:#18a968;color:#fff;border-radius:10px;padding:3px 7px;font-size:9px}.side-bottom{margin-top:auto;padding:14px;flex-shrink:0}.help{border:1px solid #263238;background:#0c1418;border-radius:10px;padding:14px;display:flex;gap:11px;align-items:center;color:#aeb8ba}.help strong{display:block;color:#fff;font-size:13px}.help small{display:block;margin-top:4px;color:#778387}.topbar{height:72px;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;background:rgba(7,11,13,.82);backdrop-filter:blur(12px);position:sticky;top:0;z-index:10}.hamb{font-size:24px;color:#d9e0df;margin-right:22px;border:0;background:transparent;padding:4px;cursor:pointer;line-height:1}.top-title{font-size:20px;font-weight:700}.top-actions{margin-left:auto;display:flex;align-items:center;gap:22px}.circle-btn{width:40px;height:40px;border:1px solid var(--border);border-radius:50%;background:#0d1418;color:#dce4e3;display:grid;place-items:center;cursor:pointer}.bell{position:relative}.bell:after{content:'2';position:absolute;right:-2px;top:-3px;background:#23b86d;color:#fff;border-radius:50%;font-size:9px;min-width:16px;height:16px;display:grid;place-items:center}
+
 /* Profile Dropdown Styling */
 .user-dropdown{position:relative;cursor:pointer}.user{display:flex;align-items:center;gap:10px;padding:4px 8px;border-radius:8px;transition:background .2s}.user:hover{background:#11191d}.avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#475258,#12181c);display:grid;place-items:center;color:#dfe7e5;font-size:18px;overflow:hidden;object-fit:cover}.user-name{font-weight:700}.user-role{font-size:11px;color:var(--muted);margin-top:3px}.chev{color:#829093;margin-left:8px}
 .profile-menu{position:absolute;top:calc(100% + 10px);right:0;width:220px;background:#0d1417;border:1px solid var(--border);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.5);display:none;flex-direction:column;padding:8px 0;z-index:100}.profile-menu.show{display:flex}.profile-menu-item{display:flex;align-items:center;gap:10px;padding:10px 16px;color:#cdd5d7;font-size:13px;transition:background .15s;cursor:pointer}.profile-menu-item:hover{background:#172227;color:#fff}.profile-menu-divider{height:1px;background:var(--border);margin:6px 0}
@@ -30,7 +31,8 @@
 .form-input:disabled{background:#11171a;color:#6d797c;cursor:not-allowed}
 .form-input:focus:not(:disabled){border-color:var(--gold)}
 .save-btn{background:var(--gold);color:#000;border:none;padding:12px;border-radius:8px;font-weight:700;cursor:pointer;margin-top:10px}
-.save-btn:hover{opacity:.9}
+.save-btn:hover:not(:disabled){opacity:.9}
+.save-btn:disabled{opacity:0.6;cursor:not-allowed}
 
 @media(max-width:1100px){.kpis{grid-template-columns:repeat(2,1fr)}.quick-grid{grid-template-columns:repeat(2,1fr)}.lower{grid-template-columns:1fr}.hero-logo{width:170px;right:25px}.hero{padding-right:220px}}
 @media(max-width:760px){.sidebar{width:min(320px,88vw)}.layout{display:block}.logo-wrap{height:76px}.side-nav{display:grid;grid-template-columns:repeat(2,1fr);padding:10px}.side-bottom{display:none}.side-link{font-size:12px;padding:10px}.topbar{height:62px;padding:0 15px}.top-actions{gap:8px}.user-name,.user-role,.chev{display:none}.content{padding:15px}.hero{padding:23px;min-height:150px}.hero-logo{opacity:.22;width:190px;right:15px;top:25px}.hero h1{font-size:28px}.kpis{grid-template-columns:1fr 1fr;gap:8px}.kpi{padding:15px}.kpi-value{font-size:19px}.kpi-icon{width:34px;height:34px}.quick-grid{grid-template-columns:1fr}.quick-icon{width:36px;height:36px;flex:0 0 36px}.lower{grid-template-columns:1fr}.top-title{font-size:17px}.hamb{margin-right:12px}}
@@ -113,7 +115,7 @@ let inactivityTimer;
 function resetInactivityTimer() {
   clearTimeout(inactivityTimer);
   inactivityTimer = setTimeout(async () => {
-    alert("Inactivity detected! Security reasons ki wajah se aap auto-logout ho gaye hain.");
+    showToast("Inactivity detected! Security reasons ki wajah se aap auto-logout ho gaye hain.", "error");
     await supabase.auth.signOut();
     location.href = 'client-login.html';
   }, 2 * 60 * 1000);
@@ -196,7 +198,7 @@ function renderDashboard() {
   <section class="panel accounts-panel" id="accounts"><div class="panel-head"><div class="panel-title">Trading Accounts</div><a class="btn-primary" href="new-account.html">＋ Open New Account</a></div><div class="table-wrap"><table class="account-table"><thead><tr><th>Account</th><th>Type</th><th>Platform</th><th>Balance</th><th>Equity</th><th>P/L</th><th>Status</th><th>Action</th></tr></thead><tbody>
   ${currentAccounts.length?currentAccounts.map(v=>{const isDemo=String(v.account_type||'').toLowerCase().includes('demo')||String(v.account_name||'').toLowerCase().includes('demo');const type=String(v.account_type||v.account_name||'Standard');const pL=Number(v.today_pl||0);return `<tr><td><span class="pill ${isDemo?'demo':'live'}">${isDemo?'Demo':'Live'}</span><div class="account-main" style="margin-top:8px">${esc(v.account_number||'—')}</div><div class="account-sub">${esc(type)} / ${esc(v.leverage||'1:500')} / ${esc(v.currency||'USD')}</div></td><td><span class="pill ${type.toLowerCase().includes('ecn')?'ecn':'standard'}">${esc(type)}</span></td><td><div class="platform"><span class="mt5">M</span> ${esc(v.platform||'MT5')}</div></td><td>${money(v.balance)}</td><td>${money(v.equity)}</td><td class="${pL>=0?'positive':'red-text'}">${pL>=0?'+':''}${money(pL)}</td><td><span class="pill ${isDemo?'demo':'active'}">${isDemo?'Demo':esc(v.status||'Active')}</span></td><td><button class="manage" onclick="location.href='new-account.html'">Manage⌄</button></td></tr>`}).join(''):'<tr><td colspan="8" class="empty-row">No trading account has been created yet.</td></tr>'}
   </tbody></table></div></section>
-  <section class="panel quick-panel" id="funds"><div class="panel-title">Quick Actions</div><div class="quick-grid"><a class="quick" href="deposit.html"><span class="quick-icon q-green"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 19h14"/></svg></span><div><b>Deposit Funds</b><span>Add money to wallet</span></div></a><a class="quick" href="withdraw.html"><span class="quick-icon q-red"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 21V9"/><path d="M7 14l5-5 5 5"/><path d="M5 5h14"/></svg></span><div><b>Withdraw Funds</b><span>Withdraw to bank account</span></div></a><a class="quick" href="transfer.html"><span class="quick-icon q-blue"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 16l-4-4 4-4"/><path d="M3 12h11"/><path d="M17 8l4 4-4 4"/><path d="M21 12H10"/></svg></span><div><b>Transfer Funds</b><span>Internal transfer</span></div></a><a class="quick" href="#" onclick="alert('Connect your MT5/WebTrader integration here.');return false"><span class="quick-icon q-purple"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><rect x="4" y="17" width="16" height="4" rx="1"/></svg></span><div><b>Download MT5</b><span>Windows / Android / iOS</span></div></a><a class="quick" href="contact.html"><span class="quick-icon q-gold"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg></span><div><b>Contact Support</b><span>We're here to help</span></div></a></div></section>
+  <section class="panel quick-panel" id="funds"><div class="panel-title">Quick Actions</div><div class="quick-grid"><a class="quick" href="deposit.html"><span class="quick-icon q-green"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 19h14"/></svg></span><div><b>Deposit Funds</b><span>Add money to wallet</span></div></a><a class="quick" href="withdraw.html"><span class="quick-icon q-red"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 21V9"/><path d="M7 14l5-5 5 5"/><path d="M5 5h14"/></svg></span><div><b>Withdraw Funds</b><span>Withdraw to bank account</span></div></a><a class="quick" href="transfer.html"><span class="quick-icon q-blue"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 16l-4-4 4-4"/><path d="M3 12h11"/><path d="M17 8l4 4-4 4"/><path d="M21 12H10"/></svg></span><div><b>Transfer Funds</b><span>Internal transfer</span></div></a><a class="quick" href="#" onclick="showToast('Connect your MT5/WebTrader integration here.', 'success');return false"><span class="quick-icon q-purple"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><rect x="4" y="17" width="16" height="4" rx="1"/></svg></span><div><b>Download MT5</b><span>Windows / Android / iOS</span></div></a><a class="quick" href="contact.html"><span class="quick-icon q-gold"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg></span><div><b>Contact Support</b><span>We're here to help</span></div></a></div></section>
   <section class="lower"><div class="panel" id="transactions"><div class="panel-title" style="margin-bottom:12px">Recent Transactions</div>${currentTx.length?`<div class="table-wrap"><table class="tx-table"><tr><th>Date</th><th>Type</th><th>Reference</th><th>Amount</th><th>Status</th></tr>${currentTx.map(v=>{const st=String(v.status||'').toLowerCase();const cls=st==='approved'||st==='completed'?'green':(st==='cancelled'||st==='rejected'?'red':'pending');return `<tr><td>${new Date(v.transaction_date).toLocaleDateString()}</td><td>${esc(v.type)}</td><td>${esc(v.reference)}</td><td class="${Number(v.amount)>=0?'green-text':'red-text'}">${Number(v.amount)>=0?'+':''}${money(v.amount)}</td><td><span class="statusbadge ${cls}">${esc(v.status)}</span></td></tr>`}).join('')}</table></div>`:'<div class="empty">No transactions yet.</div>'}</div>
   <div class="panel"><div class="panel-title" style="margin-bottom:12px">Account Summary</div><div class="row"><span>Account Holder</span><b>${esc((currentProfile.full_name||'—').toUpperCase())}</b></div><div class="row"><span>Client ID</span><b>${esc(currentProfile.client_id||'—')}</b></div><div class="row"><span>Email</span><b>${esc(currentUser.email)}</b></div><div class="row"><span>KYC Status</span><b class="${(currentProfile.kyc_status||'Pending')==='Verified'?'green-text':'gold-text'}">${esc(currentProfile.kyc_status||'Pending')}</b></div></div></section>`;
 }
@@ -255,11 +257,11 @@ function renderProfileSettings() {
       
       const { error } = await supabase.from('profiles').update({ avatar_url: base64Image }).eq('id', currentUser.id);
       if (error) {
-        alert("Photo update karne me masla aaya.");
+        showToast("Photo update karne me masla aaya.", "error");
       } else {
         currentProfile.avatar_url = base64Image;
         updateHeaderAndSidebar();
-        alert("Profile photo successfully update ho gayi hai!");
+        showToast("Profile photo successfully update ho gayi hai!", "success");
       }
     };
     reader.readAsDataURL(file);
@@ -270,17 +272,36 @@ function renderProfileSettings() {
     const newPhone = document.getElementById('phoneInput').value;
     const saveBtn = document.getElementById('saveProfileBtn');
     saveBtn.textContent = 'Saving...';
+    saveBtn.disabled = true;
 
     const { error } = await supabase.from('profiles').update({ phone: newPhone }).eq('id', currentUser.id);
+    
     saveBtn.textContent = 'Save Changes';
+    saveBtn.disabled = false;
 
     if (error) {
-      alert("Phone number update nahi ho saka.");
+      showToast("Phone number update nahi ho saka.", "error");
     } else {
       currentProfile.phone = newPhone;
-      alert("Phone number successfully update ho gaya hai!");
+      showToast("Phone number successfully update ho gaya hai!", "success");
     }
   });
+}
+
+function showToast(message, type = 'success') {
+  let toast = document.createElement('div');
+  toast.style.cssText = `
+    position: fixed; top: 20px; right: 20px; z-index: 9999;
+    padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 13px;
+    background: ${type === 'success' ? '#18c879' : '#ff5360'}; color: #000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4); transition: opacity 0.3s;
+  `;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
 }
 
 // Sidebar Navigation Actions
