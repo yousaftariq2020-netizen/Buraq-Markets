@@ -4,36 +4,56 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Buraq Markets — Client Dashboard</title>
 <style>
-:root{--bg:#070b0d;--sidebar:#090f12;--panel:#11181c;--panel2:#0d1417;--border:#202a2e;--text:#f4f7f6;--muted:#8d999d;--green:#18c879;--green2:#0d5a3b;--gold:#d6a93b;--blue:#4aa8ff;--purple:#9b68ff;--red:#ff5360}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 75% 0%,#10221a 0,transparent 28%),var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif;font-size:14px}a{text-decoration:none;color:inherit}button{font:inherit}
+:root{--bg:#070b0d;--sidebar:#090f12;--panel:#11181c;--panel2:#0d1417;--border:#1c262a;--text:#f4f7f6;--muted:#7e8b8f;--gold:#d6a93b;--gold-hover:#b88f2d;--green:#18c879;--red:#ff5360}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 75% 0%,#211b0b 0,transparent 28%),var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif;font-size:13px}a{text-decoration:none;color:inherit}button{font:inherit}
 .layout{min-height:100vh;display:flex}
-.sidebar{width:248px;position:fixed;inset:0 auto 0 0;background:linear-gradient(180deg,#0b1216,#070b0d);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:40;transform:translateX(0);transition:transform .24s ease;overflow-y:auto;height:100vh}
-.sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,.58);backdrop-filter:blur(2px);z-index:35;opacity:0;visibility:hidden;transition:opacity .2s ease,visibility .2s ease}.sidebar-overlay.show{opacity:1;visibility:visible}
-.main{margin-left:248px;min-width:0;flex:1}
+.sidebar{width:248px;position:fixed;inset:0 auto 0 0;background:linear-gradient(180deg,#0b1216,#070b0d);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:40;transform:translateX(-105%);transition:transform .24s ease;overflow-y:auto;height:100vh}
+.sidebar.open{transform:translateX(0)}.sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,.58);backdrop-filter:blur(2px);z-index:35;opacity:0;visibility:hidden;transition:opacity .2s ease,visibility .2s ease}.sidebar-overlay.show{opacity:1;visibility:visible}
+.main{margin-left:0;min-width:0;flex:1}
 .logo-wrap{height:96px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:14px 22px;border-bottom:1px solid var(--border)}.logo{width:175px;height:auto;display:block;object-fit:contain}
 .side-nav{padding:18px 13px;display:flex;flex-direction:column;gap:5px;flex:1 1 auto}
-.side-link{display:flex;align-items:center;gap:13px;padding:12px 13px;border-radius:99px;color:#b8c1c3;font-size:14px;font-weight:600;transition:.18s;flex-shrink:0;cursor:pointer}.side-link:hover{background:#101b1f;color:#fff}.side-link.active{background:linear-gradient(90deg,#0d5d3d,#10442f);color:#fff;box-shadow:inset 0 0 0 1px #176d49}.ico{width:22px;text-align:center;font-size:18px}.kyc-dot{margin-left:auto;background:#18a968;color:#fff;border-radius:10px;padding:3px 7px;font-size:9px}
-.side-bottom{margin-top:auto;padding:14px;flex-shrink:0}.help{border:1px solid #263238;background:#0c1418;border-radius:10px;padding:14px;display:flex;gap:11px;align-items:center;color:#aeb8ba}.help strong{display:block;color:#fff;font-size:13px}.help small{display:block;margin-top:4px;color:#778387}
+.side-link{display:flex;align-items:center;gap:13px;padding:12px 13px;border-radius:99px;color:#b8c1c3;font-size:13px;font-weight:600;transition:.18s;flex-shrink:0;cursor:pointer}.side-link:hover{background:#101b1f;color:#fff}.side-link.active{background:linear-gradient(90deg,#5d4710,#3c2d0b);color:#fff;box-shadow:inset 0 0 0 1px #9b7622}.ico{width:22px;text-align:center;font-size:16px}
 .topbar{height:72px;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;background:rgba(7,11,13,.82);backdrop-filter:blur(12px);position:sticky;top:0;z-index:10}
-.hamb{font-size:24px;color:#d9e0df;margin-right:22px;border:0;background:transparent;padding:4px;cursor:pointer;line-height:1;display:none}.top-title{font-size:20px;font-weight:700}.top-actions{margin-left:auto;display:flex;align-items:center;gap:22px}
-.user-dropdown{position:relative;cursor:pointer}.user{display:flex;align-items:center;gap:10px;padding:4px 8px;border-radius:8px;transition:background .2s}.user:hover{background:#11191d}.avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#475258,#12181c);display:grid;place-items:center;color:#dfe7e5;font-size:18px;overflow:hidden;object-fit:cover}.user-name{font-weight:700}.user-role{font-size:11px;color:var(--muted);margin-top:3px}.chev{color:#829093;margin-left:8px}
-.profile-menu{position:absolute;top:calc(100% + 10px);right:0;width:220px;background:#0d1417;border:1px solid var(--border);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.5);display:none;flex-direction:column;padding:8px 0;z-index:100}.profile-menu.show{display:flex}.profile-menu-item{display:flex;align-items:center;gap:10px;padding:10px 16px;color:#cdd5d7;font-size:13px;transition:background .15s;cursor:pointer}.profile-menu-item:hover{background:#172227;color:#fff}.profile-menu-divider{height:1px;background:var(--border);margin:6px 0}
-.content{padding:27px 28px 36px;max-width:1450px;margin:auto}.hero{position:relative;overflow:hidden;min-height:160px;border:1px solid #184b37;border-radius:12px;background:linear-gradient(110deg,#062319,#071511 56%,#062219);padding:30px 34px;margin-bottom:18px}.hero:before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 45%,rgba(21,150,96,.13) 45%,transparent 46%,transparent 62%,rgba(21,150,96,.08) 62%,transparent 63%),radial-gradient(circle at 82% 65%,rgba(31,192,120,.18),transparent 32%)}.hero-line{position:absolute;right:-4%;bottom:12px;width:58%;height:100px;opacity:.75;background:linear-gradient(135deg,transparent 0 15%,rgba(32,198,124,.2) 16% 17%,transparent 18% 29%,rgba(32,198,124,.35) 30% 31%,transparent 32% 43%,rgba(32,198,124,.6) 44% 45%,transparent 46% 58%,rgba(32,198,124,.72) 59% 60%,transparent 61% 72%,rgba(32,198,124,.8) 73% 74%,transparent 75%);transform:skewY(-13deg)}.hero-copy{position:relative;z-index:2}.hero small{color:#c8d2cf;font-size:16px}.hero h1{margin:7px 0 4px;font-size:34px;letter-spacing:-.5px}.hero p{margin:0;color:#9eaaa8;font-size:13px}.hero-logo{position:absolute;z-index:2;right:38px;top:25px;width:210px;max-height:110px;object-fit:contain;filter:drop-shadow(0 8px 18px rgba(0,0,0,.4))}
-.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}.kpi{background:linear-gradient(145deg,#11191d,#0d1417);border:1px solid var(--border);border-radius:11px;padding:20px 20px 17px;min-width:0}.kpi-head{display:flex;align-items:center;justify-content:space-between;color:#aab5b7;font-size:12px}.kpi-value{font-size:25px;font-weight:800;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.kpi-sub{font-size:11px;color:#768285;margin-top:6px}.kpi-sub.green{color:#2cd17f}
-.panel{background:linear-gradient(145deg,#10171b,#0d1316);border:1px solid var(--border);border-radius:12px}.accounts-panel{overflow:hidden}.panel-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px}.panel-title{font-size:18px;font-weight:700}.table-wrap{overflow:auto}.account-table{width:100%;border-collapse:collapse;min-width:880px}.account-table th{padding:12px 20px;text-align:left;color:#7e8a8e;font-size:11px;font-weight:500;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}.account-table td{padding:15px 20px;border-bottom:1px solid #1c2529;color:#d7dddd;font-size:12px;vertical-align:middle}.manage{background:transparent;border:1px solid #334047;color:#dce4e3;border-radius:7px;padding:8px 12px;font-size:11px;cursor:pointer}
-.quick-panel{margin-top:18px;padding:20px}.quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}.quick{border:1px solid #273238;background:#0c1418;border-radius:99px;padding:16px;display:flex;align-items:center;gap:12px;cursor:pointer}.quick-icon{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:18px;flex:0 0 40px}.q-green{background:#0b2b1e;color:#19cf79}.q-red{background:#351318;color:#ff6370}.q-blue{background:#092c47;color:#4aa9ff}.q-purple{background:#29173c;color:#aa74ff}.quick b{display:block;font-size:12px}.quick span{display:block;color:#7f8c90;font-size:10px;margin-top:4px}
-.lower{display:grid;grid-template-columns:1.4fr .8fr;gap:15px;margin-top:18px}.lower .panel{padding:20px}.tx-table{width:100%;border-collapse:collapse;font-size:11px}.tx-table th,.tx-table td{padding:11px 7px;border-bottom:1px solid #20292d;text-align:left}.tx-table th{color:#7f8b8f;font-weight:500}.tx-table td{color:#cbd4d3}.statusbadge{display:inline-block;padding:4px 8px;border-radius:20px;font-size:9px;font-weight:700;text-transform:uppercase}.statusbadge.green{background:#0d3020;color:#4be090;border:1px solid #1b5a39}.statusbadge.pending{background:#33290d;color:#efc24b;border:1px solid #594811}
-.profile-card{background:linear-gradient(145deg,#10171b,#0d1316);border:1px solid var(--border);border-radius:12px;padding:24px;margin-top:18px}.profile-header{display:flex;align-items:center;gap:16px;margin-bottom:20px}.profile-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#475258,#12181c);display:grid;place-items:center;font-size:24px;font-weight:700;color:#dfe7e5}.profile-info h3{margin:0 0 4px;font-size:18px}.profile-info p{margin:0;color:var(--muted);font-size:12px}
-.green-text{color:#2ddd84!important}.red-text{color:#ff6670!important}.loading{padding:80px;text-align:center;color:#9ba6a8}
-@media(max-width:1100px){.kpis{grid-template-columns:repeat(2,1fr)}.quick-grid{grid-template-columns:repeat(2,1fr)}.lower{grid-template-columns:1fr}}
-@media(max-width:760px){.sidebar{transform:translateX(-105%);z-index:50}.sidebar.open{transform:translateX(0)}.main{margin-left:0}.hamb{display:block}}
-</style>
-<style id="buraq-gold-theme">
-:root{--green:#d6a93b;--green2:#6f5416}
-body{background:radial-gradient(circle at 75% 0%,#211b0b 0,transparent 28%),var(--bg)}
-.side-link.active{background:linear-gradient(90deg,#5d4710,#3c2d0b);box-shadow:inset 0 0 0 1px #9b7622}
-.hero{border-color:#5b4817;background:linear-gradient(110deg,#241c09,#171208 56%,#211a08)}
-.i-green,.q-green{background:#30250b;color:#e2b844}
+.hamb{font-size:22px;color:#d9e0df;margin-right:22px;border:0;background:transparent;padding:4px;cursor:pointer;line-height:1}.top-title{font-size:18px;font-weight:700}.top-actions{margin-left:auto;display:flex;align-items:center;gap:16px}
+.circle-btn{width:36px;height:36px;border:1px solid var(--border);border-radius:50%;background:#0d1418;color:#dce4e3;display:grid;place-items:center;cursor:pointer;position:relative;font-size:14px}
+.bell:after{content:'2';position:absolute;right:-1px;top:-2px;background:#18c879;color:#000;border-radius:50%;font-size:9px;font-weight:800;min-width:15px;height:15px;display:grid;place-items:center}
+.user-dropdown{position:relative;cursor:pointer}.user{display:flex;align-items:center;gap:10px;padding:4px 8px;border-radius:8px}.avatar{width:36px;height:36px;border-radius:50%;background:#20282c;display:grid;place-items:center;color:#dfe7e5;font-size:14px;overflow:hidden;object-fit:cover}.user-name{font-weight:700;font-size:13px}.user-role{font-size:10px;color:var(--muted);margin-top:1px}.chev{color:#829093;font-size:10px;margin-left:4px}
+.profile-menu{position:absolute;top:calc(100% + 10px);right:0;width:180px;background:#0d1417;border:1px solid var(--border);border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.5);display:none;flex-direction:column;padding:6px 0;z-index:100}.profile-menu.show{display:flex}.profile-menu-item{display:flex;align-items:center;gap:10px;padding:10px 14px;color:#cdd5d7;font-size:12px;cursor:pointer}.profile-menu-item:hover{background:#172227;color:#fff}
+.content{padding:24px 28px 36px;max-width:1450px;margin:auto}
+.hero{position:relative;overflow:hidden;min-height:150px;border:1px solid #5b4817;border-radius:12px;background:linear-gradient(110deg,#241c09,#171208 56%,#211a08);padding:28px 32px;margin-bottom:18px}
+.hero-line{position:absolute;right:-4%;bottom:12px;width:58%;height:100px;opacity:.55;background:linear-gradient(135deg,transparent 0 15%,rgba(214,169,59,.2) 16% 17%,transparent 18% 29%,rgba(214,169,59,.35) 30% 31%,transparent 32% 43%,rgba(214,169,59,.6) 44% 45%,transparent 46% 58%,rgba(214,169,59,.72) 59% 60%,transparent 61% 72%,rgba(214,169,59,.8) 73% 74%,transparent 75%);transform:skewY(-13deg)}
+.hero-copy{position:relative;z-index:2}.hero small{color:#bfa76a;font-size:14px}.hero h1{margin:4px 0 6px;font-size:30px;letter-spacing:-.5px;color:#fff}.hero p{margin:0;color:#9e9786;font-size:12px}.hero-logo{position:absolute;z-index:2;right:38px;top:20px;width:200px;max-height:100px;object-fit:contain}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.kpi{background:linear-gradient(145deg,#0d1417,#090f12);border:1px solid var(--border);border-radius:10px;padding:18px;position:relative}
+.kpi-head{display:flex;align-items:center;justify-content:space-between;color:#aab5b7;font-size:12px}
+.kpi-icon{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;font-size:14px;margin-bottom:12px}
+.i-gold{background:#2a210d;color:var(--gold)}.i-purple{background:#1e1430;color:#a675ff}.i-blue{background:#0a1e30;color:#4aa8ff}.i-green{background:#0c281c;color:#18c879}
+.kpi-title{color:var(--muted);font-size:12px;font-weight:500}
+.kpi-arrow{position:absolute;right:18px;top:40%;color:#404d52;font-size:10px}
+.kpi-value{font-size:24px;font-weight:800;margin-top:6px;color:#fff}
+.kpi-sub{font-size:11px;color:#5a676b;margin-top:4px}.kpi-sub.green{color:#18c879;font-weight:600}
+.panel{background:#0a1013;border:1px solid var(--border);border-radius:10px;margin-bottom:18px}
+.panel-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
+.panel-title{font-size:16px;font-weight:700;color:#fff}
+.btn-gold{background:var(--gold);color:#000;border:0;border-radius:6px;padding:8px 14px;font-weight:700;font-size:12px;cursor:pointer;transition:.2s}.btn-gold:hover{background:var(--gold-hover)}
+.table-wrap{overflow:auto}
+.account-table{width:100%;border-collapse:collapse;min-width:800px}
+.account-table th{padding:12px 20px;text-align:left;color:var(--muted);font-size:11px;font-weight:500;border-bottom:1px solid var(--border)}
+.account-table td{padding:16px 20px;border-bottom:1px solid #141d21;color:#d7dddd;font-size:12px;vertical-align:middle}
+.acc-tag{background:#123524;color:#18c879;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;display:inline-block;margin-bottom:4px}
+.acc-num{font-weight:800;font-size:13px;color:#fff}.acc-sub{font-size:10px;color:var(--muted);margin-top:2px}
+.badge-blue{background:#0e283d;color:#4aa8ff;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600;display:inline-block}
+.badge-platform{background:#0c281c;color:#18c879;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600;display:inline-flex;align-items:center;gap:4px}
+.badge-active{background:#0c281c;color:#18c879;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600}
+.btn-manage{background:transparent;border:1px solid #283439;color:#dce4e3;border-radius:6px;padding:6px 12px;font-size:11px;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
+.quick-panel{padding:20px}
+.quick-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:14px}
+.quick{border:1px solid var(--border);background:#0d1417;border-radius:99px;padding:12px 18px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .2s}.quick:hover{border-color:#334248}
+.quick-icon{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:16px;flex:0 0 36px}
+.q-gold{background:#2a210d;color:var(--gold)}.q-red{background:#351318;color:#ff5360}.q-blue{background:#0a1e30;color:#4aa8ff}.q-purple{background:#1e1430;color:#a675ff}.q-contact{background:#222a16;color:#c0df37}
+.quick b{display:block;font-size:12px;color:#fff}.quick span{display:block;color:var(--muted);font-size:10px;margin-top:2px}
+.green-text{color:#18c879!important}.red-text{color:#ff5360!important}
+@media(max-width:1100px){.kpis{grid-template-columns:repeat(2,1fr)}.quick-grid{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
@@ -46,72 +66,177 @@ body{background:radial-gradient(circle at 75% 0%,#211b0b 0,transparent 28%),var(
     <a class="side-link" href="deposit.html"><span class="ico">↓</span>Deposit</a>
     <a class="side-link" href="withdraw.html"><span class="ico">↑</span>Withdraw</a>
     <a class="side-link" href="transfer.html"><span class="ico">⇄</span>Transfer</a>
-    <a class="side-link" href="verify-identity.html"><span class="ico">♢</span>KYC Verification <span class="kyc-dot" id="kycSide">Pending</span></a>
-    <a class="side-link" href="#" id="sideLogout"><span class="ico" style="color:#ff5965">↪</span>Logout</a>
+    <a class="side-link" href="#" id="sideLogout"><span class="ico" style="color:#ff5360">↪</span>Logout</a>
   </nav>
-  <div class="side-bottom">
-    <div class="help">
-      <span class="ico">💬</span>
-      <div><strong>Support 24/7</strong><small>contact@buraq.com</small></div>
-    </div>
-  </div>
 </aside>
 <section class="main">
 <header class="topbar">
   <button class="hamb" id="menuToggle">☰</button>
   <div class="top-title">Dashboard</div>
   <div class="top-actions">
+    <div class="circle-btn">🌙</div>
+    <div class="circle-btn bell">🔔</div>
     <div class="user-dropdown" id="userDropdownBtn">
       <div class="user">
-        <div class="avatar" id="topAvatar">C</div>
+        <div class="avatar" id="topAvatar">A</div>
         <div>
-          <div class="user-name" id="topName">Client</div>
+          <div class="user-name" id="topName">AQEEL</div>
           <div class="user-role">Client</div>
         </div>
         <span class="chev">▾</span>
       </div>
       <div class="profile-menu" id="profileMenu">
-        <div class="profile-menu-item" id="dropdownLogout"><span class="ico" style="color:#ff5965">↪</span>Logout</div>
+        <div class="profile-menu-item" id="dropdownLogout"><span class="ico" style="color:#ff5360">↪</span>Logout</div>
       </div>
     </div>
   </div>
 </header>
-<main class="content"><div id="app"><div class="loading">Loading dashboard…</div></div></main>
+
+<main class="content">
+  <div id="app">
+    <!-- Hero Header -->
+    <section class="hero">
+      <img class="hero-logo" src="buraq-logo.jpg" alt="Buraq Markets">
+      <div class="hero-line"></div>
+      <div class="hero-copy">
+        <small>Welcome back,</small>
+        <h1 id="heroName">AQEEL</h1>
+        <p>Here's what's happening with your accounts today.</p>
+      </div>
+    </section>
+
+    <!-- 4 KPIs Cards -->
+    <section class="kpis">
+      <div class="kpi">
+        <div class="kpi-icon i-gold">💳</div>
+        <div class="kpi-title">Total Balance</div>
+        <div class="kpi-arrow">›</div>
+        <div class="kpi-value" id="valBalance">$1,346.90</div>
+        <div class="kpi-sub">All trading accounts combined</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-icon i-purple">📈</div>
+        <div class="kpi-title">Total Equity</div>
+        <div class="kpi-arrow">›</div>
+        <div class="kpi-value" id="valEquity">$1,346.90</div>
+        <div class="kpi-sub">Current account equity</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-icon i-blue">🕒</div>
+        <div class="kpi-title">Total Free Margin</div>
+        <div class="kpi-arrow">›</div>
+        <div class="kpi-value" id="valMargin">$1,346.90</div>
+        <div class="kpi-sub">Equity minus used margin</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-icon i-green">📈</div>
+        <div class="kpi-title">Total P/L</div>
+        <div class="kpi-arrow">›</div>
+        <div class="kpi-value green-text" id="valPL">+$0.00</div>
+        <div class="kpi-sub green">0.00% from balance</div>
+      </div>
+    </section>
+
+    <!-- Trading Accounts Panel -->
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Trading Accounts</div>
+        <a href="open-account.html" class="btn-gold">+ Open New Account</a>
+      </div>
+      <div class="table-wrap">
+        <table class="account-table">
+          <thead>
+            <tr>
+              <th>Account</th>
+              <th>Type</th>
+              <th>Platform</th>
+              <th>Balance</th>
+              <th>Equity</th>
+              <th>P/L</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="accountsList">
+            <tr>
+              <td>
+                <span class="acc-tag">Live</span>
+                <div class="acc-num">W991338</div>
+                <div class="acc-sub">Wallet / 1:1 / USD</div>
+              </td>
+              <td><span class="badge-blue">Wallet</span></td>
+              <td><span class="badge-platform">M Internal</span></td>
+              <td>$1,346.90</td>
+              <td>$1,346.90</td>
+              <td class="green-text">+$0.00</td>
+              <td><span class="badge-active">Active</span></td>
+              <td><button class="btn-manage">Manage ▾</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Quick Actions Panel -->
+    <section class="panel quick-panel">
+      <div class="panel-title">Quick Actions</div>
+      <div class="quick-grid">
+        <a class="quick" href="deposit.html">
+          <div class="quick-icon q-gold">📥</div>
+          <div><b>Deposit Funds</b><span>Add money to wallet</span></div>
+        </a>
+        <a class="quick" href="withdraw.html">
+          <div class="quick-icon q-red">📤</div>
+          <div><b>Withdraw Funds</b><span>Withdraw to bank account</span></div>
+        </a>
+        <a class="quick" href="transfer.html">
+          <div class="quick-icon q-blue">⇄</div>
+          <div><b>Transfer Funds</b><span>Internal transfer</span></div>
+        </a>
+        <a class="quick" href="#">
+          <div class="quick-icon q-purple">📥</div>
+          <div><b>Download MT5</b><span>Windows / Android / iOS</span></div>
+        </a>
+        <a class="quick" href="#">
+          <div class="quick-icon q-contact">💬</div>
+          <div><b>Contact Support</b><span>We're here to help</span></div>
+        </a>
+      </div>
+    </section>
+  </div>
+</main>
 </section>
 </div>
 
 <script type="module">
 import { supabase } from './supabase-config.js';
 
-const app = document.getElementById('app');
 const menuToggle = document.getElementById('menuToggle');
 const sidebar = document.getElementById('sidebar');
 const sidebarOverlay = document.getElementById('sidebarOverlay');
 const userDropdownBtn = document.getElementById('userDropdownBtn');
 const profileMenu = document.getElementById('profileMenu');
 
-menuToggle.addEventListener('click', () => {
+menuToggle?.addEventListener('click', () => {
   sidebar.classList.toggle('open');
   sidebarOverlay.classList.toggle('show');
 });
-sidebarOverlay.addEventListener('click', () => {
+sidebarOverlay?.addEventListener('click', () => {
   sidebar.classList.remove('open');
   sidebarOverlay.classList.remove('show');
 });
 
-userDropdownBtn.addEventListener('click', (e) => {
+userDropdownBtn?.addEventListener('click', (e) => {
   e.stopPropagation();
   profileMenu.classList.toggle('show');
 });
-document.addEventListener('click', () => profileMenu.classList.remove('show'));
+document.addEventListener('click', () => profileMenu?.classList.remove('show'));
 
 const money = n => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(Number(n||0));
-const esc = s => String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 
 async function loadData() {
   try {
     const { data: { user } } = await supabase.auth.getUser();
-
     if(!user) {
       if (!window.location.pathname.endsWith('client-login.html')) {
         window.location.href = 'client-login.html';
@@ -119,98 +244,47 @@ async function loadData() {
       return;
     }
 
-    const [profileRes, accountsRes, txRes] = await Promise.all([
+    const [profileRes, accountsRes] = await Promise.all([
       supabase.from('profiles').select('*').eq('id', user.id).maybeSingle(),
-      supabase.from('trading_accounts').select('*').eq('user_id', user.id),
-      supabase.from('transactions').select('*').eq('user_id', user.id).limit(5)
+      supabase.from('trading_accounts').select('*').eq('user_id', user.id)
     ]);
 
     const profile = profileRes.data || {};
     const accounts = accountsRes.data || [];
-    const tx = txRes.data || [];
 
     const name = (profile.full_name || user.email.split('@')[0]).toUpperCase();
     document.getElementById('topName').textContent = name;
+    document.getElementById('heroName').textContent = name;
     document.getElementById('topAvatar').textContent = name.charAt(0);
 
-    const totalBalance = accounts.reduce((x,v)=>x+Number(v.balance||0),0);
-    const equity = accounts.reduce((x,v)=>x+Number(v.equity||0),0);
-    const freeMargin = accounts.reduce((x,v)=>x+Number(v.free_margin||v.balance||0),0);
-    const totalPL = accounts.reduce((x,v)=>x+Number(v.profit_loss||0),0);
+    if (accounts.length > 0) {
+      const totalBalance = accounts.reduce((x,v)=>x+Number(v.balance||0),0);
+      const equity = accounts.reduce((x,v)=>x+Number(v.equity||0),0);
+      const freeMargin = accounts.reduce((x,v)=>x+Number(v.free_margin||v.balance||0),0);
+      const totalPL = accounts.reduce((x,v)=>x+Number(v.profit_loss||0),0);
 
-    app.innerHTML = `
-    <section class="hero">
-      <img class="hero-logo" src="buraq-logo.jpg" alt="Buraq Markets">
-      <div class="hero-line"></div>
-      <div class="hero-copy">
-        <small>Welcome back,</small>
-        <h1>${esc(name)}</h1>
-        <p>Here's what's happening with your accounts today.</p>
-      </div>
-    </section>
+      document.getElementById('valBalance').textContent = money(totalBalance);
+      document.getElementById('valEquity').textContent = money(equity);
+      document.getElementById('valMargin').textContent = money(freeMargin);
+      document.getElementById('valPL').textContent = (totalPL >= 0 ? '+' : '') + money(totalPL);
 
-    <section class="kpis">
-      <div class="kpi"><div class="kpi-head"><span>Total Balance</span></div><div class="kpi-value">${money(totalBalance)}</div><div class="kpi-sub">All trading accounts combined</div></div>
-      <div class="kpi"><div class="kpi-head"><span>Total Equity</span></div><div class="kpi-value">${money(equity)}</div><div class="kpi-sub">Current account equity</div></div>
-      <div class="kpi"><div class="kpi-head"><span>Total Free Margin</span></div><div class="kpi-value">${money(freeMargin)}</div><div class="kpi-sub">Equity minus used margin</div></div>
-      <div class="kpi"><div class="kpi-head"><span>Total P/L</span></div><div class="kpi-value ${totalPL >= 0 ? 'green-text' : 'red-text'}">${totalPL >= 0 ? '+' : ''}${money(totalPL)}</div><div class="kpi-sub green">0.00% from balance</div></div>
-    </section>
-
-    <section class="panel accounts-panel">
-      <div class="panel-head"><div class="panel-title">Trading Accounts</div></div>
-      <div class="table-wrap">
-        <table class="account-table">
-          <thead><tr><th>Account</th><th>Balance</th><th>Equity</th><th>Action</th></tr></thead>
-          <tbody>
-            ${accounts.length ? accounts.map(a => `
-              <tr>
-                <td><b>${esc(a.account_number)}</b></td>
-                <td>${money(a.balance)}</td>
-                <td>${money(a.equity)}</td>
-                <td><button class="manage">Manage</button></td>
-              </tr>`).join('') : '<tr><td colspan="4" style="text-align:center;padding:20px;">No accounts found</td></tr>'}
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <section class="panel quick-panel">
-      <div class="panel-title">Quick Actions</div>
-      <div class="quick-grid">
-        <a class="quick" href="deposit.html"><div class="quick-icon q-green">↓</div><div><b>Deposit</b><span>Add Funds</span></div></a>
-        <a class="quick" href="withdraw.html"><div class="quick-icon q-red">↑</div><div><b>Withdraw</b><span>Payout</span></div></a>
-        <a class="quick" href="transfer.html"><div class="quick-icon q-blue">⇄</div><div><b>Transfer</b><span>Internal</span></div></a>
-        <a class="quick" href="open-account.html"><div class="quick-icon q-purple">+</div><div><b>New Account</b><span>Create</span></div></a>
-      </div>
-    </section>
-
-    <section class="lower">
-      <div class="panel">
-        <div class="panel-title" style="margin-bottom:15px">Recent Transactions</div>
-        <table class="tx-table">
-          <thead><tr><th>Type</th><th>Amount</th><th>Status</th></tr></thead>
-          <tbody>
-            ${tx.length ? tx.map(t => `
-              <tr>
-                <td>${esc(t.type)}</td>
-                <td>${money(t.amount)}</td>
-                <td><span class="statusbadge ${t.status === 'completed' ? 'green' : 'pending'}">${esc(t.status)}</span></td>
-              </tr>`).join('') : '<tr><td colspan="3" style="text-align:center;padding:15px;">No transactions yet</td></tr>'}
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <section class="profile-card">
-      <div class="profile-header">
-        <div class="profile-avatar">${esc(name.charAt(0))}</div>
-        <div class="profile-info">
-          <h3>${esc(name)}</h3>
-          <p>Email: ${esc(user.email)}</p>
-        </div>
-      </div>
-    </section>`;
-
+      document.getElementById('accountsList').innerHTML = accounts.map(a => `
+        <tr>
+          <td>
+            <span class="acc-tag">Live</span>
+            <div class="acc-num">${a.account_number || 'W991338'}</div>
+            <div class="acc-sub">Wallet / 1:1 / USD</div>
+          </td>
+          <td><span class="badge-blue">Wallet</span></td>
+          <td><span class="badge-platform">M Internal</span></td>
+          <td>${money(a.balance)}</td>
+          <td>${money(a.equity)}</td>
+          <td class="green-text">+${money(a.profit_loss || 0)}</td>
+          <td><span class="badge-active">Active</span></td>
+          <td><button class="btn-manage">Manage ▾</button></td>
+        </tr>
+      `).join('');
+    }
   } catch(e) {
     console.error(e);
   }
