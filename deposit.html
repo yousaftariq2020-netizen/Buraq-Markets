@@ -168,18 +168,20 @@ async function init(){
   if(!user){ location.href = 'client-login.html'; return; }
   currentUser = user;
 
-  // Search for active primary wallet/account
+  // Find the client's wallet account (is_wallet = true), falling back to their
+  // first trading_accounts row if the wallet flag isn't set yet.
   const { data } = await supabase
     .from('trading_accounts')
     .select('*')
     .eq('user_id', user.id)
-    .limit(1);
+    .order('created_at', { ascending: true });
 
-  if(data && data.length > 0){
-    walletAccount = data[0];
+  const rows = data || [];
+  walletAccount = rows.find(a => a.is_wallet) || rows[0] || null;
+
+  if(walletAccount){
     walletBox.textContent = `Wallet — #${walletAccount.account_number}`;
   } else {
-    walletAccount = { id: null, account_number: 'Wallet' };
     walletBox.textContent = `Main Client Wallet`;
   }
 }
@@ -207,15 +209,15 @@ form.addEventListener('submit', async (e) => {
     }
   }
 
-  // Dual schema compatibility for Transactions Table
+  // The transactions table has no 'account_number' column — the correct FK
+  // is trading_account_id (uuid), pointing at the wallet or trading account.
   const insertPayload = {
     user_id: currentUser.id,
     type: 'Deposit',
     amount: amount,
     method: methodLabel,
     reference: reference,
-    status: 'Pending',
-    account_number: walletAccount?.account_number || 'Wallet'
+    status: 'Pending'
   };
 
   if(walletAccount?.id) {
