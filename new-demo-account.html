@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Open Demo Account — Buraq Markets</title>
+<style>
+:root{--bg:#070b0d;--panel:#11181c;--border:#202a2e;--text:#f4f7f6;--muted:#8d999d;--blue:#4aa8ff}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at 75% 0%,#091b29 0,transparent 28%),var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif;font-size:14px;display:grid;place-items:center;min-height:100vh;padding:20px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:30px;width:100%;max-width:480px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+h2{margin:0 0 8px;font-size:22px;color:#fff}
+p{margin:0 0 24px;color:var(--muted);font-size:13px}
+.form-group{margin-bottom:18px}
+label{display:block;margin-bottom:8px;font-size:12px;color:#c2cbcd;font-weight:600}
+select,input{width:100%;padding:12px;background:#090f12;border:1px solid var(--border);border-radius:8px;color:#fff;font-size:14px;outline:none}
+select:focus,input:focus{border-color:var(--blue)}
+.btn-submit{width:100%;background:#0d5a9e;color:#fff;border:0;padding:13px;border-radius:8px;font-weight:700;cursor:pointer;font-size:14px;margin-top:10px;transition:.2s}
+.btn-submit:hover{background:#116ec2}
+.btn-back{display:block;text-align:center;margin-top:15px;color:var(--muted);text-decoration:none;font-size:12px}
+.btn-back:hover{color:#fff}
+.msg{padding:10px;border-radius:6px;margin-bottom:15px;font-size:13px;display:none}
+.msg.error{background:#381619;color:#ff6b7b;border:1px solid #5d2227}
+.msg.success{background:#0d3a27;color:#39dc8b;border:1px solid #166343}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Open Demo Account</h2>
+  <p>Practice trading with virtual funds and zero risk.</p>
+
+  <div id="msg" class="msg"></div>
+
+  <form id="demoForm">
+    <div class="form-group">
+      <label>Platform</label>
+      <select id="platform">
+        <option value="MT5">MetaTrader 5 (MT5)</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Account Type</label>
+      <select id="accountType">
+        <option value="Demo Standard">Demo Standard</option>
+        <option value="Demo ECN">Demo ECN</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Leverage</label>
+      <select id="leverage">
+        <option value="1:100">1:100</option>
+        <option value="1:200">1:200</option>
+        <option value="1:500" selected>1:500</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Virtual Deposit ($)</label>
+      <select id="initialBalance">
+        <option value="1000">$1,000</option>
+        <option value="5000" selected>$5,000</option>
+        <option value="10000">$10,000</option>
+        <option value="50000">$50,000</option>
+      </select>
+    </div>
+
+    <button type="submit" class="btn-submit" id="submitBtn">Create Demo Account</button>
+    <a href="client-dashboard.html" class="btn-back">← Back to Dashboard</a>
+  </form>
+</div>
+
+<script type="module">
+import { supabase } from './supabase-config.js';
+
+const form = document.getElementById('demoForm');
+const msg = document.getElementById('msg');
+const submitBtn = document.getElementById('submitBtn');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  msg.style.display = 'none';
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Creating Account...';
+
+  try {
+    const { data: { user }, error: authErr } = await supabase.auth.getUser();
+    if (authErr || !user) {
+      location.href = 'client-login.html';
+      return;
+    }
+
+    const platform = document.getElementById('platform').value;
+    const accountType = document.getElementById('accountType').value;
+    const leverage = document.getElementById('leverage').value;
+    const initialBalance = parseFloat(document.getElementById('initialBalance').value);
+    
+    // Random Demo Account Number
+    const accountNum = 'DEMO-' + Math.floor(100000 + Math.random() * 900000);
+
+    const { error: insertErr } = await supabase.from('trading_accounts').insert([{
+      user_id: user.id,
+      account_number: accountNum,
+      account_type: accountType,
+      platform: platform,
+      leverage: leverage,
+      balance: initialBalance,
+      equity: initialBalance,
+      currency: 'USD',
+      status: 'Active'
+    }]);
+
+    if (insertErr) throw insertErr;
+
+    msg.className = 'msg success';
+    msg.textContent = 'Demo Account Created Successfully! Redirecting...';
+    msg.style.display = 'block';
+
+    setTimeout(() => {
+      location.href = 'client-dashboard.html';
+    }, 1500);
+
+  } catch (err) {
+    msg.className = 'msg error';
+    msg.textContent = err.message || 'Failed to create demo account.';
+    msg.style.display = 'block';
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Create Demo Account';
+  }
+});
+</script>
+
+</body>
+</html>
