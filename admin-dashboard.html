@@ -37,7 +37,7 @@ body{margin:0;background:#080a0c;color:#e1e7ec;font-family:Inter,Arial,sans-seri
 .action-btn{padding:6px 12px;border-radius:5px;border:none;font-size:12px;font-weight:bold;cursor:pointer;margin-right:5px}
 .approve-btn{background:#10b981;color:#fff}.approve-btn:hover{background:#059669}
 .reject-btn{background:#ef4444;color:#fff}.reject-btn:hover{background:#dc2626}
-.doc-link{color:#f4cf72;text-decoration:underline;font-weight:bold;display:inline-block;margin-bottom:4px}
+.doc-link{color:#f4cf72;text-decoration:underline;font-weight:bold;display:inline-block;margin-bottom:4px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -164,16 +164,37 @@ const pendingKycCount = document.getElementById('pendingKycCount');
 const totalClientsCount = document.getElementById('totalClientsCount');
 const totalTxCount = document.getElementById('totalTxCount');
 
-function resolveDocumentUrl(path) {
-  if (!path) return '#';
-  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+// Secure File Fetch Function
+async function openStorageFile(path) {
+  if (!path) return;
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    window.open(path, '_blank');
+    return;
+  }
 
-  // Supabase Client se Project Storage URL dynamically construct karein
   const cleanPath = path.startsWith('/') ? path.substring(1) : path;
-  const projectUrl = supabase.supabaseUrl || 'https://your-supabase-project.supabase.co';
-  
-  return `${projectUrl}/storage/v1/object/public/kyc-documents/${cleanPath}`;
+
+  // Try Signed URL first
+  const { data: signedData } = await supabase.storage
+    .from('kyc-documents')
+    .createSignedUrl(cleanPath, 60);
+
+  if (signedData && signedData.signedUrl) {
+    window.open(signedData.signedUrl, '_blank');
+    return;
+  }
+
+  // Fallback Public URL
+  const { data: pubData } = supabase.storage
+    .from('kyc-documents')
+    .getPublicUrl(cleanPath);
+
+  if (pubData && pubData.publicUrl) {
+    window.open(pubData.publicUrl, '_blank');
+  }
 }
+
+window.openStorageFile = openStorageFile;
 
 async function checkAuth() {
   const { data: { user } } = await supabase.auth.getUser();
@@ -278,8 +299,7 @@ function renderKYCRequests() {
       const val = c[key];
       if (typeof val === 'string' && val.trim().length > 0) {
         if (key.includes('path') || key.includes('doc') || key.includes('selfie') || val.match(/\.(jpg|jpeg|png|pdf|webp)$/i)) {
-          const finalUrl = resolveDocumentUrl(val);
-          docsLinks.push(`<a href="${finalUrl}" target="_blank" rel="noopener noreferrer" class="doc-link">📄 ${key.replace(/_/g, ' ').toUpperCase()}</a>`);
+          docsLinks.push(`<span onclick="window.openStorageFile('${val}')" class="doc-link">📄 ${key.replace(/_/g, ' ').toUpperCase()}</span>`);
         }
       }
     });
@@ -290,8 +310,7 @@ function renderKYCRequests() {
         const v = d[k];
         if (typeof v === 'string' && v.trim().length > 0) {
           if (k.includes('path') || k.includes('doc') || k.includes('selfie') || v.match(/\.(jpg|jpeg|png|pdf|webp)$/i)) {
-            const finalUrl = resolveDocumentUrl(v);
-            docsLinks.push(`<a href="${finalUrl}" target="_blank" rel="noopener noreferrer" class="doc-link">📄 ${k.replace(/_/g, ' ').toUpperCase()}</a>`);
+            docsLinks.push(`<span onclick="window.openStorageFile('${v}')" class="doc-link">📄 ${k.replace(/_/g, ' ').toUpperCase()}</span>`);
           }
         }
       });
