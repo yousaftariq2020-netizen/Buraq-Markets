@@ -18,7 +18,7 @@ select:focus,input:focus{border-color:var(--blue)}
 .btn-submit:hover{background:#116ec2}
 .btn-back{display:block;text-align:center;margin-top:15px;color:var(--muted);text-decoration:none;font-size:12px}
 .btn-back:hover{color:#fff}
-.msg{padding:10px;border-radius:6px;margin-bottom:15px;font-size:13px;display:none}
+.msg{padding:12px;border-radius:8px;margin-bottom:18px;font-size:13px;line-height:1.4;display:none}
 .msg.error{background:#381619;color:#ff6b7b;border:1px solid #5d2227}
 .msg.success{background:#0d3a27;color:#39dc8b;border:1px solid #166343}
 </style>
@@ -82,7 +82,7 @@ form.addEventListener('submit', async (e) => {
   e.preventDefault();
   msg.style.display = 'none';
   submitBtn.disabled = true;
-  submitBtn.textContent = 'Creating Account...';
+  submitBtn.textContent = 'Checking Verification...';
 
   try {
     const { data: { user }, error: authErr } = await supabase.auth.getUser();
@@ -91,12 +91,37 @@ form.addEventListener('submit', async (e) => {
       return;
     }
 
+    // 1. Check KYC Status from profile
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('kyc_status')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    const status = String(profile?.kyc_status || '').toLowerCase();
+
+    // 2. Block if NOT Verified
+    if (status !== 'verified' && status !== 'approved') {
+      msg.className = 'msg error';
+      msg.innerHTML = '<strong>Account Verification Required!</strong><br>Please complete your KYC Verification first to open a Demo Account.';
+      msg.style.display = 'block';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Create Demo Account';
+      
+      setTimeout(() => {
+        location.href = 'verify-identity.html';
+      }, 2500);
+      return;
+    }
+
+    submitBtn.textContent = 'Creating Account...';
+
     const platform = document.getElementById('platform').value;
     const accountType = document.getElementById('accountType').value;
     const leverage = document.getElementById('leverage').value;
     const initialBalance = parseFloat(document.getElementById('initialBalance').value);
     
-    // Random Demo Account Number
+    // Demo Account Number
     const accountNum = 'DEMO-' + Math.floor(100000 + Math.random() * 900000);
 
     const { error: insertErr } = await supabase.from('trading_accounts').insert([{
