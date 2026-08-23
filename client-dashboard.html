@@ -31,15 +31,12 @@ body{background:#06080a;color:#d1d5db;font-family:-apple-system,BlinkMacSystemFo
 .brand-logo-card{background:#000000;border:1px solid #2d2613;padding:12px 20px;border-radius:8px;display:flex;align-items:center}
 .brand-title{color:#f4cf72;font-weight:bold;font-size:18px;letter-spacing:1px;font-family:Georgia,serif}
 
-/* 4 Metrics Summary Grid */
-.metrics-grid{display:grid;grid-template-columns:repeat(4, 1fr);gap:16px;margin-bottom:32px}
+/* 5 Metrics Summary Grid */
+.metrics-grid{display:grid;grid-template-columns:repeat(5, 1fr);gap:16px;margin-bottom:32px}
 .metric-card{background:#0d1117;border:1px solid #1f2937;border-radius:10px;padding:20px;display:flex;flex-direction:column;justify-content:space-between}
 .card-header-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
 .card-title{font-size:13px;color:#8b949e;font-weight:500}
 .chevron-icon{color:#484f58;font-size:12px}
-
-/* Dynamic Wallet Badge inside Total Balance Card */
-.wallet-badge{background:rgba(244,207,114,0.12);color:#f4cf72;border:1px solid rgba(244,207,114,0.25);padding:2px 7px;border-radius:4px;font-size:11px;font-weight:600}
 
 .card-value{font-size:28px;font-weight:700;color:#ffffff;margin-bottom:6px}
 .card-subtext{font-size:11px;color:#484f58}
@@ -61,8 +58,9 @@ body{background:#06080a;color:#d1d5db;font-family:-apple-system,BlinkMacSystemFo
 .accounts-table td{padding:14px 20px;border-bottom:1px solid #161b22;color:#9ca3af}
 .empty-msg{text-align:center;padding:40px 20px;color:#6b7280;font-size:13px}
 
-@media(max-width:1024px){.metrics-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:640px){.metrics-grid{grid-template-columns:1fr}}
+@media(max-width:1200px){.metrics-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:768px){.metrics-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.metrics-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -106,11 +104,21 @@ body{background:#06080a;color:#d1d5db;font-family:-apple-system,BlinkMacSystemFo
 <!-- Summary Metrics Cards Grid -->
 <div class="metrics-grid">
 
-  <!-- Total Balance Card (Wallet ID on Top-Right Badge) -->
+  <!-- Wallet Account Card -->
+  <div class="metric-card">
+    <div class="card-header-row">
+      <span class="card-title">Wallet Account</span>
+      <span class="chevron-icon">›</span>
+    </div>
+    <div class="card-value" id="walletAccountVal" style="color:#f4cf72;">Loading...</div>
+    <div class="card-subtext">Primary trading wallet ID</div>
+  </div>
+
+  <!-- Total Balance Card -->
   <div class="metric-card">
     <div class="card-header-row">
       <span class="card-title">Total Balance</span>
-      <span class="wallet-badge" id="walletBadge">Wallet: Loading...</span>
+      <span class="chevron-icon">›</span>
     </div>
     <div class="card-value" id="totalBalanceVal">$0.00</div>
     <div class="card-subtext">All trading accounts combined</div>
@@ -213,7 +221,7 @@ async function initDashboard() {
 
   // Primary Wallet ID Logic (Client ID Priority)
   const walletNo = merged.client_id || merged.account_number || merged.wallet_address || merged.id || 'N/A';
-  document.getElementById('walletBadge').textContent = 'Wallet: #' + walletNo;
+  document.getElementById('walletAccountVal').textContent = '#' + walletNo;
 
   // Numeric Values Formatting
   const bal = parseFloat(merged.balance || 0);
