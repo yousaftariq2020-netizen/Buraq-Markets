@@ -12,38 +12,76 @@
 <div class="field full"><label>Password</label><input id="password" required minlength="6" type="password" placeholder="Create a password"></div>
 </div><button class="submit" id="submitBtn" type="submit">Create Account →</button></form>
 <div class="error" id="error"></div><div class="note">Your password is handled securely by Supabase Authentication. By continuing, you agree to the applicable account opening terms and conditions.</div></div></div>
+
 <script type="module">
 import { supabase } from './supabase-config.js';
-const form=document.getElementById('signupForm'), btn=document.getElementById('submitBtn'), error=document.getElementById('error');
+const form = document.getElementById('signupForm'), 
+      btn = document.getElementById('submitBtn'), 
+      error = document.getElementById('error');
 
-form.addEventListener('submit', async e=>{
-  e.preventDefault(); error.style.display='none'; btn.disabled=true; btn.textContent='Creating Account…';
+form.addEventListener('submit', async e => {
+  e.preventDefault(); 
+  error.style.display = 'none'; 
+  btn.disabled = true; 
+  btn.textContent = 'Creating Account…';
   
-  const emailInput = email.value.trim();
+  const emailInput = document.getElementById('email').value.trim();
+  const phoneInput = document.getElementById('phone').value.trim();
 
-  // Step 1: Check if email already exists in profiles database
-  const { data: existingProfile } = await supabase
+  // Step 1: Check if Email already exists
+  const { data: existingEmail } = await supabase
     .from('profiles')
     .select('id')
     .eq('email', emailInput)
     .maybeSingle();
 
-  if (existingProfile) {
-    error.textContent = 'This email is already registered. Please login instead.';
+  if (existingEmail) {
+    error.textContent = 'Yeh Email Address pehle se registered hai. Khasara na karein, Login karein!';
     error.style.display = 'block';
     btn.disabled = false;
     btn.textContent = 'Create Account →';
     return;
   }
 
-  // Step 2: Proceed to Sign Up if email does not exist
-  const values={full_name:fullName.value.trim(),phone:phone.value.trim(),country:country.value,preferred_platform:platform.value};
-  const {data,error:authError}=await supabase.auth.signUp({email:emailInput,password:password.value,options:{data:values}});
+  // Step 2: Check if Phone Number already exists
+  const { data: existingPhone } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('phone', phoneInput)
+    .maybeSingle();
+
+  if (existingPhone) {
+    error.textContent = 'Yeh Phone Number pehle se registered hai!';
+    error.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Create Account →';
+    return;
+  }
+
+  // Step 3: Proceed to Sign Up if both Email & Phone are unique
+  const values = {
+    full_name: document.getElementById('fullName').value.trim(),
+    phone: phoneInput,
+    country: document.getElementById('country').value,
+    preferred_platform: document.getElementById('platform').value
+  };
+
+  const { data, error: authError } = await supabase.auth.signUp({
+    email: emailInput,
+    password: document.getElementById('password').value,
+    options: { data: values }
+  });
   
-  if(authError){ error.textContent=authError.message; error.style.display='block'; btn.disabled=false; btn.textContent='Create Account →'; return; }
+  if (authError) { 
+    error.textContent = authError.message; 
+    error.style.display = 'block'; 
+    btn.disabled = false; 
+    btn.textContent = 'Create Account →'; 
+    return; 
+  }
   
-  sessionStorage.setItem('buraq_signup_email',emailInput);
-  sessionStorage.setItem('buraq_user_id',data.user?.id||'');
-  location.href='account-success.html';
+  sessionStorage.setItem('buraq_signup_email', emailInput);
+  sessionStorage.setItem('buraq_user_id', data.user?.id || '');
+  location.href = 'account-success.html';
 });
 </script></body></html>
