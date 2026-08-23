@@ -45,7 +45,23 @@
 .badge-platform{background:#0c281c;color:#18c879;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600;display:inline-flex;align-items:center;gap:4px}
 .badge-active{background:#0c281c;color:#18c879;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600}
 .btn-manage{background:transparent;border:1px solid #283439;color:#dce4e3;border-radius:6px;padding:6px 12px;font-size:11px;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
-.green-text{color:#18c879!important}
+.quick-panel{padding:20px}
+.quick-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:14px}
+.quick{border:1px solid var(--border);background:#0d1417;border-radius:99px;padding:12px 18px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .2s}.quick:hover{border-color:#334248}
+.quick-icon{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:16px;flex:0 0 36px}
+.q-gold{background:#2a210d;color:var(--gold)}.q-red{background:#351318;color:#ff5360}.q-blue{background:#0a1e30;color:#4aa8ff}.q-purple{background:#1e1430;color:#a675ff}.q-contact{background:#222a16;color:#c0df37}
+.quick b{display:block;font-size:12px;color:#fff}.quick span{display:block;color:var(--muted);font-size:10px;margin-top:2px}
+.lower-grid{display:grid;grid-template-columns:1.4fr 0.8fr;gap:18px;margin-top:18px}
+.lower-panel{background:#0a1013;border:1px solid var(--border);border-radius:10px;padding:20px}
+.tx-table{width:100%;border-collapse:collapse;font-size:12px}
+.tx-table th{color:var(--muted);font-weight:500;padding:10px 8px;border-bottom:1px solid var(--border);text-align:left}
+.tx-table td{padding:12px 8px;border-bottom:1px solid #141d21;color:#cbd4d3;text-align:left}
+.statusbadge{display:inline-block;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;text-transform:capitalize}
+.statusbadge.completed{background:#0c281c;color:#18c879;border:1px solid #175236}
+.statusbadge.pending{background:#2b220d;color:#e3b64e;border:1px solid #524017}
+.info-row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #141d21;font-size:12px}
+.info-row span{color:var(--muted)}.info-row b{color:#fff;text-align:right}
+.green-text{color:#18c879!important}.red-text{color:#ff5360!important}
 
 /* MODAL STYLES */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);z-index:99;display:none;align-items:center;justify-content:center}
@@ -59,6 +75,7 @@
 .form-control{width:100%;background:#11181c;border:1px solid var(--border);color:#fff;padding:10px;border-radius:6px;font-size:13px;outline:none}
 .form-control:focus{border-color:var(--gold)}
 .modal-footer{margin-top:20px;display:flex;justify-content:flex-end;gap:10px}
+@media(max-width:1100px){.kpis{grid-template-columns:repeat(2,1fr)}.quick-grid{grid-template-columns:repeat(2,1fr)}.lower-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -157,7 +174,6 @@
             </tr>
           </thead>
           <tbody id="accountsList">
-            <!-- Fallback Default Live Account -->
             <tr>
               <td>
                 <span class="acc-tag">Live</span>
@@ -174,6 +190,56 @@
             </tr>
           </tbody>
         </table>
+      </div>
+    </section>
+
+    <!-- Quick Actions Panel -->
+    <section class="panel quick-panel">
+      <div class="panel-title">Quick Actions</div>
+      <div class="quick-grid">
+        <a class="quick" href="deposit.html">
+          <div class="quick-icon q-gold">📥</div>
+          <div><b>Deposit Funds</b><span>Add money to wallet</span></div>
+        </a>
+        <a class="quick" href="withdraw.html">
+          <div class="quick-icon q-red">📤</div>
+          <div><b>Withdraw Funds</b><span>Withdraw to bank account</span></div>
+        </a>
+        <a class="quick" href="transfer.html">
+          <div class="quick-icon q-blue">⇄</div>
+          <div><b>Transfer Funds</b><span>Internal transfer</span></div>
+        </a>
+        <a class="quick" href="#">
+          <div class="quick-icon q-purple">📥</div>
+          <div><b>Download MT5</b><span>Windows / Android / iOS</span></div>
+        </a>
+        <a class="quick" href="#">
+          <div class="quick-icon q-contact">💬</div>
+          <div><b>Contact Support</b><span>We're here to help</span></div>
+        </a>
+      </div>
+    </section>
+
+    <!-- Lower Grid Panels -->
+    <section class="lower-grid">
+      <div class="lower-panel">
+        <div class="panel-title" style="margin-bottom:15px">Recent Transactions</div>
+        <table class="tx-table">
+          <thead>
+            <tr><th>Type</th><th>Amount</th><th>Date</th><th>Status</th></tr>
+          </thead>
+          <tbody id="txList">
+            <tr><td colspan="4" style="text-align:center;padding:15px;color:var(--muted)">No transactions recorded yet</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="lower-panel">
+        <div class="panel-title" style="margin-bottom:15px">Account Summary</div>
+        <div class="info-row"><span>KYC Verification</span><b class="green-text">Approved</b></div>
+        <div class="info-row"><span>Leverage</span><b>1:500</b></div>
+        <div class="info-row"><span>Server Status</span><b class="green-text">Online (0ms)</b></div>
+        <div class="info-row"><span>Base Currency</span><b>USD ($)</b></div>
       </div>
     </section>
   </div>
@@ -234,12 +300,37 @@
 import { supabase } from './supabase-config.js';
 
 let currentUser = null;
+
+// UI Event Listeners
+const menuToggle = document.getElementById('menuToggle');
+const sidebar = document.getElementById('sidebar');
+const sidebarOverlay = document.getElementById('sidebarOverlay');
+const userDropdownBtn = document.getElementById('userDropdownBtn');
+const profileMenu = document.getElementById('profileMenu');
+
+menuToggle?.addEventListener('click', () => {
+  sidebar.classList.toggle('open');
+  sidebarOverlay.classList.toggle('show');
+});
+
+sidebarOverlay?.addEventListener('click', () => {
+  sidebar.classList.remove('open');
+  sidebarOverlay.classList.remove('show');
+});
+
+userDropdownBtn?.addEventListener('click', (e) => {
+  e.stopPropagation();
+  profileMenu.classList.toggle('show');
+});
+
+document.addEventListener('click', () => profileMenu?.classList.remove('show'));
+
+// Modal Logic
 const modal = document.getElementById('accountModal');
 const modalTitle = document.getElementById('modalTitle');
 const accTypeInput = document.getElementById('accTypeInput');
 const demoBalanceGroup = document.getElementById('demoBalanceGroup');
 
-// Open Modal logic
 document.getElementById('btnOpenLive')?.addEventListener('click', () => {
   modalTitle.textContent = "Open Live Trading Account";
   accTypeInput.value = "Live";
@@ -258,7 +349,7 @@ const closeModal = () => modal.classList.remove('active');
 document.getElementById('closeModal')?.addEventListener('click', closeModal);
 document.getElementById('cancelModal')?.addEventListener('click', closeModal);
 
-// Create Account Submission
+// Form Submit
 document.getElementById('createAccForm')?.addEventListener('submit', async (e) => {
   e.preventDefault();
   const btn = document.getElementById('submitAccBtn');
@@ -270,14 +361,11 @@ document.getElementById('createAccForm')?.addEventListener('submit', async (e) =
   const leverage = document.getElementById('accLeverage').value;
   const currency = document.getElementById('accCurrency').value;
   const initialBalance = type === 'Demo' ? parseFloat(document.getElementById('demoDeposit').value) : 0;
-
   const accNum = (type === 'Demo' ? 'D' : 'W') + Math.floor(100000 + Math.random() * 900000);
 
   try {
-    if (!currentUser) throw new Error("User not authenticated");
-
-    const { error } = await supabase.from('trading_accounts').insert([
-      {
+    if (currentUser) {
+      const { error } = await supabase.from('trading_accounts').insert([{
         user_id: currentUser.id,
         account_number: accNum,
         type: type,
@@ -288,11 +376,9 @@ document.getElementById('createAccForm')?.addEventListener('submit', async (e) =
         equity: initialBalance,
         profit_loss: 0,
         status: 'Active'
-      }
-    ]);
-
-    if(error) throw error;
-
+      }]);
+      if(error) throw error;
+    }
     closeModal();
     await loadData();
   } catch (err) {
@@ -308,54 +394,76 @@ const money = n => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD
 async function loadData() {
   try {
     const { data: { session } } = await supabase.auth.getSession();
-    if(!session) return;
-    currentUser = session.user;
+    if(session) {
+      currentUser = session.user;
+      const [profileRes, accountsRes, txRes] = await Promise.all([
+        supabase.from('profiles').select('*').eq('id', currentUser.id).maybeSingle(),
+        supabase.from('trading_accounts').select('*').eq('user_id', currentUser.id),
+        supabase.from('transactions').select('*').eq('user_id', currentUser.id).limit(5)
+      ]);
 
-    const [profileRes, accountsRes] = await Promise.all([
-      supabase.from('profiles').select('*').eq('id', currentUser.id).maybeSingle(),
-      supabase.from('trading_accounts').select('*').eq('user_id', currentUser.id)
-    ]);
+      const profile = profileRes.data || {};
+      const accounts = accountsRes.data || [];
+      const tx = txRes.data || [];
 
-    const profile = profileRes.data || {};
-    const accounts = accountsRes.data || [];
+      const name = (profile.full_name || currentUser.email.split('@')[0]).toUpperCase();
+      document.getElementById('topName').textContent = name;
+      document.getElementById('heroName').textContent = name;
+      document.getElementById('topAvatar').textContent = name.charAt(0);
 
-    const name = (profile.full_name || currentUser.email.split('@')[0]).toUpperCase();
-    document.getElementById('topName').textContent = name;
-    document.getElementById('heroName').textContent = name;
-    document.getElementById('topAvatar').textContent = name.charAt(0);
+      if (accounts.length > 0) {
+        const totalBalance = accounts.reduce((x,v)=>x+Number(v.balance||0),0);
+        const equity = accounts.reduce((x,v)=>x+Number(v.equity||0),0);
+        const freeMargin = accounts.reduce((x,v)=>x+Number(v.free_margin||v.balance||0),0);
+        const totalPL = accounts.reduce((x,v)=>x+Number(v.profit_loss||0),0);
 
-    if (accounts && accounts.length > 0) {
-      const totalBalance = accounts.reduce((x,v)=>x+Number(v.balance||0),0);
-      const equity = accounts.reduce((x,v)=>x+Number(v.equity||0),0);
-      const freeMargin = accounts.reduce((x,v)=>x+Number(v.free_margin||v.balance||0),0);
-      const totalPL = accounts.reduce((x,v)=>x+Number(v.profit_loss||0),0);
+        document.getElementById('valBalance').textContent = money(totalBalance);
+        document.getElementById('valEquity').textContent = money(equity);
+        document.getElementById('valMargin').textContent = money(freeMargin);
+        document.getElementById('valPL').textContent = (totalPL >= 0 ? '+' : '') + money(totalPL);
 
-      document.getElementById('valBalance').textContent = money(totalBalance);
-      document.getElementById('valEquity').textContent = money(equity);
-      document.getElementById('valMargin').textContent = money(freeMargin);
-      document.getElementById('valPL').textContent = (totalPL >= 0 ? '+' : '') + money(totalPL);
+        document.getElementById('accountsList').innerHTML = accounts.map(a => `
+          <tr>
+            <td>
+              <span class="acc-tag ${a.type && a.type.toLowerCase() === 'demo' ? 'demo' : ''}">${a.type || 'Live'}</span>
+              <div class="acc-num">${a.account_number}</div>
+              <div class="acc-sub">${a.currency || 'USD'} / ${a.leverage || '1:500'}</div>
+            </td>
+            <td><span class="badge-blue">${a.type || 'Live'}</span></td>
+            <td><span class="badge-platform">${a.platform || 'MT5'}</span></td>
+            <td>${money(a.balance)}</td>
+            <td>${money(a.equity)}</td>
+            <td class="green-text">+${money(a.profit_loss || 0)}</td>
+            <td><span class="badge-active">${a.status || 'Active'}</span></td>
+            <td><button class="btn-manage">Manage ▾</button></td>
+          </tr>
+        `).join('');
+      }
 
-      document.getElementById('accountsList').innerHTML = accounts.map(a => `
-        <tr>
-          <td>
-            <span class="acc-tag ${a.type && a.type.toLowerCase() === 'demo' ? 'demo' : ''}">${a.type || 'Live'}</span>
-            <div class="acc-num">${a.account_number}</div>
-            <div class="acc-sub">${a.currency || 'USD'} / ${a.leverage || '1:500'}</div>
-          </td>
-          <td><span class="badge-blue">${a.type || 'Live'}</span></td>
-          <td><span class="badge-platform">${a.platform || 'MT5'}</span></td>
-          <td>${money(a.balance)}</td>
-          <td>${money(a.equity)}</td>
-          <td class="green-text">+${money(a.profit_loss || 0)}</td>
-          <td><span class="badge-active">${a.status || 'Active'}</span></td>
-          <td><button class="btn-manage">Manage ▾</button></td>
-        </tr>
-      `).join('');
+      if (tx.length > 0) {
+        document.getElementById('txList').innerHTML = tx.map(t => `
+          <tr>
+            <td><b>${t.type || 'Deposit'}</b></td>
+            <td>${money(t.amount)}</td>
+            <td>${t.created_at ? new Date(t.created_at).toLocaleDateString() : 'Today'}</td>
+            <td><span class="statusbadge ${t.status === 'completed' ? 'completed' : 'pending'}">${t.status || 'Completed'}</span></td>
+          </tr>
+        `).join('');
+      }
     }
   } catch(e) {
     console.error("Data load error:", e);
   }
 }
+
+const handleLogout = async (e) => {
+  e.preventDefault();
+  await supabase.auth.signOut();
+  window.location.href = 'client-login.html';
+};
+
+document.getElementById('sideLogout')?.addEventListener('click', handleLogout);
+document.getElementById('dropdownLogout')?.addEventListener('click', handleLogout);
 
 loadData();
 </script>
