@@ -55,7 +55,7 @@
 .kpi-sub{font-size:11px;color:var(--muted);margin-top:8px;font-weight:400}
 .green-text{color:#18c879!important}
 
-/* Trading Accounts Panel */
+/* Panels */
 .panel{background:#0a0f12;border:1px solid var(--border);border-radius:12px;margin-bottom:18px}
 .panel-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:12px}
 .panel-title{font-size:18px;font-weight:700;color:#fff}
@@ -75,6 +75,9 @@
 .badge-blue{background:#0e283d;color:#4aa8ff;font-size:11px;padding:4px 10px;border-radius:4px;font-weight:600;display:inline-block}
 .badge-platform{background:#0c281c;color:#18c879;font-size:11px;padding:4px 10px;border-radius:4px;font-weight:600}
 .badge-active{background:#0c281c;color:#18c879;font-size:11px;padding:4px 10px;border-radius:4px;font-weight:600}
+.badge-completed{background:#0c281c;color:#18c879;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600}
+.badge-pending{background:#2b220d;color:#e3b64e;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600}
+.badge-rejected{background:#2d1215;color:#ff5360;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600}
 .btn-manage{background:transparent;border:1px solid #283439;color:#dce4e3;border-radius:6px;padding:6px 12px;font-size:11px;cursor:pointer}
 
 /* Bottom Grid: Profile & KYC / Support */
@@ -210,7 +213,36 @@
       </div>
     </section>
 
-    <!-- Bottom Cards Matching Screenshot 1 -->
+    <!-- Recent Transactions Bar / Panel -->
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Recent Transactions</div>
+        <div class="header-btns">
+          <a href="deposit.html" class="btn-gold" style="padding:6px 12px;font-size:11px;">+ Deposit</a>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="account-table">
+          <thead>
+            <tr>
+              <th>ID / Date</th>
+              <th>Type</th>
+              <th>Account</th>
+              <th>Method</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="transactionsList">
+            <tr>
+              <td colspan="6" style="text-align:center;padding:20px;color:var(--muted)">Loading recent transactions...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Bottom Grid: Profile & KYC / Support -->
     <section class="bottom-grid">
       <div class="card-box">
         <h3>Profile & KYC</h3>
@@ -387,13 +419,15 @@ async function loadData() {
     if(session) {
       currentUser = session.user;
       
-      const [profileRes, accountsRes] = await Promise.all([
+      const [profileRes, accountsRes, txRes] = await Promise.all([
         supabase.from('profiles').select('*').eq('id', currentUser.id).maybeSingle(),
-        supabase.from('trading_accounts').select('*').eq('user_id', currentUser.id)
+        supabase.from('trading_accounts').select('*').eq('user_id', currentUser.id),
+        supabase.from('transactions').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }).limit(5)
       ]);
 
       const profile = profileRes.data || {};
       const accounts = accountsRes.data || [];
+      const transactions = txRes.data || [];
 
       const fullName = profile.full_name || currentUser.email.split('@')[0];
       const upperName = fullName.toUpperCase();
@@ -442,6 +476,39 @@ async function loadData() {
           </tr>
         `;
       }
+
+      // Populate Transactions
+      if (transactions.length > 0) {
+        document.getElementById('transactionsList').innerHTML = transactions.map(t => {
+          const dateStr = t.created_at ? new Date(t.created_at).toLocaleDateString() : 'N/A';
+          let statusBadge = `<span class="badge-completed">Completed</span>`;
+          if (t.status === 'Pending') statusBadge = `<span class="badge-pending">Pending</span>`;
+          if (t.status === 'Rejected') statusBadge = `<span class="badge-rejected">Rejected</span>`;
+
+          return `
+            <tr>
+              <td>
+                <div style="font-weight:700;color:#fff;">#${t.id ? t.id.toString().substring(0,8) : 'TX'}</div>
+                <div style="font-size:11px;color:var(--muted);">${dateStr}</div>
+              </td>
+              <td><b>${t.type || 'Deposit'}</b></td>
+              <td>${t.account_number || 'Wallet'}</td>
+              <td>${t.method || 'Crypto'}</td>
+              <td style="font-weight:700;color:${t.type === 'Withdrawal' ? 'var(--red)' : 'var(--green)'}">
+                ${t.type === 'Withdrawal' ? '-' : '+'}${money(t.amount)}
+              </td>
+              <td>${statusBadge}</td>
+            </tr>
+          `;
+        }).join('');
+      } else {
+        document.getElementById('transactionsList').innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align:center;padding:20px;color:var(--muted)">No recent transactions found.</td>
+          </tr>
+        `;
+      }
+
     }
   } catch(e) {
     console.error("Data load error:", e);
