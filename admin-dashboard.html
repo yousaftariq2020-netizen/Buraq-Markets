@@ -19,7 +19,7 @@ body{margin:0;background:#080a0c;color:#e1e7ec;font-family:Inter,Arial,sans-seri
 .stat-card .title{font-size:12px;color:#8899a6;margin-bottom:8px;font-weight:600}
 .stat-card .value{font-size:28px;font-weight:bold;color:#fff}
 
-.tabs{display:flex;gap:10px;margin-bottom:18px}
+.tabs{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
 .tab-btn{background:#11161d;border:1px solid #1f2933;color:#8899a6;padding:10px 18px;border-radius:8px;cursor:pointer;font-weight:bold;font-size:13px}
 .tab-btn.active{background:#f4cf72;color:#080a0c;border-color:#f4cf72}
 
@@ -59,7 +59,7 @@ body{margin:0;background:#080a0c;color:#e1e7ec;font-family:Inter,Arial,sans-seri
   </div>
   <div class="stat-card">
     <div class="title">Pending KYC</div>
-    <div class="value">0</div>
+    <div class="value" id="pendingKycCount" style="color:#f4cf72;">0</div>
   </div>
   <div class="stat-card">
     <div class="title">Total Clients</div>
@@ -73,6 +73,7 @@ body{margin:0;background:#080a0c;color:#e1e7ec;font-family:Inter,Arial,sans-seri
 
 <div class="tabs">
   <button class="tab-btn active" id="pendingTab">Pending Requests</button>
+  <button class="tab-btn" id="kycTab">KYC Requests</button>
   <button class="tab-btn" id="allTxTab">All Transactions</button>
   <button class="tab-btn" id="clientsTab">Clients Detail</button>
 </div>
@@ -97,6 +98,25 @@ body{margin:0;background:#080a0c;color:#e1e7ec;font-family:Inter,Arial,sans-seri
   </table>
 </div>
 
+<!-- KYC Requests View -->
+<div class="table-container" id="kycView" style="display:none;">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Full Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Country</th>
+        <th>KYC Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="kycTableBody">
+      <tr><td colspan="6" style="text-align:center;">Loading KYC requests...</td></tr>
+    </tbody>
+  </table>
+</div>
+
 <!-- Clients Detail View -->
 <div class="table-container" id="clientsView" style="display:none;">
   <table class="data-table">
@@ -106,12 +126,13 @@ body{margin:0;background:#080a0c;color:#e1e7ec;font-family:Inter,Arial,sans-seri
         <th>Email</th>
         <th>Phone Number</th>
         <th>Role</th>
+        <th>KYC Status</th>
         <th>Country</th>
         <th>Joined Date</th>
       </tr>
     </thead>
     <tbody id="clientsTableBody">
-      <tr><td colspan="6" style="text-align:center;">Loading clients...</td></tr>
+      <tr><td colspan="7" style="text-align:center;">Loading clients...</td></tr>
     </tbody>
   </table>
 </div>
@@ -122,21 +143,26 @@ import { triggerEmail } from './email-helper.js';
 
 let currentTab = 'pending';
 let allTransactions = [];
+let allProfiles = [];
 let profilesMap = {};
 
 const adminEmailEl = document.getElementById('adminEmail');
 const logoutBtn = document.getElementById('logoutBtn');
 const txTableBody = document.getElementById('txTableBody');
+const kycTableBody = document.getElementById('kycTableBody');
 const clientsTableBody = document.getElementById('clientsTableBody');
 
 const pendingTab = document.getElementById('pendingTab');
+const kycTab = document.getElementById('kycTab');
 const allTxTab = document.getElementById('allTxTab');
 const clientsTab = document.getElementById('clientsTab');
 
 const txView = document.getElementById('txView');
+const kycView = document.getElementById('kycView');
 const clientsView = document.getElementById('clientsView');
 
 const pendingTxCount = document.getElementById('pendingTxCount');
+const pendingKycCount = document.getElementById('pendingKycCount');
 const totalClientsCount = document.getElementById('totalClientsCount');
 const totalTxCount = document.getElementById('totalTxCount');
 
@@ -161,7 +187,14 @@ async function checkAuth() {
 async function loadProfilesMap() {
   const { data } = await supabase.from('profiles').select('*');
   if (data) {
+    allProfiles = data;
     totalClientsCount.textContent = data.length;
+    
+    // Pending KYC calculation
+    const pendingKycList = data.filter(p => (p.kyc_status || 'Pending').toLowerCase() === 'pending');
+    pendingKycCount.textContent = pendingKycList.length;
+
+    profilesMap = {};
     data.forEach(p => {
       profilesMap[p.id] = p;
     });
@@ -182,7 +215,8 @@ async function loadData() {
   const pendingList = allTransactions.filter(t => (t.status || '').toLowerCase() === 'pending');
   pendingTxCount.textContent = pendingList.length;
 
-  renderTransactions();
+  if (currentTab === 'pending' || currentTab === 'all') renderTransactions();
+  if (currentTab === 'kyc') renderKYCRequests();
 }
 
 function formatDate(val) {
@@ -244,12 +278,39 @@ function renderTransactions() {
     `;
   }).join('');
 
-  document.querySelectorAll('.action-btn').forEach(btn => {
-    btn.addEventListener('click', handleAction);
+  document.querySelectorAll('#txTableBody .action-btn').forEach(btn => {
+    btn.addEventListener('click', handleTxAction);
   });
 }
 
-async function handleAction(e) {
+function renderKYCRequests() {
+  const pendingKyc = allProfiles.filter(p => (p.kyc_status || 'Pending').toLowerCase() === 'pending');
+
+  if (pendingKyc.length === 0) {
+    kycTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No pending KYC requests.</td></tr>`;
+    return;
+  }
+
+  kycTableBody.innerHTML = pendingKyc.map(c => `
+    <tr>
+      <td><b>${c.full_name || c.name || 'N/A'}</b></td>
+      <td>${c.email || 'N/A'}</td>
+      <td>${c.phone || c.phone_number || '-'}</td>
+      <td>${c.country || '-'}</td>
+      <td><span class="status-badge status-pending">Pending</span></td>
+      <td>
+        <button class="action-btn approve-btn" data-id="${c.id}" data-action="approve-kyc">Approve KYC</button>
+        <button class="action-btn reject-btn" data-id="${c.id}" data-action="reject-kyc">Reject</button>
+      </td>
+    </tr>
+  `).join('');
+
+  document.querySelectorAll('#kycTableBody .action-btn').forEach(btn => {
+    btn.addEventListener('click', handleKycAction);
+  });
+}
+
+async function handleTxAction(e) {
   const btn = e.target;
   const id = btn.getAttribute('data-id');
   const action = btn.getAttribute('data-action');
@@ -261,10 +322,7 @@ async function handleAction(e) {
 
   const tx = allTransactions.find(t => String(t.id) === String(id));
 
-  const { error } = await supabase
-    .from('transactions')
-    .update({ status: newStatus })
-    .eq('id', id);
+  const { error } = await supabase.from('transactions').update({ status: newStatus }).eq('id', id);
 
   if (error) {
     alert('Update failed: ' + error.message);
@@ -286,27 +344,49 @@ async function handleAction(e) {
   loadData();
 }
 
-async function loadClientsDetail() {
-  clientsTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Loading clients...</td></tr>`;
+async function handleKycAction(e) {
+  const btn = e.target;
+  const id = btn.getAttribute('data-id');
+  const action = btn.getAttribute('data-action');
+  const newStatus = action === 'approve-kyc' ? 'Verified' : 'Rejected';
 
-  const { data: clients, error } = await supabase.from('profiles').select('*');
+  btn.disabled = true;
+  btn.textContent = 'Processing...';
 
-  if (error || !clients || clients.length === 0) {
-    clientsTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No clients found.</td></tr>`;
+  const { error } = await supabase.from('profiles').update({ kyc_status: newStatus }).eq('id', id);
+
+  if (error) {
+    alert('KYC status update failed: ' + error.message);
+    btn.disabled = false;
     return;
   }
 
-  totalClientsCount.textContent = clients.length;
+  await loadProfilesMap();
+  renderKYCRequests();
+}
 
-  clientsTableBody.innerHTML = clients.map(c => {
+async function loadClientsDetail() {
+  clientsTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Loading clients...</td></tr>`;
+
+  if (allProfiles.length === 0) {
+    clientsTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">No clients found.</td></tr>`;
+    return;
+  }
+
+  clientsTableBody.innerHTML = allProfiles.map(c => {
     const dateStr = extractDate(c);
-    
+    const kycSt = (c.kyc_status || 'Pending').toLowerCase();
+    let kycBadge = 'status-pending';
+    if (kycSt === 'verified' || kycSt === 'approved') kycBadge = 'status-approved';
+    if (kycSt === 'rejected') kycBadge = 'status-rejected';
+
     return `
       <tr>
         <td><b>${c.full_name || c.name || 'N/A'}</b></td>
         <td>${c.email || 'N/A'}</td>
         <td>${c.phone || c.phone_number || '-'}</td>
         <td><span class="badge-role ${c.role === 'admin' ? 'role-admin' : 'role-client'}">${c.role || 'client'}</span></td>
+        <td><span class="status-badge ${kycBadge}">${c.kyc_status || 'Pending'}</span></td>
         <td>${c.country || '-'}</td>
         <td>${dateStr}</td>
       </tr>
@@ -314,34 +394,26 @@ async function loadClientsDetail() {
   }).join('');
 }
 
-pendingTab.addEventListener('click', () => {
-  currentTab = 'pending';
-  pendingTab.classList.add('active');
-  allTxTab.classList.remove('active');
-  clientsTab.classList.remove('active');
-  txView.style.display = 'block';
-  clientsView.style.display = 'none';
-  renderTransactions();
-});
+function switchView(tab) {
+  currentTab = tab;
+  pendingTab.classList.toggle('active', tab === 'pending');
+  kycTab.classList.toggle('active', tab === 'kyc');
+  allTxTab.classList.toggle('active', tab === 'all');
+  clientsTab.classList.toggle('active', tab === 'clients');
 
-allTxTab.addEventListener('click', () => {
-  currentTab = 'all';
-  pendingTab.classList.remove('active');
-  allTxTab.classList.add('active');
-  clientsTab.classList.remove('active');
-  txView.style.display = 'block';
-  clientsView.style.display = 'none';
-  renderTransactions();
-});
+  txView.style.display = (tab === 'pending' || tab === 'all') ? 'block' : 'none';
+  kycView.style.display = tab === 'kyc' ? 'block' : 'none';
+  clientsView.style.display = tab === 'clients' ? 'block' : 'none';
 
-clientsTab.addEventListener('click', () => {
-  pendingTab.classList.remove('active');
-  allTxTab.classList.remove('active');
-  clientsTab.classList.add('active');
-  txView.style.display = 'none';
-  clientsView.style.display = 'block';
-  loadClientsDetail();
-});
+  if (tab === 'pending' || tab === 'all') renderTransactions();
+  if (tab === 'kyc') renderKYCRequests();
+  if (tab === 'clients') loadClientsDetail();
+}
+
+pendingTab.addEventListener('click', () => switchView('pending'));
+kycTab.addEventListener('click', () => switchView('kyc'));
+allTxTab.addEventListener('click', () => switchView('all'));
+clientsTab.addEventListener('click', () => switchView('clients'));
 
 logoutBtn.addEventListener('click', async () => {
   await supabase.auth.signOut();
