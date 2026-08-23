@@ -167,10 +167,12 @@ const totalTxCount = document.getElementById('totalTxCount');
 function resolveDocumentUrl(path) {
   if (!path) return '#';
   if (path.startsWith('http://') || path.startsWith('https://')) return path;
-  
+
+  // Supabase Client se Project Storage URL dynamically construct karein
   const cleanPath = path.startsWith('/') ? path.substring(1) : path;
-  const { data } = supabase.storage.from('kyc-documents').getPublicUrl(cleanPath);
-  return data ? data.publicUrl : path;
+  const projectUrl = supabase.supabaseUrl || 'https://your-supabase-project.supabase.co';
+  
+  return `${projectUrl}/storage/v1/object/public/kyc-documents/${cleanPath}`;
 }
 
 async function checkAuth() {
@@ -277,7 +279,7 @@ function renderKYCRequests() {
       if (typeof val === 'string' && val.trim().length > 0) {
         if (key.includes('path') || key.includes('doc') || key.includes('selfie') || val.match(/\.(jpg|jpeg|png|pdf|webp)$/i)) {
           const finalUrl = resolveDocumentUrl(val);
-          docsLinks.push(`<a href="${finalUrl}" target="_blank" class="doc-link">📄 ${key.replace(/_/g, ' ').toUpperCase()}</a>`);
+          docsLinks.push(`<a href="${finalUrl}" target="_blank" rel="noopener noreferrer" class="doc-link">📄 ${key.replace(/_/g, ' ').toUpperCase()}</a>`);
         }
       }
     });
@@ -289,7 +291,7 @@ function renderKYCRequests() {
         if (typeof v === 'string' && v.trim().length > 0) {
           if (k.includes('path') || k.includes('doc') || k.includes('selfie') || v.match(/\.(jpg|jpeg|png|pdf|webp)$/i)) {
             const finalUrl = resolveDocumentUrl(v);
-            docsLinks.push(`<a href="${finalUrl}" target="_blank" class="doc-link">📄 ${k.replace(/_/g, ' ').toUpperCase()}</a>`);
+            docsLinks.push(`<a href="${finalUrl}" target="_blank" rel="noopener noreferrer" class="doc-link">📄 ${k.replace(/_/g, ' ').toUpperCase()}</a>`);
           }
         }
       });
