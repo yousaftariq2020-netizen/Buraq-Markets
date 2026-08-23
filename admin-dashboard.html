@@ -165,10 +165,10 @@ async function loadClientsCount() {
 }
 
 async function loadData() {
+  // Simple select without column order dependency to prevent 400 Bad Request
   const { data, error } = await supabase
     .from('transactions')
-    .select('*')
-    .order('created_at', { ascending: false });
+    .select('*');
 
   if (error) {
     txTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#ef4444;">Error: ${error.message}</td></tr>`;
@@ -197,7 +197,8 @@ function renderTransactions() {
 
   txTableBody.innerHTML = list.map(t => {
     const isPending = (t.status || '').toLowerCase() === 'pending';
-    const dateStr = t.created_at ? new Date(t.created_at).toLocaleDateString() : '-';
+    const dateVal = t.created_at || t.date || t.created_date;
+    const dateStr = dateVal ? new Date(dateVal).toLocaleDateString() : '-';
     let statusClass = 'status-pending';
     if ((t.status || '').toLowerCase() === 'approved') statusClass = 'status-approved';
     if ((t.status || '').toLowerCase() === 'declined' || (t.status || '').toLowerCase() === 'rejected') statusClass = 'status-rejected';
@@ -265,8 +266,7 @@ async function loadClientsDetail() {
 
   const { data: clients, error } = await supabase
     .from('profiles')
-    .select('*')
-    .order('created_at', { ascending: false });
+    .select('*');
 
   if (error || !clients || clients.length === 0) {
     clientsTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No clients found.</td></tr>`;
@@ -275,16 +275,21 @@ async function loadClientsDetail() {
 
   totalClientsCount.textContent = clients.length;
 
-  clientsTableBody.innerHTML = clients.map(c => `
-    <tr>
-      <td><b>${c.full_name || c.name || 'N/A'}</b></td>
-      <td>${c.email || 'N/A'}</td>
-      <td>${c.phone || c.phone_number || '-'}</td>
-      <td><span class="badge-role ${c.role === 'admin' ? 'role-admin' : 'role-client'}">${c.role || 'client'}</span></td>
-      <td>${c.country || '-'}</td>
-      <td>${c.created_at ? new Date(c.created_at).toLocaleDateString() : '-'}</td>
-    </tr>
-  `).join('');
+  clientsTableBody.innerHTML = clients.map(c => {
+    const dateVal = c.created_at || c.date || c.joined_at;
+    const dateStr = dateVal ? new Date(dateVal).toLocaleDateString() : '-';
+    
+    return `
+      <tr>
+        <td><b>${c.full_name || c.name || 'N/A'}</b></td>
+        <td>${c.email || 'N/A'}</td>
+        <td>${c.phone || c.phone_number || '-'}</td>
+        <td><span class="badge-role ${c.role === 'admin' ? 'role-admin' : 'role-client'}">${c.role || 'client'}</span></td>
+        <td>${c.country || '-'}</td>
+        <td>${dateStr}</td>
+      </tr>
+    `;
+  }).join('');
 }
 
 pendingTab.addEventListener('click', () => {
