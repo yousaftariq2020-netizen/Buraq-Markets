@@ -1,4 +1,4 @@
-// Complete Fixed EmailJS Helper
+// Complete EmailJS Integration Helper
 
 const EMAILJS_SERVICE_ID = 'service_9w4z5q';
 const EMAILJS_TEMPLATE_ID = 'template_ly4i099';
@@ -23,12 +23,7 @@ export async function sendNotification(recipientEmail, recipientName, actionType
 }
 
 export async function triggerEmail(recipientEmail, recipientName, actionType, txDetails = {}) {
-  let safeEmail = '';
-  if (typeof recipientEmail === 'string') {
-    safeEmail = recipientEmail.trim();
-  } else if (recipientEmail && typeof recipientEmail === 'object') {
-    safeEmail = String(recipientEmail.email || recipientEmail.to || '').trim();
-  }
+  let safeEmail = typeof recipientEmail === 'string' ? recipientEmail.trim() : '';
 
   if (!safeEmail || !safeEmail.includes('@')) {
     console.error('Email Trigger Failed: Invalid client email.', recipientEmail);
@@ -44,7 +39,6 @@ export async function triggerEmail(recipientEmail, recipientName, actionType, tx
 
   const isApproved = String(actionType).toLowerCase() === 'approve';
 
-  // Parameters mapped to EmailJS standard template expectations
   const templateParams = {
     to_email: safeEmail,
     email: safeEmail,
