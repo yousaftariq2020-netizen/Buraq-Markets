@@ -16,6 +16,10 @@ body{margin:0;min-height:100vh;background:#070707;color:#fff;font-family:Inter,A
 .field label{display:block;font-size:11px;font-weight:700;margin-bottom:7px}
 .field input{width:100%;padding:13px;background:#09090c;border:1px solid #36353c;border-radius:7px;color:#fff;outline:0}
 .field input:focus{border-color:#d6a93b}
+.password-wrapper{position:relative;width:100%}
+.password-wrapper input{padding-right:40px}
+.toggle-password{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;user-select:none;font-size:16px;opacity:0.7}
+.toggle-password:hover{opacity:1}
 .row-between{display:flex;justify-content:flex-end;margin:-6px 0 10px}
 .row-between a{color:#f4cf72;font-size:12px;text-decoration:none}
 .row-between a:hover{text-decoration:underline}
@@ -39,7 +43,10 @@ body{margin:0;min-height:100vh;background:#070707;color:#fff;font-family:Inter,A
     </div>
     <div class="field">
       <label>Password</label>
-      <input id="password" required type="password" placeholder="Enter your password">
+      <div class="password-wrapper">
+        <input id="password" required type="password" placeholder="Enter your password">
+        <span class="toggle-password" id="togglePassword">👁️</span>
+      </div>
     </div>
     <div class="row-between">
       <a href="forgot-password.html">Forgot Password?</a>
@@ -56,6 +63,19 @@ import { sendLoginEmail } from './email-helper.js';
 const form = document.getElementById('loginForm');
 const btn = document.getElementById('loginBtn');
 const error = document.getElementById('error');
+const passwordInput = document.getElementById('password');
+const togglePasswordBtn = document.getElementById('togglePassword');
+
+// Toggle Password Visibility
+togglePasswordBtn.addEventListener('click', () => {
+  if (passwordInput.type === 'password') {
+    passwordInput.type = 'text';
+    togglePasswordBtn.textContent = '🙈';
+  } else {
+    passwordInput.type = 'password';
+    togglePasswordBtn.textContent = '👁️';
+  }
+});
 
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
