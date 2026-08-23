@@ -185,6 +185,26 @@ async function loadData() {
   renderTransactions();
 }
 
+function extractDate(obj) {
+  if (!obj) return '-';
+  // Check common date keys dynamically
+  const keys = ['created_at', 'date', 'created_date', 'timestamp', 'time', 'createdAt', 'tx_date'];
+  for (let key of keys) {
+    if (obj[key]) {
+      const d = new Date(obj[key]);
+      if (!isNaN(d.getTime())) return d.toLocaleDateString();
+    }
+  }
+  // If key contains 'date' or 'time'
+  for (let key in obj) {
+    if (key.toLowerCase().includes('date') || key.toLowerCase().includes('time')) {
+      const d = new Date(obj[key]);
+      if (!isNaN(d.getTime())) return d.toLocaleDateString();
+    }
+  }
+  return '-';
+}
+
 function renderTransactions() {
   let list = allTransactions;
   if (currentTab === 'pending') {
@@ -198,12 +218,8 @@ function renderTransactions() {
 
   txTableBody.innerHTML = list.map(t => {
     const isPending = (t.status || '').toLowerCase() === 'pending';
-    
-    // Dynamic Date mapping
-    const rawDate = t.created_at || t.date || t.created_date || t.timestamp;
-    const dateStr = rawDate ? new Date(rawDate).toLocaleDateString() : '-';
+    const dateStr = extractDate(t);
 
-    // Dynamic Email mapping (Transaction fields OR matched Profile)
     const matchedProfile = t.user_id ? profilesMap[t.user_id] : null;
     const clientEmail = t.user_email || t.email || t.client_email || matchedProfile?.email || 'N/A';
 
@@ -257,7 +273,6 @@ async function handleAction(e) {
     return;
   }
 
-  // Preserve original email trigger logic
   const matchedProfile = tx?.user_id ? profilesMap[tx.user_id] : null;
   const targetEmail = tx?.user_email || tx?.email || tx?.client_email || matchedProfile?.email;
 
@@ -285,8 +300,7 @@ async function loadClientsDetail() {
   totalClientsCount.textContent = clients.length;
 
   clientsTableBody.innerHTML = clients.map(c => {
-    const rawDate = c.created_at || c.date || c.joined_at;
-    const dateStr = rawDate ? new Date(rawDate).toLocaleDateString() : '-';
+    const dateStr = extractDate(c);
     
     return `
       <tr>
