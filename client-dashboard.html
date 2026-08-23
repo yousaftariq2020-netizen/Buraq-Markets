@@ -16,7 +16,7 @@ body{margin:0;background:#080a0c;color:#e1e7ec;font-family:Inter,Arial,sans-seri
 .logout-btn{background:#e63946;color:#fff}.logout-btn:hover{background:#c72c38}
 .deposit-btn{background:#f4cf72;color:#080a0c}.deposit-btn:hover{background:#e0ba5c}
 
-/* Top Stats Cards Grid */
+/* Top Summary Cards Grid */
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:30px}
 .stat-card{background:#0d1117;border:1px solid #1f2937;border-radius:12px;padding:20px;display:flex;flex-direction:column;justify-content:space-between}
 .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
@@ -65,7 +65,7 @@ body{margin:0;background:#080a0c;color:#e1e7ec;font-family:Inter,Arial,sans-seri
       <span class="chevron">›</span>
     </div>
     <div class="value" id="walletAccountVal" style="color:#f4cf72;">Fetching...</div>
-    <div class="subtext">Primary deposit account</div>
+    <div class="subtext">Primary trading wallet ID</div>
   </div>
 
   <!-- Total Balance Card -->
@@ -135,7 +135,7 @@ body{margin:0;background:#080a0c;color:#e1e7ec;font-family:Inter,Arial,sans-seri
     <h3>Deposit Funds</h3>
     <form id="depositForm">
       <div class="form-group">
-        <label>Selected Wallet Account Number</label>
+        <label>Selected Wallet Account Number (Client ID)</label>
         <input type="text" id="depositWalletInput" readonly>
       </div>
       <div class="form-group">
@@ -174,7 +174,6 @@ const closeDepositModalBtn = document.getElementById('closeDepositModalBtn');
 const depositForm = document.getElementById('depositForm');
 const depositWalletInput = document.getElementById('depositWalletInput');
 
-// Check Login Status & Load Data
 async function initClientDashboard() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
@@ -189,13 +188,12 @@ async function initClientDashboard() {
   await loadTransactions();
 }
 
-// Fetch Profile Metrics and Wallet Account
 async function loadClientProfile() {
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', currentUser.id)
-    .single();
+    .maybeSingle();
 
   const { data: clientData } = await supabase
     .from('clients')
@@ -205,12 +203,12 @@ async function loadClientProfile() {
 
   const merged = { ...profile, ...clientData };
 
-  // Set Wallet Account Number
-  currentWalletNo = merged.account_number || merged.wallet_address || merged.client_id || `#${currentUser.id.substring(0, 8)}`;
+  // Strict Priority for Client ID as Wallet Account Number
+  currentWalletNo = merged.client_id || merged.account_number || merged.wallet_address || merged.id;
+
   walletAccountVal.textContent = currentWalletNo;
   depositWalletInput.value = currentWalletNo;
 
-  // Set Financial Summary Metrics
   const bal = parseFloat(merged.balance || 0);
   const eq = parseFloat(merged.equity || bal);
   const freeMargin = parseFloat(merged.free_margin || eq);
@@ -222,7 +220,6 @@ async function loadClientProfile() {
   plVal.textContent = (pl >= 0 ? '+' : '') + '$' + pl.toFixed(2);
 }
 
-// Fetch Client Transactions
 async function loadTransactions() {
   const { data: txs } = await supabase
     .from('transactions')
@@ -249,7 +246,6 @@ async function loadTransactions() {
   }).join('');
 }
 
-// Deposit Form Submit Handling
 depositForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const amount = document.getElementById('depositAmount').value;
@@ -259,7 +255,7 @@ depositForm.addEventListener('submit', async (e) => {
     {
       user_id: currentUser.id,
       email: currentUser.email,
-      wallet_address: currentWalletNo, // Lock transaction with active wallet number
+      wallet_address: currentWalletNo,
       amount: parseFloat(amount),
       type: 'Deposit',
       reference: ref,
@@ -278,7 +274,6 @@ depositForm.addEventListener('submit', async (e) => {
   }
 });
 
-// Modal Controls
 openDepositModalBtn.addEventListener('click', () => depositModal.style.display = 'flex');
 closeDepositModalBtn.addEventListener('click', () => depositModal.style.display = 'none');
 document.getElementById('logoutBtn').addEventListener('click', async () => {
