@@ -15,12 +15,34 @@
 <script type="module">
 import { supabase } from './supabase-config.js';
 const form=document.getElementById('signupForm'), btn=document.getElementById('submitBtn'), error=document.getElementById('error');
+
 form.addEventListener('submit', async e=>{
   e.preventDefault(); error.style.display='none'; btn.disabled=true; btn.textContent='Creating Account…';
+  
+  const emailInput = email.value.trim();
+
+  // Step 1: Check if email already exists in profiles database
+  const { data: existingProfile } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('email', emailInput)
+    .maybeSingle();
+
+  if (existingProfile) {
+    error.textContent = 'This email is already registered. Please login instead.';
+    error.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Create Account →';
+    return;
+  }
+
+  // Step 2: Proceed to Sign Up if email does not exist
   const values={full_name:fullName.value.trim(),phone:phone.value.trim(),country:country.value,preferred_platform:platform.value};
-  const {data,error:authError}=await supabase.auth.signUp({email:email.value.trim(),password:password.value,options:{data:values}});
+  const {data,error:authError}=await supabase.auth.signUp({email:emailInput,password:password.value,options:{data:values}});
+  
   if(authError){ error.textContent=authError.message; error.style.display='block'; btn.disabled=false; btn.textContent='Create Account →'; return; }
-  sessionStorage.setItem('buraq_signup_email',email.value.trim());
+  
+  sessionStorage.setItem('buraq_signup_email',emailInput);
   sessionStorage.setItem('buraq_user_id',data.user?.id||'');
   location.href='account-success.html';
 });
