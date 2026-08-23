@@ -52,8 +52,18 @@
 .quick-icon{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:16px;flex:0 0 36px}
 .q-gold{background:#2a210d;color:var(--gold)}.q-red{background:#351318;color:#ff5360}.q-blue{background:#0a1e30;color:#4aa8ff}.q-purple{background:#1e1430;color:#a675ff}.q-contact{background:#222a16;color:#c0df37}
 .quick b{display:block;font-size:12px;color:#fff}.quick span{display:block;color:var(--muted);font-size:10px;margin-top:2px}
+.lower-grid{display:grid;grid-template-columns:1.4fr 0.8fr;gap:18px;margin-top:18px}
+.lower-panel{background:#0a1013;border:1px solid var(--border);border-radius:10px;padding:20px}
+.tx-table{width:100%;border-collapse:collapse;font-size:12px}
+.tx-table th{color:var(--muted);font-weight:500;padding:10px 8px;border-bottom:1px solid var(--border);text-align:left}
+.tx-table td{padding:12px 8px;border-bottom:1px solid #141d21;color:#cbd4d3;text-align:left}
+.statusbadge{display:inline-block;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;text-transform:capitalize}
+.statusbadge.completed{background:#0c281c;color:#18c879;border:1px solid #175236}
+.statusbadge.pending{background:#2b220d;color:#e3b64e;border:1px solid #524017}
+.info-row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #141d21;font-size:12px}
+.info-row span{color:var(--muted)}.info-row b{color:#fff;text-align:right}
 .green-text{color:#18c879!important}.red-text{color:#ff5360!important}
-@media(max-width:1100px){.kpis{grid-template-columns:repeat(2,1fr)}.quick-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:1100px){.kpis{grid-template-columns:repeat(2,1fr)}.quick-grid{grid-template-columns:repeat(2,1fr)}.lower-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -203,6 +213,32 @@
         </a>
       </div>
     </section>
+
+    <!-- Bottom Two Panels -->
+    <section class="lower-grid">
+      <!-- Panel 1: Recent Transactions -->
+      <div class="lower-panel">
+        <div class="panel-title" style="margin-bottom:15px">Recent Transactions</div>
+        <table class="tx-table">
+          <thead>
+            <tr><th>Type</th><th>Amount</th><th>Date</th><th>Status</th></tr>
+          </thead>
+          <tbody id="txList">
+            <tr><td colspan="4" style="text-align:center;padding:15px;color:var(--muted)">No transactions recorded yet</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Panel 2: Account Overview -->
+      <div class="lower-panel">
+        <div class="panel-title" style="margin-bottom:15px">Account Summary</div>
+        <div class="info-row"><span>KYC Verification</span><b class="green-text">Approved</b></div>
+        <div class="info-row"><span>Leverage</span><b>1:500</b></div>
+        <div class="info-row"><span>Server Status</span><b class="green-text">Online (0ms)</b></div>
+        <div class="info-row"><span>Base Currency</span><b>USD ($)</b></div>
+      </div>
+    </section>
+
   </div>
 </main>
 </section>
@@ -244,13 +280,15 @@ async function loadData() {
       return;
     }
 
-    const [profileRes, accountsRes] = await Promise.all([
+    const [profileRes, accountsRes, txRes] = await Promise.all([
       supabase.from('profiles').select('*').eq('id', user.id).maybeSingle(),
-      supabase.from('trading_accounts').select('*').eq('user_id', user.id)
+      supabase.from('trading_accounts').select('*').eq('user_id', user.id),
+      supabase.from('transactions').select('*').eq('user_id', user.id).limit(5)
     ]);
 
     const profile = profileRes.data || {};
     const accounts = accountsRes.data || [];
+    const tx = txRes.data || [];
 
     const name = (profile.full_name || user.email.split('@')[0]).toUpperCase();
     document.getElementById('topName').textContent = name;
@@ -285,6 +323,18 @@ async function loadData() {
         </tr>
       `).join('');
     }
+
+    if (tx.length > 0) {
+      document.getElementById('txList').innerHTML = tx.map(t => `
+        <tr>
+          <td><b>${t.type || 'Deposit'}</b></td>
+          <td>${money(t.amount)}</td>
+          <td>${t.created_at ? new Date(t.created_at).toLocaleDateString() : 'Today'}</td>
+          <td><span class="statusbadge ${t.status === 'completed' ? 'completed' : 'pending'}">${t.status || 'Completed'}</span></td>
+        </tr>
+      `).join('');
+    }
+
   } catch(e) {
     console.error(e);
   }
