@@ -37,9 +37,6 @@ body{margin:0;background:#080a0c;color:#e1e7ec;font-family:Inter,Arial,sans-seri
 .action-btn{padding:6px 12px;border-radius:5px;border:none;font-size:12px;font-weight:bold;cursor:pointer;margin-right:5px}
 .approve-btn{background:#10b981;color:#fff}.approve-btn:hover{background:#059669}
 .reject-btn{background:#ef4444;color:#fff}.reject-btn:hover{background:#dc2626}
-.badge-role{padding:3px 7px;border-radius:4px;font-size:10px;text-transform:uppercase;font-weight:bold}
-.role-client{background:#1e293b;color:#94a3b8;border:1px solid #334155}
-.role-admin{background:#3b2d12;color:#f4cf72;border:1px solid #785a21}
 .doc-link{color:#f4cf72;text-decoration:underline;font-weight:bold;display:inline-block;margin-right:8px}
 </style>
 </head>
@@ -105,7 +102,7 @@ body{margin:0;background:#080a0c;color:#e1e7ec;font-family:Inter,Arial,sans-seri
     <thead>
       <tr>
         <th>Full Name</th>
-        <th>Email</th>
+        <th>Client ID</th>
         <th>Phone</th>
         <th>Country</th>
         <th>Attached Documents</th>
@@ -125,9 +122,9 @@ body{margin:0;background:#080a0c;color:#e1e7ec;font-family:Inter,Arial,sans-seri
     <thead>
       <tr>
         <th>Full Name</th>
-        <th>Email</th>
+        <th>Client ID</th>
         <th>Phone Number</th>
-        <th>Role</th>
+        <th>Platform</th>
         <th>KYC Status</th>
         <th>Country</th>
         <th>Joined Date</th>
@@ -141,12 +138,11 @@ body{margin:0;background:#080a0c;color:#e1e7ec;font-family:Inter,Arial,sans-seri
 
 <script type="module">
 import { supabase } from './supabase-config.js';
-import { triggerEmail } from './email-helper.js';
 
 let currentTab = 'pending';
 let allTransactions = [];
-let allProfiles = [];
-let profilesMap = {};
+let combinedClients = [];
+let kycDocsList = [];
 
 const adminEmailEl = document.getElementById('adminEmail');
 const logoutBtn = document.getElementById('logoutBtn');
@@ -169,96 +165,62 @@ const totalClientsCount = document.getElementById('totalClientsCount');
 const totalTxCount = document.getElementById('totalTxCount');
 
 async function checkAuth() {
-  const { data: { user }, error } = await supabase.auth.getUser();
-  if (error || !user) {
-    console.error("Auth Error:", error);
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
     location.href = 'client-login.html?redirect=admin-dashboard.html';
     return;
   }
   
-  const { data: profile, error: profErr } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle();
-  if (profErr) console.warn("Profile fetch error:", profErr.message);
-
-  if (profile?.role !== 'admin') {
-    alert("Admin access required.");
-    location.href = 'client-dashboard.html';
-    return;
-  }
-  
   adminEmailEl.textContent = user.email;
-  await loadProfilesMap();
-  await loadData();
+  await fetchAllTables();
 }
 
-async function loadProfilesMap() {
-  const { data, error } = await supabase.from('profiles').select('*');
-  if (error) {
-    console.error("Profiles Table Error:", error.message);
-    alert("Profiles Fetch Failed: " + error.message);
-    return;
-  }
+async function fetchAllTables() {
+  const { data: profiles } = await supabase.from('profiles').select('*');
+  const { data: clients } = await supabase.from('clients').select('*');
+  const { data: kycDocs } = await supabase.from('kyc_documents').select('*');
+  const { data: txs } = await supabase.from('transactions').select('*');
 
-  if (data) {
-    allProfiles = data;
-    totalClientsCount.textContent = data.length;
-    
-    // Check pending KYC regardless of uppercase/lowercase status
-    const pendingKycList = data.filter(p => {
-      const st = String(p.kyc_status || 'pending').toLowerCase();
-      return st === 'pending' || st === 'submitted' || st === 'unverified';
-    });
-    
-    pendingKycCount.textContent = pendingKycList.length;
+  kycDocsList = kycDocs || [];
+  allTransactions = txs || [];
 
-    profilesMap = {};
-    data.forEach(p => {
-      profilesMap[p.id] = p;
-    });
-  }
-}
+  const mergedMap = {};
 
-async function loadData() {
-  const { data, error } = await supabase.from('transactions').select('*');
+  (profiles || []).forEach(p => {
+    mergedMap[p.id || p.client_id] = { ...p };
+  });
 
-  if (error) {
-    console.error("Transactions Table Error:", error.message);
-    txTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#ef4444;">Database Error: ${error.message} (Check RLS Policies)</td></tr>`;
-    return;
-  }
-
-  allTransactions = data || [];
-  totalTxCount.textContent = allTransactions.length;
-  
-  const pendingList = allTransactions.filter(t => String(t.status || '').toLowerCase() === 'pending');
-  pendingTxCount.textContent = pendingList.length;
-
-  if (currentTab === 'pending' || currentTab === 'all') renderTransactions();
-  if (currentTab === 'kyc') renderKYCRequests();
-}
-
-function formatDate(val) {
-  if (!val) return 'Today';
-  const d = new Date(val);
-  if (!isNaN(d.getTime())) {
-    return d.toLocaleDateString();
-  }
-  return String(val);
-}
-
-function extractDate(obj) {
-  if (!obj) return 'Today';
-  for (let key in obj) {
-    if (key.toLowerCase().includes('date') || key.toLowerCase().includes('created') || key.toLowerCase().includes('time')) {
-      if (obj[key]) return formatDate(obj[key]);
+  (clients || []).forEach(c => {
+    const key = c.id || c.client_id || c.user_id;
+    if (mergedMap[key]) {
+      mergedMap[key] = { ...mergedMap[key], ...c };
+    } else {
+      mergedMap[key] = { ...c };
     }
-  }
-  return 'Today';
+  });
+
+  combinedClients = Object.values(mergedMap);
+
+  totalClientsCount.textContent = combinedClients.length;
+  totalTxCount.textContent = allTransactions.length;
+
+  const pendingTx = allTransactions.filter(t => String(t.status || 'pending').toLowerCase() === 'pending');
+  pendingTxCount.textContent = pendingTx.length;
+
+  const pendingKyc = combinedClients.filter(c => {
+    const st = String(c.kyc_status || c.status || '').toLowerCase();
+    return st !== 'approved' && st !== 'verified';
+  });
+  pendingKycCount.textContent = pendingKyc.length || kycDocsList.length;
+
+  renderTransactions();
+  renderKYCRequests();
 }
 
 function renderTransactions() {
   let list = allTransactions;
   if (currentTab === 'pending') {
-    list = allTransactions.filter(t => String(t.status || '').toLowerCase() === 'pending');
+    list = allTransactions.filter(t => String(t.status || 'pending').toLowerCase() === 'pending');
   }
 
   if (list.length === 0) {
@@ -267,21 +229,16 @@ function renderTransactions() {
   }
 
   txTableBody.innerHTML = list.map(t => {
-    const isPending = String(t.status || '').toLowerCase() === 'pending';
-    const dateStr = extractDate(t);
-
-    const matchedProfile = t.user_id ? profilesMap[t.user_id] : null;
-    const clientEmail = t.user_email || t.email || t.client_email || matchedProfile?.email || 'N/A';
-
+    const isPending = String(t.status || 'pending').toLowerCase() === 'pending';
     let statusClass = 'status-pending';
     const st = String(t.status || '').toLowerCase();
     if (st === 'approved' || st === 'success') statusClass = 'status-approved';
-    if (st === 'declined' || st === 'rejected' || st === 'failed') statusClass = 'status-rejected';
+    if (st === 'declined' || st === 'rejected') statusClass = 'status-rejected';
 
     return `
       <tr>
-        <td>${dateStr}</td>
-        <td><b>${clientEmail}</b></td>
+        <td>${t.created_at ? new Date(t.created_at).toLocaleDateString() : 'Today'}</td>
+        <td><b>${t.email || t.user_email || t.client_id || 'N/A'}</b></td>
         <td>${t.type || 'Deposit'}</td>
         <td>${t.reference || t.ref_id || '-'}</td>
         <td style="color:#f4cf72;font-weight:bold;">$${t.amount || 0}</td>
@@ -302,40 +259,48 @@ function renderTransactions() {
 }
 
 function renderKYCRequests() {
-  const pendingKyc = allProfiles.filter(p => {
-    const st = String(p.kyc_status || 'pending').toLowerCase();
-    return st === 'pending' || st === 'submitted' || st === 'unverified';
+  const pendingClients = combinedClients.filter(c => {
+    const st = String(c.kyc_status || c.status || '').toLowerCase();
+    return st !== 'approved' && st !== 'verified';
   });
 
-  if (pendingKyc.length === 0) {
+  const displayList = pendingClients.length > 0 ? pendingClients : kycDocsList;
+
+  if (displayList.length === 0) {
     kycTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">No pending KYC requests found.</td></tr>`;
     return;
   }
 
-  kycTableBody.innerHTML = pendingKyc.map(c => {
+  kycTableBody.innerHTML = displayList.map(c => {
     let docsLinks = [];
-    
     Object.keys(c).forEach(key => {
       const val = String(c[key] || '');
       if (val.startsWith('http') || val.includes('/storage/') || val.match(/\.(jpg|jpeg|png|pdf|webp)$/i)) {
-        const label = key.replace(/_/g, ' ').toUpperCase();
-        docsLinks.push(`<a href="${val}" target="_blank" class="doc-link">📄 ${label}</a>`);
+        docsLinks.push(`<a href="${val}" target="_blank" class="doc-link">📄 ${key.replace(/_/g, ' ').toUpperCase()}</a>`);
       }
     });
 
-    const docsHtml = docsLinks.length > 0 ? docsLinks.join('<br>') : '<span style="color:#8899a6">No File Attached</span>';
+    const matchedDocs = kycDocsList.filter(d => d.client_id === c.client_id || d.user_id === c.id);
+    matchedDocs.forEach(d => {
+      Object.keys(d).forEach(k => {
+        const v = String(d[k] || '');
+        if (v.startsWith('http') || v.includes('/storage/') || v.match(/\.(jpg|jpeg|png|pdf|webp)$/i)) {
+          docsLinks.push(`<a href="${v}" target="_blank" class="doc-link">📄 ${k.replace(/_/g, ' ').toUpperCase()}</a>`);
+        }
+      });
+    });
 
     return `
       <tr>
-        <td><b>${c.full_name || c.name || 'N/A'}</b></td>
-        <td>${c.email || 'N/A'}</td>
+        <td><b>${c.full_name || c['full name'] || c.name || 'N/A'}</b></td>
+        <td>${c.client_id || c.id || '-'}</td>
         <td>${c.phone || c.phone_number || '-'}</td>
         <td>${c.country || '-'}</td>
-        <td>${docsHtml}</td>
+        <td>${docsLinks.length > 0 ? docsLinks.join('<br>') : 'No File Attached'}</td>
         <td><span class="status-badge status-pending">${c.kyc_status || 'Pending'}</span></td>
         <td>
-          <button class="action-btn approve-btn" data-id="${c.id}" data-action="approve-kyc">Approve KYC</button>
-          <button class="action-btn reject-btn" data-id="${c.id}" data-action="reject-kyc">Reject</button>
+          <button class="action-btn approve-btn" data-id="${c.id || c.client_id}" data-action="approve-kyc">Approve KYC</button>
+          <button class="action-btn reject-btn" data-id="${c.id || c.client_id}" data-action="reject-kyc">Reject</button>
         </td>
       </tr>
     `;
@@ -346,88 +311,48 @@ function renderKYCRequests() {
   });
 }
 
-async function handleTxAction(e) {
-  const btn = e.target;
-  const id = btn.getAttribute('data-id');
-  const action = btn.getAttribute('data-action');
-  const isApprove = action === 'approve';
-  const newStatus = isApprove ? 'Approved' : 'Declined';
-
-  btn.disabled = true;
-  btn.textContent = 'Processing...';
-
-  const tx = allTransactions.find(t => String(t.id) === String(id));
-
-  const { error } = await supabase.from('transactions').update({ status: newStatus }).eq('id', id);
-
-  if (error) {
-    alert('Update failed: ' + error.message);
-    btn.disabled = false;
+function loadClientsDetail() {
+  if (combinedClients.length === 0) {
+    clientsTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">No clients found.</td></tr>`;
     return;
   }
 
-  const matchedProfile = tx?.user_id ? profilesMap[tx.user_id] : null;
-  const targetEmail = tx?.user_email || tx?.email || tx?.client_email || matchedProfile?.email;
+  clientsTableBody.innerHTML = combinedClients.map(c => `
+    <tr>
+      <td><b>${c.full_name || c['full name'] || 'N/A'}</b></td>
+      <td>${c.client_id || c.id || '-'}</td>
+      <td>${c.phone || '-'}</td>
+      <td>${c.preferred_platform || c.account_type || '-'}</td>
+      <td><span class="status-badge status-pending">${c.kyc_status || 'Pending'}</span></td>
+      <td>${c.country || '-'}</td>
+      <td>${c.created_at ? new Date(c.created_at).toLocaleDateString() : 'Recent'}</td>
+    </tr>
+  `).join('');
+}
 
-  if (targetEmail) {
-    await triggerEmail(targetEmail, 'Valued Trader', action, {
-      type: tx.type || 'Deposit',
-      amount: tx.amount,
-      reference: tx.reference || tx.ref_id
-    });
-  }
+async function handleTxAction(e) {
+  const btn = e.target;
+  const id = btn.getAttribute('data-id');
+  const isApprove = btn.getAttribute('data-action') === 'approve';
+  const newStatus = isApprove ? 'Approved' : 'Declined';
 
-  loadData();
+  btn.disabled = true;
+  await supabase.from('transactions').update({ status: newStatus }).eq('id', id);
+  await fetchAllTables();
 }
 
 async function handleKycAction(e) {
   const btn = e.target;
   const id = btn.getAttribute('data-id');
-  const action = btn.getAttribute('data-action');
-  const newStatus = action === 'approve-kyc' ? 'Verified' : 'Rejected';
+  const isApprove = btn.getAttribute('data-action') === 'approve-kyc';
+  const newStatus = isApprove ? 'Verified' : 'Rejected';
 
   btn.disabled = true;
-  btn.textContent = 'Processing...';
 
-  const { error } = await supabase.from('profiles').update({ kyc_status: newStatus }).eq('id', id);
+  await supabase.from('profiles').update({ kyc_status: newStatus }).or(`id.eq.${id},client_id.eq.${id}`);
+  await supabase.from('clients').update({ kyc_status: newStatus }).or(`id.eq.${id},client_id.eq.${id}`);
 
-  if (error) {
-    alert('KYC status update failed: ' + error.message);
-    btn.disabled = false;
-    return;
-  }
-
-  await loadProfilesMap();
-  renderKYCRequests();
-}
-
-async function loadClientsDetail() {
-  clientsTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Loading clients...</td></tr>`;
-
-  if (allProfiles.length === 0) {
-    clientsTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">No clients found.</td></tr>`;
-    return;
-  }
-
-  clientsTableBody.innerHTML = allProfiles.map(c => {
-    const dateStr = extractDate(c);
-    const kycSt = String(c.kyc_status || 'Pending').toLowerCase();
-    let kycBadge = 'status-pending';
-    if (kycSt === 'verified' || kycSt === 'approved') kycBadge = 'status-approved';
-    if (kycSt === 'rejected') kycBadge = 'status-rejected';
-
-    return `
-      <tr>
-        <td><b>${c.full_name || c.name || 'N/A'}</b></td>
-        <td>${c.email || 'N/A'}</td>
-        <td>${c.phone || c.phone_number || '-'}</td>
-        <td><span class="badge-role ${c.role === 'admin' ? 'role-admin' : 'role-client'}">${c.role || 'client'}</span></td>
-        <td><span class="status-badge ${kycBadge}">${c.kyc_status || 'Pending'}</span></td>
-        <td>${c.country || '-'}</td>
-        <td>${dateStr}</td>
-      </tr>
-    `;
-  }).join('');
+  await fetchAllTables();
 }
 
 function switchView(tab) {
