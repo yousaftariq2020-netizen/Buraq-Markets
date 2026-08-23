@@ -36,8 +36,15 @@
 .back-dash-btn:hover{background:#172227;color:#fff}
 
 @media(max-width:1100px){.kpis{grid-template-columns:repeat(2,1fr)}.quick-grid{grid-template-columns:repeat(2,1fr)}.lower{grid-template-columns:1fr}}
-@media(max-width:760px){.sidebar{width:min(320px,88vw)}.layout{display:block}.logo-wrap{height:76px}.side-nav{display:grid;grid-template-columns:repeat(2,1fr);padding:10px}.side-bottom{display:none}.side-link{font-size:12px;padding:10px}.topbar{height:62px;padding:0 15px}.top-actions{gap:8px}.user-name,.user-role,.chev{display:none}.content{padding:15px}.hero{padding:0 20px!important;min-height:140px!important}.hero-copy{padding:16px 20px!important;min-height:140px!important;min-width:auto!important}.hero-logo{height:65px!important}.hero h1{font-size:24px!important}.kpis{grid-template-columns:1fr 1fr;gap:8px}.kpi{padding:15px}.kpi-value{font-size:19px}.kpi-icon{width:34px;height:34px}.quick-grid{grid-template-columns:1fr}.quick-icon{width:36px;height:36px;flex:0 0 36px}.lower{grid-template-columns:1fr}.top-title{font-size:17px}.hamb{margin-right:12px}}
-@media(max-width:480px){.kpis{grid-template-columns:1fr}.side-nav{grid-template-columns:1fr 1fr}.hero h1{font-size:20px!important}.hero small{font-size:13px!important}.hero p{font-size:11px!important}.panel-head{padding:15px}.btn-primary{padding:9px 11px}.content{padding:10px}.kpi-icon{width:32px;height:32px}.quick-icon{width:34px;height:34px;flex:0 0 34px}}
+@media(max-width:760px){
+  .sidebar{width:min(320px,88vw)}.layout{display:block}.logo-wrap{height:76px}.side-nav{display:grid;grid-template-columns:repeat(2,1fr);padding:10px}.side-bottom{display:none}.side-link{font-size:12px;padding:10px}.topbar{height:62px;padding:0 15px}.top-actions{gap:8px}.user-name,.user-role,.chev{display:none}.content{padding:15px}
+  .hero{grid-template-columns:1fr!important;min-height:auto!important}
+  .hero-copy{width:100%!important;padding:24px!important;border-right:none!important;border-bottom:1px solid rgba(255,255,255,0.1)!important}
+  .hero-right{padding:30px 20px!important;justify-content:center!important}
+  .hero-logo-card{height:60px!important;padding:0 15px!important}
+  .hero h1{font-size:26px!important}.kpis{grid-template-columns:1fr 1fr;gap:8px}.kpi{padding:15px}.kpi-value{font-size:19px}.kpi-icon{width:34px;height:34px}.quick-grid{grid-template-columns:1fr}.quick-icon{width:36px;height:36px;flex:0 0 36px}.lower{grid-template-columns:1fr}.top-title{font-size:17px}.hamb{margin-right:12px}
+}
+@media(max-width:480px){.kpis{grid-template-columns:1fr}.side-nav{grid-template-columns:1fr 1fr}.hero h1{font-size:22px!important}.hero small{font-size:13px!important}.hero p{font-size:12px!important}.panel-head{padding:15px}.btn-primary{padding:9px 11px}.content{padding:10px}.kpi-icon{width:32px;height:32px}.quick-icon{width:34px;height:34px;flex:0 0 34px}}
 </style>
 
 <style id="buraq-gold-theme">
@@ -49,57 +56,39 @@ body{background:radial-gradient(circle at 75% 0%,#211b0b 0,transparent 28%),var(
 .help{border-color:#3d3219}
 .help span{color:#d6a93b!important}
 
-/* Exact Matching Golden Banner (As per image) */
+/* Exact Image Banner Implementation */
 .hero {
   position: relative !important;
-  overflow: hidden !important;
-  min-height: 180px !important;
+  display: grid !important;
+  grid-template-columns: 310px 1fr !important;
+  min-height: 175px !important;
   border: 1.5px solid #d4af37 !important;
-  border-radius: 16px !important;
-  background: linear-gradient(90deg, #1b2028 0%, #1e242d 30%, #5e481c 65%, #a4812f 85%, #d4af37 100%) !important;
-  padding: 0 40px !important;
+  border-radius: 18px !important;
+  overflow: hidden !important;
   margin-bottom: 22px !important;
-  box-shadow: 0 0 25px rgba(212, 175, 55, 0.25) !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
+  box-shadow: 0 0 25px rgba(212, 175, 55, 0.15) !important;
 }
 
-.hero::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: 12px 12px;
-  opacity: 0.3;
-  z-index: 1;
-  pointer-events: none;
-}
-
+/* Left Dark Solid Box */
 .hero-copy {
-  position: relative !important;
-  z-index: 3 !important;
-  background: #191e25 !important;
-  padding: 24px 30px !important;
-  margin-left: -40px !important;
-  height: 100% !important;
-  min-height: 180px !important;
+  background: #151b22 !important;
+  padding: 30px 32px !important;
   display: flex !important;
   flex-direction: column !important;
   justify-content: center !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
-  min-width: 280px !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+  z-index: 2 !important;
 }
 
 .hero small {
-  color: #a0acae !important;
-  font-size: 15px !important;
-  font-weight: 500 !important;
+  color: #9ba6aa !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
 }
 
 .hero h1 {
-  margin: 6px 0 6px !important;
-  font-size: 34px !important;
+  margin: 6px 0 !important;
+  font-size: 32px !important;
   font-weight: 800 !important;
   letter-spacing: 0.5px !important;
   color: #ffffff !important;
@@ -107,38 +96,52 @@ body{background:radial-gradient(circle at 75% 0%,#211b0b 0,transparent 28%),var(
 
 .hero p {
   margin: 0 !important;
-  color: #7b888b !important;
+  color: #6b777a !important;
   font-size: 13px !important;
 }
 
-.hero-line {
-  position: absolute !important;
-  right: 15% !important;
-  top: -50% !important;
-  width: 60% !important;
-  height: 200% !important;
-  opacity: 0.55 !important;
+/* Right Striped Diagonal Area */
+.hero-right {
+  position: relative !important;
   background: repeating-linear-gradient(
-    -55deg,
-    transparent,
-    transparent 35px,
-    rgba(255, 224, 138, 0.4) 35px,
-    rgba(255, 224, 138, 0.4) 55px
+    -52deg,
+    #171d24 0px,
+    #171d24 22px,
+    #2c2a1c 22px,
+    #2c2a1c 44px,
+    #59491a 44px,
+    #59491a 66px,
+    #8e7023 66px,
+    #8e7023 88px,
+    #c49c2e 88px,
+    #c49c2e 110px,
+    #dfb335 110px,
+    #dfb335 132px
   ) !important;
-  z-index: 2 !important;
-  pointer-events: none;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  padding-right: 45px !important;
+  z-index: 1 !important;
 }
 
-.hero-logo {
-  position: relative !important;
-  z-index: 3 !important;
-  height: 100px !important;
-  max-height: 100px !important;
+/* Right Logo Box */
+.hero-logo-card {
+  height: 72px !important;
+  background: #000000 !important;
+  border-radius: 4px !important;
+  padding: 0 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7) !important;
+}
+
+.hero-logo-card img {
+  height: 48px !important;
   width: auto !important;
+  display: block !important;
   object-fit: contain !important;
-  background: transparent !important;
-  border: none !important;
-  filter: drop-shadow(0 6px 15px rgba(0,0,0,0.6)) !important;
 }
 
 .i-green{background:#30250b;color:#e2b844}.i-darkgreen{background:#30250b;color:#e2b844}
@@ -279,13 +282,16 @@ function renderDashboard() {
 
   app.innerHTML = `
   <section class="hero">
-    <div class="hero-line"></div>
     <div class="hero-copy">
       <small>Welcome back,</small>
       <h1>${esc(name)}</h1>
       <p>Here's what's happening with your accounts today.</p>
     </div>
-    <img class="hero-logo" src="buraq-logo.jpg" alt="Buraq Markets">
+    <div class="hero-right">
+      <div class="hero-logo-card">
+        <img src="buraq-logo.jpg" alt="Buraq Markets">
+      </div>
+    </div>
   </section>
   <section class="kpis">
     <div class="kpi"><div class="kpi-icon i-green"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h20"/><circle cx="12" cy="14" r="1.5"/></svg></div><div class="kpi-head"><span>Total Balance</span><b>›</b></div><div class="kpi-value">${money(totalBalance)}</div><div class="kpi-sub">All trading accounts combined</div></div>
