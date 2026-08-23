@@ -315,18 +315,28 @@ async function handleTxAction(e) {
   const id = btn.getAttribute('data-id');
   const action = btn.getAttribute('data-action');
   const isApprove = action === 'approve';
-  const newStatus = isApprove ? 'Approved' : 'Declined';
 
   btn.disabled = true;
   btn.textContent = 'Processing...';
 
   const tx = allTransactions.find(t => String(t.id) === String(id));
+  let error;
 
-  const { error } = await supabase.from('transactions').update({ status: newStatus }).eq('id', id);
+  if (isApprove) {
+    // Route approvals through the approve_transaction RPC instead of a raw
+    // table update. This function is SECURITY DEFINER and (per its is_admin
+    // check) verifies the caller is actually an admin before approving and
+    // crediting the wallet — a direct .update() would bypass that check
+    // entirely, since RLS is disabled on the transactions table.
+    ({ error } = await supabase.rpc('approve_transaction', { p_tx_id: id }));
+  } else {
+    ({ error } = await supabase.from('transactions').update({ status: 'Declined' }).eq('id', id));
+  }
 
   if (error) {
     alert('Update failed: ' + error.message);
     btn.disabled = false;
+    btn.textContent = isApprove ? 'Approve' : 'Reject';
     return;
   }
 
