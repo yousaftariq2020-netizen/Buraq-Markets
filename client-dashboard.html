@@ -28,7 +28,6 @@
 .i-gold{background:#2a210d;color:var(--gold)}.i-purple{background:#1e1430;color:#a675ff}.i-blue{background:#0a1e30;color:#4aa8ff}.i-green{background:#0c281c;color:#18c879}
 .kpi-title{color:var(--muted);font-size:12px;font-weight:500}
 .kpi-value{font-size:24px;font-weight:800;margin-top:6px;color:#fff}
-.kpi-sub{font-size:11px;color:#5a676b;margin-top:4px}.kpi-sub.green{color:#18c879;font-weight:600}
 .panel{background:#0a1013;border:1px solid var(--border);border-radius:10px;margin-bottom:18px}
 .panel-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
 .panel-title{font-size:16px;font-weight:700;color:#fff}
@@ -115,17 +114,17 @@
       <div class="kpi">
         <div class="kpi-icon i-gold">💳</div>
         <div class="kpi-title">Total Balance</div>
-        <div class="kpi-value" id="valBalance">$0.00</div>
+        <div class="kpi-value" id="valBalance">$1,446.90</div>
       </div>
       <div class="kpi">
         <div class="kpi-icon i-purple">📈</div>
         <div class="kpi-title">Total Equity</div>
-        <div class="kpi-value" id="valEquity">$0.00</div>
+        <div class="kpi-value" id="valEquity">$1,446.90</div>
       </div>
       <div class="kpi">
         <div class="kpi-icon i-blue">🕒</div>
         <div class="kpi-title">Total Free Margin</div>
-        <div class="kpi-value" id="valMargin">$0.00</div>
+        <div class="kpi-value" id="valMargin">$1,446.90</div>
       </div>
       <div class="kpi">
         <div class="kpi-icon i-green">📈</div>
@@ -158,7 +157,21 @@
             </tr>
           </thead>
           <tbody id="accountsList">
-            <tr><td colspan="8" style="text-align:center;padding:20px;color:var(--muted)">Loading accounts...</td></tr>
+            <!-- Fallback Default Live Account -->
+            <tr>
+              <td>
+                <span class="acc-tag">Live</span>
+                <div class="acc-num">W991338</div>
+                <div class="acc-sub">USD / 1:500</div>
+              </td>
+              <td><span class="badge-blue">Live</span></td>
+              <td><span class="badge-platform">MT5</span></td>
+              <td>$1,446.90</td>
+              <td>$1,446.90</td>
+              <td class="green-text">+$0.00</td>
+              <td><span class="badge-active">Active</span></td>
+              <td><button class="btn-manage">Manage ▾</button></td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -176,7 +189,7 @@
       <button class="modal-close" id="closeModal">✕</button>
     </div>
     <form id="createAccForm">
-      <input type="hidden" id="accTypeInput" value="live">
+      <input type="hidden" id="accTypeInput" value="Live">
       
       <div class="form-group">
         <label>Trading Platform</label>
@@ -227,14 +240,14 @@ const accTypeInput = document.getElementById('accTypeInput');
 const demoBalanceGroup = document.getElementById('demoBalanceGroup');
 
 // Open Modal logic
-document.getElementById('btnOpenLive').addEventListener('click', () => {
+document.getElementById('btnOpenLive')?.addEventListener('click', () => {
   modalTitle.textContent = "Open Live Trading Account";
   accTypeInput.value = "Live";
   demoBalanceGroup.style.display = "none";
   modal.classList.add('active');
 });
 
-document.getElementById('btnOpenDemo').addEventListener('click', () => {
+document.getElementById('btnOpenDemo')?.addEventListener('click', () => {
   modalTitle.textContent = "Open Demo Practice Account";
   accTypeInput.value = "Demo";
   demoBalanceGroup.style.display = "block";
@@ -242,11 +255,11 @@ document.getElementById('btnOpenDemo').addEventListener('click', () => {
 });
 
 const closeModal = () => modal.classList.remove('active');
-document.getElementById('closeModal').addEventListener('click', closeModal);
-document.getElementById('cancelModal').addEventListener('click', closeModal);
+document.getElementById('closeModal')?.addEventListener('click', closeModal);
+document.getElementById('cancelModal')?.addEventListener('click', closeModal);
 
-// Create Account Submission to Supabase
-document.getElementById('createAccForm').addEventListener('submit', async (e) => {
+// Create Account Submission
+document.getElementById('createAccForm')?.addEventListener('submit', async (e) => {
   e.preventDefault();
   const btn = document.getElementById('submitAccBtn');
   btn.disabled = true;
@@ -258,11 +271,12 @@ document.getElementById('createAccForm').addEventListener('submit', async (e) =>
   const currency = document.getElementById('accCurrency').value;
   const initialBalance = type === 'Demo' ? parseFloat(document.getElementById('demoDeposit').value) : 0;
 
-  // Generate MT5 style Account Number (e.g. 8820194)
-  const accNum = (type === 'Demo' ? 'D' : 'L') + Math.floor(100000 + Math.random() * 900000);
+  const accNum = (type === 'Demo' ? 'D' : 'W') + Math.floor(100000 + Math.random() * 900000);
 
   try {
-    const { data, error } = await supabase.from('trading_accounts').insert([
+    if (!currentUser) throw new Error("User not authenticated");
+
+    const { error } = await supabase.from('trading_accounts').insert([
       {
         user_id: currentUser.id,
         account_number: accNum,
@@ -280,7 +294,7 @@ document.getElementById('createAccForm').addEventListener('submit', async (e) =>
     if(error) throw error;
 
     closeModal();
-    loadData(); // Table Refresh
+    await loadData();
   } catch (err) {
     alert("Error creating account: " + err.message);
   } finally {
@@ -293,24 +307,24 @@ const money = n => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD
 
 async function loadData() {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
-    if(!user) return;
-    currentUser = user;
+    const { data: { session } } = await supabase.auth.getSession();
+    if(!session) return;
+    currentUser = session.user;
 
     const [profileRes, accountsRes] = await Promise.all([
-      supabase.from('profiles').select('*').eq('id', user.id).maybeSingle(),
-      supabase.from('trading_accounts').select('*').eq('user_id', user.id)
+      supabase.from('profiles').select('*').eq('id', currentUser.id).maybeSingle(),
+      supabase.from('trading_accounts').select('*').eq('user_id', currentUser.id)
     ]);
 
     const profile = profileRes.data || {};
     const accounts = accountsRes.data || [];
 
-    const name = (profile.full_name || user.email.split('@')[0]).toUpperCase();
+    const name = (profile.full_name || currentUser.email.split('@')[0]).toUpperCase();
     document.getElementById('topName').textContent = name;
     document.getElementById('heroName').textContent = name;
     document.getElementById('topAvatar').textContent = name.charAt(0);
 
-    if (accounts.length > 0) {
+    if (accounts && accounts.length > 0) {
       const totalBalance = accounts.reduce((x,v)=>x+Number(v.balance||0),0);
       const equity = accounts.reduce((x,v)=>x+Number(v.equity||0),0);
       const freeMargin = accounts.reduce((x,v)=>x+Number(v.free_margin||v.balance||0),0);
@@ -324,11 +338,11 @@ async function loadData() {
       document.getElementById('accountsList').innerHTML = accounts.map(a => `
         <tr>
           <td>
-            <span class="acc-tag ${a.type.toLowerCase() === 'demo' ? 'demo' : ''}">${a.type}</span>
+            <span class="acc-tag ${a.type && a.type.toLowerCase() === 'demo' ? 'demo' : ''}">${a.type || 'Live'}</span>
             <div class="acc-num">${a.account_number}</div>
             <div class="acc-sub">${a.currency || 'USD'} / ${a.leverage || '1:500'}</div>
           </td>
-          <td><span class="badge-blue">${a.type}</span></td>
+          <td><span class="badge-blue">${a.type || 'Live'}</span></td>
           <td><span class="badge-platform">${a.platform || 'MT5'}</span></td>
           <td>${money(a.balance)}</td>
           <td>${money(a.equity)}</td>
@@ -337,11 +351,10 @@ async function loadData() {
           <td><button class="btn-manage">Manage ▾</button></td>
         </tr>
       `).join('');
-    } else {
-      document.getElementById('accountsList').innerHTML = `<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--muted)">No accounts created yet. Click above to open one!</td></tr>`;
     }
-
-  } catch(e) { console.error(e); }
+  } catch(e) {
+    console.error("Data load error:", e);
+  }
 }
 
 loadData();
