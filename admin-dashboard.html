@@ -1,225 +1,322 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Buraq Markets — Admin Panel</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    :root {
-      --bg-dark: #070b0d;
-      --card-bg: #11181c;
-      --border-color: #202a2e;
-      --accent-gold: #d6a93b;
-      --text-main: #e1e7e8;
-      --text-muted: #8899a6;
-      --green: #10b981;
-      --red: #ef4444;
-    }
-    body { background-color: var(--bg-dark); color: var(--text-main); font-family: sans-serif; margin: 0; padding: 0; }
-    header { background: var(--card-bg); border-bottom: 1px solid var(--border-color); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
-    .logo { font-weight: 800; font-size: 20px; color: var(--accent-gold); }
-    .user-badge { background: #1c262b; padding: 6px 12px; border-radius: 6px; font-size: 13px; color: var(--accent-gold); }
-    .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
-    .stat-card { background: var(--card-bg); border: 1px solid var(--border-color); padding: 20px; border-radius: 8px; }
-    .stat-title { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
-    .stat-value { font-size: 28px; font-weight: 700; color: #fff; }
-    .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
-    .tab-btn { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 10px 20px; border-radius: 6px; cursor: pointer; }
-    .tab-btn.active { background: var(--accent-gold); color: #000; font-weight: 600; border-color: var(--accent-gold); }
-    .table-container { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
-    th { background: #162025; padding: 14px 18px; color: var(--text-muted); border-bottom: 1px solid var(--border-color); }
-    td { padding: 14px 18px; border-bottom: 1px solid var(--border-color); color: var(--text-main); }
-    .btn { padding: 6px 14px; border-radius: 4px; border: none; font-weight: 600; cursor: pointer; font-size: 12px; margin-right: 5px; }
-    .btn-approve { background: var(--green); color: #000; }
-    .btn-reject { background: var(--red); color: #fff; }
-    .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
-    .badge-pending { background: #332606; color: var(--accent-gold); }
-    .badge-approved { background: #062b1e; color: var(--green); }
-    .badge-rejected { background: #380e0e; color: var(--red); }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Buraq Markets — Admin Panel</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#080a0c;color:#e1e7ec;font-family:Inter,Arial,sans-serif;padding:20px}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px}
+.brand{font:bold 24px Georgia,serif;color:#f4cf72}
+.user-info{display:flex;align-items:center;gap:15px}
+.user-email{background:#13181e;padding:8px 14px;border-radius:6px;border:1px solid #232d38;font-size:12px;color:#f4cf72}
+.logout-btn{background:#e63946;color:#fff;border:none;padding:9px 16px;border-radius:6px;cursor:pointer;font-weight:bold;font-size:12px}
+.logout-btn:hover{background:#c72c38}
+
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin-bottom:25px}
+.stat-card{background:#11161d;border:1px solid #1f2933;border-radius:10px;padding:20px}
+.stat-card .title{font-size:12px;color:#8899a6;margin-bottom:8px;font-weight:600}
+.stat-card .value{font-size:28px;font-weight:bold;color:#fff}
+
+.tabs{display:flex;gap:10px;margin-bottom:18px}
+.tab-btn{background:#11161d;border:1px solid #1f2933;color:#8899a6;padding:10px 18px;border-radius:8px;cursor:pointer;font-weight:bold;font-size:13px}
+.tab-btn.active{background:#f4cf72;color:#080a0c;border-color:#f4cf72}
+
+.table-container{background:#11161d;border:1px solid #1f2933;border-radius:10px;overflow-x:auto}
+.data-table{width:100%;border-collapse:collapse;text-align:left;font-size:13px}
+.data-table th{background:#161d26;padding:14px 16px;color:#8899a6;font-weight:600;border-bottom:1px solid #1f2933}
+.data-table td{padding:14px 16px;border-bottom:1px solid #1b232c;color:#d1d5db}
+.data-table tr:last-child td{border-bottom:none}
+
+.status-badge{padding:4px 8px;border-radius:4px;font-size:11px;font-weight:bold;display:inline-block}
+.status-pending{background:#3a2e10;color:#f4cf72;border:1px solid #6b521a}
+.status-approved{background:#0e3321;color:#4ade80;border:1px solid #166534}
+.status-rejected{background:#3b1219;color:#f87171;border:1px solid #991b1b}
+
+.action-btn{padding:6px 12px;border-radius:5px;border:none;font-size:12px;font-weight:bold;cursor:pointer;margin-right:5px}
+.approve-btn{background:#10b981;color:#fff}.approve-btn:hover{background:#059669}
+.reject-btn{background:#ef4444;color:#fff}.reject-btn:hover{background:#dc2626}
+.badge-role{padding:3px 7px;border-radius:4px;font-size:10px;text-transform:uppercase;font-weight:bold}
+.role-client{background:#1e293b;color:#94a3b8;border:1px solid #334155}
+.role-admin{background:#3b2d12;color:#f4cf72;border:1px solid #785a21}
+</style>
 </head>
 <body>
 
-  <header>
-    <div class="logo">BURAQ ADMIN</div>
-    <div>
-      <span class="user-badge" id="adminUserEmail">Admin</span>
-      <button class="btn btn-reject" onclick="logout()" style="margin-left: 10px;">Logout</button>
-    </div>
-  </header>
-
-  <div class="container">
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-title">Pending Transactions</div>
-        <div class="stat-value" id="statPendingCount">0</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-title">Pending KYC</div>
-        <div class="stat-value" id="statKycCount">0</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-title">Total Clients</div>
-        <div class="stat-value" id="statClientCount">0</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-title">Total Transactions</div>
-        <div class="stat-value" id="statTotalCount">0</div>
-      </div>
-    </div>
-
-    <div class="nav-tabs">
-      <button class="tab-btn active" id="tabPending" onclick="loadTab('pending')">Pending Requests</button>
-      <button class="tab-btn" id="tabAll" onclick="loadTab('all')">All Transactions</button>
-    </div>
-
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Client Email</th>
-            <th>Type</th>
-            <th>Reference</th>
-            <th>Amount</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="transactionsTableBody">
-          <tr><td colspan="7" style="text-align: center;">Loading data...</td></tr>
-        </tbody>
-      </table>
-    </div>
+<div class="header">
+  <div class="brand">BURAQ ADMIN</div>
+  <div class="user-info">
+    <div class="user-email" id="adminEmail">Loading...</div>
+    <button class="logout-btn" id="logoutBtn">Logout</button>
   </div>
+</div>
 
-  <script type="module">
-    import { sendNotification } from './email-helper.js';
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="title">Pending Transactions</div>
+    <div class="value" id="pendingTxCount">0</div>
+  </div>
+  <div class="stat-card">
+    <div class="title">Pending KYC</div>
+    <div class="value">0</div>
+  </div>
+  <div class="stat-card">
+    <div class="title">Total Clients</div>
+    <div class="value" id="totalClientsCount">0</div>
+  </div>
+  <div class="stat-card">
+    <div class="title">Total Transactions</div>
+    <div class="value" id="totalTxCount">0</div>
+  </div>
+</div>
 
-    const SUPABASE_URL = 'https://zlmoqiulzrqpnbxfeetp.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpsbW9xaXVsenJxcG5ieGZlZXRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcxNjQ1MDcsImV4cCI6MjEwMjc0MDUwN30.QMWUlgJs6I1kYY1jpo0Y9NsfL2XH5mQE3GT8-fDHuAo';
-    
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    let currentTab = 'pending';
-    let profilesMap = {};
+<div class="tabs">
+  <button class="tab-btn active" id="pendingTab">Pending Requests</button>
+  <button class="tab-btn" id="allTxTab">All Transactions</button>
+  <button class="tab-btn" id="clientsTab">Clients Detail</button>
+</div>
 
-    async function initAdmin() {
-      const { data: { user } } = await supabaseClient.auth.getUser();
-      if (user) document.getElementById('adminUserEmail').innerText = user.email;
-      fetchData();
-    }
+<!-- Transactions View -->
+<div class="table-container" id="txView">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Client Email</th>
+        <th>Type</th>
+        <th>Reference</th>
+        <th>Amount</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="txTableBody">
+      <tr><td colspan="7" style="text-align:center;">Loading data...</td></tr>
+    </tbody>
+  </table>
+</div>
 
-    async function fetchData() {
-      const { data: profiles } = await supabaseClient.from('profiles').select('id, email, full_name');
-      if (profiles) {
-        profilesMap = {};
-        profiles.forEach(p => { profilesMap[p.id] = p; });
-      }
+<!-- Clients Detail View -->
+<div class="table-container" id="clientsView" style="display:none;">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Client Email</th>
+        <th>User ID</th>
+        <th>Role</th>
+        <th>Joined Date</th>
+      </tr>
+    </thead>
+    <tbody id="clientsTableBody">
+      <tr><td colspan="4" style="text-align:center;">Loading clients...</td></tr>
+    </tbody>
+  </table>
+</div>
 
-      const { data: txs } = await supabaseClient.from('transactions').select('*');
-      document.getElementById('statClientCount').innerText = profiles ? profiles.length : 0;
+<script type="module">
+import { supabase } from './supabase-config.js';
+import { triggerEmail } from './email-helper.js';
 
-      const allTxs = txs || [];
-      const pendingTxs = allTxs.filter(t => (t.status || '').toLowerCase() === 'pending');
+let currentTab = 'pending';
+let allTransactions = [];
 
-      document.getElementById('statPendingCount').innerText = pendingTxs.length;
-      document.getElementById('statTotalCount').innerText = allTxs.length;
+const adminEmailEl = document.getElementById('adminEmail');
+const logoutBtn = document.getElementById('logoutBtn');
+const txTableBody = document.getElementById('txTableBody');
+const clientsTableBody = document.getElementById('clientsTableBody');
 
-      const displayTxs = currentTab === 'pending' ? pendingTxs : allTxs;
-      renderTable(displayTxs);
-    }
+const pendingTab = document.getElementById('pendingTab');
+const allTxTab = document.getElementById('allTxTab');
+const clientsTab = document.getElementById('clientsTab');
 
-    function renderTable(txs) {
-      const tbody = document.getElementById('transactionsTableBody');
-      if (txs.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No transactions found.</td></tr>';
-        return;
-      }
+const txView = document.getElementById('txView');
+const clientsView = document.getElementById('clientsView');
 
-      tbody.innerHTML = txs.map(tx => {
-        let rawUser = tx.user_email || tx.email || tx.client_email || tx.user_id || '';
-        let clientEmail = 'N/A';
-        let clientName = tx.client_name || tx.full_name || 'Valued Trader';
+const pendingTxCount = document.getElementById('pendingTxCount');
+const totalClientsCount = document.getElementById('totalClientsCount');
+const totalTxCount = document.getElementById('totalTxCount');
 
-        if (rawUser.includes('@')) {
-          clientEmail = rawUser;
-        } else if (profilesMap[rawUser]) {
-          clientEmail = profilesMap[rawUser].email || 'N/A';
-          clientName = profilesMap[rawUser].full_name || clientName;
-        }
+async function checkAuth() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    location.href = 'client-login.html?redirect=admin-dashboard.html';
+    return;
+  }
+  
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle();
+  if (profile?.role !== 'admin') {
+    location.href = 'client-dashboard.html';
+    return;
+  }
+  
+  adminEmailEl.textContent = user.email;
+  loadData();
+  loadClientsCount();
+}
 
-        const date = tx.created_at ? new Date(tx.created_at).toLocaleString() : '-';
-        const statusClean = (tx.status || 'pending').toLowerCase();
-        const txAmount = tx.amount || 0;
-        const txRef = tx.reference || '-';
-        const txType = tx.type || 'Deposit';
-        
-        return `
-          <tr>
-            <td>${date}</td>
-            <td><strong>${clientEmail}</strong></td>
-            <td>${txType}</td>
-            <td>${txRef}</td>
-            <td style="color: var(--accent-gold); font-weight: bold;">$${txAmount}</td>
-            <td><span class="badge badge-${statusClean}">${tx.status}</span></td>
-            <td>
-              ${statusClean === 'pending' ? `
-                <button class="btn btn-approve" onclick="processTx('${tx.id}', '${clientEmail}', '${clientName}', 'approve', '${txAmount}', '${txRef}', '${txType}')">Approve</button>
-                <button class="btn btn-reject" onclick="processTx('${tx.id}', '${clientEmail}', '${clientName}', 'reject', '${txAmount}', '${txRef}', '${txType}')">Reject</button>
-              ` : 'Done'}
-            </td>
-          </tr>
-        `;
-      }).join('');
-    }
+async function loadClientsCount() {
+  const { data } = await supabase.from('profiles').select('id');
+  if (data) {
+    totalClientsCount.textContent = data.length;
+  }
+}
 
-    window.processTx = async function(id, clientEmail, clientName, action, amount, reference, type) {
-      if (!confirm(`Are you sure you want to ${action} this transaction?`)) return;
+async function loadData() {
+  const { data, error } = await supabase
+    .from('transactions')
+    .select('*')
+    .order('created_at', { ascending: false });
 
-      const newStatus = action === 'approve' ? 'APPROVED' : 'REJECTED';
-      
-      const { error } = await supabaseClient
-        .from('transactions')
-        .update({ status: newStatus })
-        .eq('id', id);
+  if (error) {
+    txTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#ef4444;">Error: ${error.message}</td></tr>`;
+    return;
+  }
 
-      if (error) {
-        alert('Database Update Failed: ' + error.message);
-        return;
-      }
+  allTransactions = data || [];
+  totalTxCount.textContent = allTransactions.length;
+  
+  const pendingList = allTransactions.filter(t => (t.status || '').toLowerCase() === 'pending');
+  pendingTxCount.textContent = pendingList.length;
 
-      if (clientEmail && clientEmail.includes('@')) {
-        const txDetails = { amount, reference, type };
-        const emailSent = await sendNotification(clientEmail, clientName, action, txDetails);
-        if (emailSent) {
-          alert(`Status ${newStatus} updated & detailed email sent to ${clientEmail}!`);
-        } else {
-          alert(`Status updated to ${newStatus}, but email failed to send.`);
-        }
-      } else {
-        alert(`Status updated to ${newStatus}. (No valid email linked).`);
-      }
+  renderTransactions();
+}
 
-      fetchData();
-    };
+function renderTransactions() {
+  let list = allTransactions;
+  if (currentTab === 'pending') {
+    list = allTransactions.filter(t => (t.status || '').toLowerCase() === 'pending');
+  }
 
-    window.loadTab = function(tab) {
-      currentTab = tab;
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      const activeBtn = tab === 'pending' ? document.getElementById('tabPending') : document.getElementById('tabAll');
-      if (activeBtn) activeBtn.classList.add('active');
-      fetchData();
-    };
+  if (list.length === 0) {
+    txTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">No transactions found.</td></tr>`;
+    return;
+  }
 
-    window.logout = async function() {
-      await supabaseClient.auth.signOut();
-      window.location.href = 'index.html';
-    };
+  txTableBody.innerHTML = list.map(t => {
+    const isPending = (t.status || '').toLowerCase() === 'pending';
+    const dateStr = t.created_at ? new Date(t.created_at).toLocaleDateString() : '-';
+    let statusClass = 'status-pending';
+    if ((t.status || '').toLowerCase() === 'approved') statusClass = 'status-approved';
+    if ((t.status || '').toLowerCase() === 'declined' || (t.status || '').toLowerCase() === 'rejected') statusClass = 'status-rejected';
 
-    window.onload = initAdmin;
-  </script>
+    return `
+      <tr>
+        <td>${dateStr}</td>
+        <td><b>${t.user_email || 'N/A'}</b></td>
+        <td>${t.type || 'Deposit'}</td>
+        <td>${t.reference || '-'}</td>
+        <td style="color:#f4cf72;font-weight:bold;">$${t.amount || 0}</td>
+        <td><span class="status-badge ${statusClass}">${t.status || 'Pending'}</span></td>
+        <td>
+          ${isPending ? `
+            <button class="action-btn approve-btn" data-id="${t.id}" data-action="approve">Approve</button>
+            <button class="action-btn reject-btn" data-id="${t.id}" data-action="reject">Reject</button>
+          ` : '-'}
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  document.querySelectorAll('.action-btn').forEach(btn => {
+    btn.addEventListener('click', handleAction);
+  });
+}
+
+async function handleAction(e) {
+  const btn = e.target;
+  const id = btn.getAttribute('data-id');
+  const action = btn.getAttribute('data-action');
+  const isApprove = action === 'approve';
+  const newStatus = isApprove ? 'Approved' : 'Declined';
+
+  btn.disabled = true;
+  btn.textContent = 'Processing...';
+
+  const tx = allTransactions.find(t => String(t.id) === String(id));
+
+  const { error } = await supabase
+    .from('transactions')
+    .update({ status: newStatus })
+    .eq('id', id);
+
+  if (error) {
+    alert('Update failed: ' + error.message);
+    btn.disabled = false;
+    return;
+  }
+
+  if (tx && tx.user_email) {
+    await triggerEmail(tx.user_email, 'Valued Trader', action, {
+      type: tx.type || 'Deposit',
+      amount: tx.amount,
+      reference: tx.reference
+    });
+  }
+
+  loadData();
+}
+
+async function loadClientsDetail() {
+  clientsTableBody.innerHTML = `<tr><td colspan="4" style="text-align:center;">Loading clients...</td></tr>`;
+
+  const { data: clients, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error || !clients || clients.length === 0) {
+    clientsTableBody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No clients found.</td></tr>`;
+    return;
+  }
+
+  totalClientsCount.textContent = clients.length;
+
+  clientsTableBody.innerHTML = clients.map(c => `
+    <tr>
+      <td><b>${c.email || 'N/A'}</b></td>
+      <td style="font-size:11px;color:#8899a6;">${c.id}</td>
+      <td><span class="badge-role ${c.role === 'admin' ? 'role-admin' : 'role-client'}">${c.role || 'client'}</span></td>
+      <td>${c.created_at ? new Date(c.created_at).toLocaleDateString() : '-'}</td>
+    </tr>
+  `).join('');
+}
+
+pendingTab.addEventListener('click', () => {
+  currentTab = 'pending';
+  pendingTab.classList.add('active');
+  allTxTab.classList.remove('active');
+  clientsTab.classList.remove('active');
+  txView.style.display = 'block';
+  clientsView.style.display = 'none';
+  renderTransactions();
+});
+
+allTxTab.addEventListener('click', () => {
+  currentTab = 'all';
+  pendingTab.classList.remove('active');
+  allTxTab.classList.add('active');
+  clientsTab.classList.remove('active');
+  txView.style.display = 'block';
+  clientsView.style.display = 'none';
+  renderTransactions();
+});
+
+clientsTab.addEventListener('click', () => {
+  pendingTab.classList.remove('active');
+  allTxTab.classList.remove('active');
+  clientsTab.classList.add('active');
+  txView.style.display = 'none';
+  clientsView.style.display = 'block';
+  loadClientsDetail();
+});
+
+logoutBtn.addEventListener('click', async () => {
+  await supabase.auth.signOut();
+  location.href = 'client-login.html';
+});
+
+checkAuth();
+</script>
 </body>
 </html>
