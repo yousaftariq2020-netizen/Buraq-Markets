@@ -1,344 +1,353 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Buraq Markets — Client Dashboard</title>
-<style>
-:root{--bg:#070b0d;--sidebar:#090f12;--panel:#11181c;--panel2:#0d1417;--border:#202a2e;--text:#f4f7f6;--muted:#8d999d;--green:#18c879;--green2:#0d5a3b;--gold:#d6a93b;--blue:#4aa8ff;--purple:#9b68ff;--red:#ff5360}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 75% 0%,#10221a 0,transparent 28%),var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif;font-size:14px}a{text-decoration:none;color:inherit}button{font:inherit}
-.layout{min-height:100vh;display:flex}.sidebar{width:248px;position:fixed;inset:0 auto 0 0;background:linear-gradient(180deg,#0b1216,#070b0d);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:40;transform:translateX(-105%);transition:transform .24s ease;box-shadow:18px 0 45px rgba(0,0,0,.28);overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;height:100%;max-height:100dvh;overscroll-behavior:contain;touch-action:pan-y}.sidebar.open{transform:translateX(0)}.sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,.58);backdrop-filter:blur(2px);z-index:35;opacity:0;visibility:hidden;transition:opacity .2s ease,visibility .2s ease}.sidebar-overlay.show{opacity:1;visibility:visible}.main{margin-left:0;min-width:0;flex:1}.logo-wrap{height:96px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:14px 22px;border-bottom:1px solid var(--border)}.logo{width:175px;height:auto;display:block;object-fit:contain}.side-nav{padding:18px 13px;display:flex;flex-direction:column;gap:5px;flex:1 1 auto}.side-link{display:flex;align-items:center;gap:13px;padding:12px 13px;border-radius:99px;color:#b8c1c3;font-size:14px;font-weight:600;transition:.18s;flex-shrink:0;cursor:pointer}.side-link:hover{background:#101b1f;color:#fff}.side-link.active{background:linear-gradient(90deg,#0d5d3d,#10442f);color:#fff;box-shadow:inset 0 0 0 1px #176d49}.ico{width:22px;text-align:center;font-size:18px}.kyc-dot{margin-left:auto;background:#18a968;color:#fff;border-radius:10px;padding:3px 7px;font-size:9px}.side-bottom{margin-top:auto;padding:14px;flex-shrink:0}.help{border:1px solid #263238;background:#0c1418;border-radius:10px;padding:14px;display:flex;gap:11px;align-items:center;color:#aeb8ba}.help strong{display:block;color:#fff;font-size:13px}.help small{display:block;margin-top:4px;color:#778387}.topbar{height:72px;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;background:rgba(7,11,13,.82);backdrop-filter:blur(12px);position:sticky;top:0;z-index:10}.hamb{font-size:24px;color:#d9e0df;margin-right:22px;border:0;background:transparent;padding:4px;cursor:pointer;line-height:1}.top-title{font-size:20px;font-weight:700}.top-actions{margin-left:auto;display:flex;align-items:center;gap:22px}.circle-btn{width:40px;height:40px;border:1px solid var(--border);border-radius:50%;background:#0d1418;color:#dce4e3;display:grid;place-items:center;cursor:pointer}.bell{position:relative}.bell:after{content:'2';position:absolute;right:-2px;top:-3px;background:#23b86d;color:#fff;border-radius:50%;font-size:9px;min-width:16px;height:16px;display:grid;place-items:center}
-
-/* Profile Dropdown Styling */
-.user-dropdown{position:relative;cursor:pointer}.user{display:flex;align-items:center;gap:10px;padding:4px 8px;border-radius:8px;transition:background .2s}.user:hover{background:#11191d}.avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#475258,#12181c);display:grid;place-items:center;color:#dfe7e5;font-size:18px;overflow:hidden;object-fit:cover}.user-name{font-weight:700}.user-role{font-size:11px;color:var(--muted);margin-top:3px}.chev{color:#829093;margin-left:8px}
-.profile-menu{position:absolute;top:calc(100% + 10px);right:0;width:220px;background:#0d1417;border:1px solid var(--border);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.5);display:none;flex-direction:column;padding:8px 0;z-index:100}.profile-menu.show{display:flex}.profile-menu-item{display:flex;align-items:center;gap:10px;padding:10px 16px;color:#cdd5d7;font-size:13px;transition:background .15s;cursor:pointer}.profile-menu-item:hover{background:#172227;color:#fff}.profile-menu-divider{height:1px;background:var(--border);margin:6px 0}
-.content{padding:27px 28px 36px;max-width:1450px;margin:auto}.hero{position:relative;overflow:hidden;min-height:160px;border:1px solid #184b37;border-radius:12px;background:linear-gradient(110deg,#062319,#071511 56%,#062219);padding:30px 34px;margin-bottom:18px}.hero:before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 45%,rgba(21,150,96,.13) 45%,transparent 46%,transparent 62%,rgba(21,150,96,.08) 62%,transparent 63%),radial-gradient(circle at 82% 65%,rgba(31,192,120,.18),transparent 32%)}.hero-line{position:absolute;right:-4%;bottom:12px;width:58%;height:100px;opacity:.75;background:linear-gradient(135deg,transparent 0 15%,rgba(32,198,124,.2) 16% 17%,transparent 18% 29%,rgba(32,198,124,.35) 30% 31%,transparent 32% 43%,rgba(32,198,124,.6) 44% 45%,transparent 46% 58%,rgba(32,198,124,.72) 59% 60%,transparent 61% 72%,rgba(32,198,124,.8) 73% 74%,transparent 75%);transform:skewY(-13deg)}.hero-copy{position:relative;z-index:2}.hero small{color:#c8d2cf;font-size:16px}.hero h1{margin:7px 0 4px;font-size:34px;letter-spacing:-.5px}.hero p{margin:0;color:#9eaaa8;font-size:13px}.hero-logo{position:absolute;z-index:2;right:38px;top:25px;width:210px;max-height:110px;object-fit:contain;filter:drop-shadow(0 8px 18px rgba(0,0,0,.4))}
-.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}.kpi{background:linear-gradient(145deg,#11191d,#0d1417);border:1px solid var(--border);border-radius:11px;padding:20px 20px 17px;min-width:0}.kpi-head{display:flex;align-items:center;justify-content:space-between;color:#aab5b7;font-size:12px}.kpi-icon{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-size:18px;margin-bottom:10px;flex-shrink:0}.kpi-icon svg{width:55%;height:55%;display:block}.i-green{background:#08291d;color:#1fd27d}.i-purple{background:#201333;color:#a675ff}.i-blue{background:#08243c;color:#55a9ff}.i-darkgreen{background:#10231b;color:#2ed184}.kpi-value{font-size:25px;font-weight:800;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.kpi-sub{font-size:11px;color:#768285;margin-top:6px}.kpi-sub.green{color:#2cd17f}
-.panel{background:linear-gradient(145deg,#10171b,#0d1316);border:1px solid var(--border);border-radius:12px}.accounts-panel{overflow:hidden}.panel-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px}.panel-title{font-size:18px;font-weight:700}.btn-primary{background:#11a861;color:#fff;border:1px solid #18c879;border-radius:7px;padding:10px 15px;font-weight:700;font-size:12px;cursor:pointer}.btn-primary:hover{background:#16b96d}.table-wrap{overflow:auto}.account-table{width:100%;border-collapse:collapse;min-width:880px}.account-table th{padding:12px 20px;text-align:left;color:#7e8a8e;font-size:11px;font-weight:500;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}.account-table td{padding:15px 20px;border-bottom:1px solid #1c2529;color:#d7dddd;font-size:12px;vertical-align:middle}.account-table tr:last-child td{border-bottom:0}.account-main{font-size:15px;font-weight:800;color:#eef4f2}.account-sub{color:#899598;font-size:11px;margin-top:4px}.pill{display:inline-flex;align-items:center;border-radius:5px;padding:6px 9px;font-size:10px;font-weight:700}.live{background:#0d3a27;color:#39dc8b}.demo{background:#082e54;color:#4eafff}.standard{background:#0b355b;color:#5bb5ff}.ecn{background:#2d1849;color:#bd8aff}.active{background:#0d3a27;color:#4de292}.platform{display:flex;align-items:center;gap:7px;font-weight:700}.mt5{width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,#17c878,#0c7650);display:grid;place-items:center;font-size:11px}.positive{color:#2ddd84;font-weight:700}.manage{background:transparent;border:1px solid #334047;color:#dce4e3;border-radius:7px;padding:8px 12px;font-size:11px;cursor:pointer}.manage:hover{border-color:#4a666e}.empty-row{text-align:center;color:#778487;padding:35px!important}
-.quick-panel{margin-top:18px;padding:20px}.quick-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:14px}.quick{border:1px solid #273238;background:#0c1418;border-radius:99px;padding:16px;display:flex;align-items:center;gap:12px;cursor:pointer}.quick:hover{border-color:#31504a;background:#0e191c}.quick-icon{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:18px;flex:0 0 40px}.quick-icon svg{width:52%;height:52%;display:block}.q-green{background:#0b2b1e;color:#19cf79}.q-red{background:#351318;color:#ff6370}.q-blue{background:#092c47;color:#4aa9ff}.q-purple{background:#29173c;color:#aa74ff}.q-gold{background:#32270d;color:#e8b940}.quick b{display:block;font-size:12px}.quick span{display:block;color:#7f8c90;font-size:10px;margin-top:4px}
-.lower{display:grid;grid-template-columns:1.4fr .8fr;gap:15px;margin-top:18px}.lower .panel{padding:20px}.tx-table{width:100%;border-collapse:collapse;font-size:11px}.tx-table th,.tx-table td{padding:11px 7px;border-bottom:1px solid #20292d;text-align:left}.tx-table th{color:#7f8b8f;font-weight:500}.tx-table td{color:#cbd4d3}.statusbadge{display:inline-block;padding:4px 8px;border-radius:20px;font-size:9px;font-weight:700;text-transform:uppercase}.statusbadge.pending{background:#33290d;color:#efc24b;border:1px solid #594811}.statusbadge.green{background:#0d3020;color:#4be090;border:1px solid #1b5a39}.statusbadge.red{background:#351316;color:#ff6d77;border:1px solid #5a1d22}.row{display:flex;justify-content:space-between;gap:15px;padding:11px 0;border-bottom:1px solid #20292d;font-size:11px}.row span{color:#7f8b8f}.row b{color:#dbe3e2;text-align:right}.green-text{color:#2ddd84!important}.red-text{color:#ff6670!important}.gold-text{color:#e3b64e!important}.errorbox{padding:18px;border:1px solid #5b2929;background:#1b0c0c;border-radius:10px;color:#ffb0b0;margin-bottom:15px}.empty{color:#778487;font-size:12px;padding:20px 0}.loading{padding:80px;text-align:center;color:#9ba6a8}
-
-/* Profile Tab Design */
-.profile-card{background:linear-gradient(145deg,#10171b,#0d1316);border:1px solid var(--border);border-radius:12px;padding:28px;max-width:700px;margin:auto}
-.profile-avatar-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:24px}
-.profile-avatar-large{width:100px;height:100px;border-radius:50%;background:#1b252a;border:2px solid var(--gold);display:grid;place-items:center;font-size:36px;color:#aeb8ba;overflow:hidden;object-fit:cover}
-.profile-avatar-large img{width:100%;height:100%;object-fit:cover}
-.avatar-btn{background:#141f24;border:1px solid #2f3e46;color:#cdd5d7;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer}
-.avatar-btn:hover{background:#1d2d34}
-.profile-form{display:grid;gap:16px}
-.form-group{display:flex;flex-direction:column;gap:6px}
-.form-group label{font-size:12px;color:#8d999d;font-weight:600}
-.form-input{background:#0a0f12;border:1px solid #202a2e;color:#f4f7f6;padding:12px 14px;border-radius:8px;font-size:13px;outline:none}
-.form-input:disabled{background:#11171a;color:#6d797c;cursor:not-allowed}
-.form-input:focus:not(:disabled){border-color:var(--gold)}
-.save-btn{background:var(--gold);color:#000;border:none;padding:12px;border-radius:8px;font-weight:700;cursor:pointer;margin-top:10px}
-.save-btn:hover:not(:disabled){opacity:.9}
-.save-btn:disabled{opacity:0.6;cursor:not-allowed}
-.back-dash-btn{background:transparent;color:#cdd5d7;border:1px solid #2f3e46;padding:12px;border-radius:8px;font-weight:600;cursor:pointer;text-align:center;width:100%;margin-top:4px;display:block}
-.back-dash-btn:hover{background:#172227;color:#fff}
-
-@media(max-width:1100px){.kpis{grid-template-columns:repeat(2,1fr)}.quick-grid{grid-template-columns:repeat(2,1fr)}.lower{grid-template-columns:1fr}.hero-logo{width:170px;right:25px}.hero{padding-right:220px}}
-@media(max-width:760px){.sidebar{width:min(320px,88vw)}.layout{display:block}.logo-wrap{height:76px}.side-nav{display:grid;grid-template-columns:repeat(2,1fr);padding:10px}.side-bottom{display:none}.side-link{font-size:12px;padding:10px}.topbar{height:62px;padding:0 15px}.top-actions{gap:8px}.user-name,.user-role,.chev{display:none}.content{padding:15px}.hero{padding:23px;min-height:150px}.hero-logo{opacity:.22;width:190px;right:15px;top:25px}.hero h1{font-size:28px}.kpis{grid-template-columns:1fr 1fr;gap:8px}.kpi{padding:15px}.kpi-value{font-size:19px}.kpi-icon{width:34px;height:34px}.quick-grid{grid-template-columns:1fr}.quick-icon{width:36px;height:36px;flex:0 0 36px}.lower{grid-template-columns:1fr}.top-title{font-size:17px}.hamb{margin-right:12px}}
-@media(max-width:480px){.kpis{grid-template-columns:1fr}.side-nav{grid-template-columns:1fr 1fr}.hero h1{font-size:24px}.hero small{font-size:13px}.hero p{font-size:11px}.panel-head{padding:15px}.btn-primary{padding:9px 11px}.content{padding:10px}.kpi-icon{width:32px;height:32px}.quick-icon{width:34px;height:34px;flex:0 0 34px}}
-</style>
-
-<style id="buraq-gold-theme">
-:root{--green:#d6a93b;--green2:#6f5416}
-body{background:radial-gradient(circle at 75% 0%,#211b0b 0,transparent 28%),var(--bg)}
-.side-link.active{background:linear-gradient(90deg,#5d4710,#3c2d0b);box-shadow:inset 0 0 0 1px #9b7622}
-.side-link:hover{background:#19150b}
-.kyc-dot{background:#a47d20}
-.help{border-color:#3d3219}
-.help span{color:#d6a93b!important}
-.hero{border-color:#5b4817;background:linear-gradient(110deg,#241c09,#171208 56%,#211a08)}
-.hero:before{background:linear-gradient(135deg,transparent 45%,rgba(214,169,59,.13) 45%,transparent 46%,transparent 62%,rgba(214,169,59,.08) 62%,transparent 63%),radial-gradient(circle at 82% 65%,rgba(214,169,59,.18),transparent 32%)}
-.hero-line{background:linear-gradient(135deg,transparent 0 15%,rgba(214,169,59,.2) 16% 17%,transparent 18% 29%,rgba(214,169,59,.35) 30% 31%,transparent 32% 43%,rgba(214,169,59,.6) 44% 45%,transparent 46% 58%,rgba(214,169,59,.72) 59% 60%,transparent 61% 72%,rgba(214,169,59,.8) 73% 74%,transparent 75%)}
-.i-green{background:#30250b;color:#e2b844}.i-darkgreen{background:#30250b;color:#e2b844}
-.btn-primary{background:#a47b18;border-color:#d6a93b}.btn-primary:hover{background:#bd9020}
-.q-green{background:#30250b;color:#e2b844}
-.gold-text{color:#e3b64e!important}
-</style>
-</head>
-<body>
-<div class="layout">
-<div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
-<aside class="sidebar">
-  <div class="logo-wrap"><a href="index.html"><img class="logo" src="buraq-logo.jpg" alt="Buraq Markets"></a></div>
-  <nav class="side-nav">
-    <a class="side-link active" id="navDashboard"><span class="ico">▦</span>Dashboard</a>
-    <a class="side-link" id="navAccounts"><span class="ico">▣</span>Trading Accounts</a>
-    <a class="side-link" id="navFunds"><span class="ico">▤</span>Wallet</a>
-    <a class="side-link" href="deposit.html"><span class="ico">↓</span>Deposit</a>
-    <a class="side-link" href="withdraw.html"><span class="ico">↑</span>Withdraw</a>
-    <a class="side-link" href="transfer.html"><span class="ico">⇄</span>Transfer</a>
-    <a class="side-link" id="navTransactions"><span class="ico">▤</span>Transactions</a>
-    <a class="side-link" href="verify-identity.html"><span class="ico">♢</span>KYC Verification <span class="kyc-dot" id="kycSide">Pending</span></a>
-    <a class="side-link" id="navProfile"><span class="ico">⚙</span>Profile Settings</a>
-    <a class="side-link" href="contact.html"><span class="ico">◉</span>Support</a>
-    <a class="side-link" href="#" id="sideLogout"><span class="ico" style="color:#ff5965">↪</span>Logout</a>
-  </nav>
-  <div class="side-bottom"><div class="help"><span style="font-size:23px;color:#20d27e">◉</span><div><strong>Need Help?</strong><small>We're here to help you</small></div><span style="margin-left:auto">›</span></div></div>
-</aside>
-<section class="main">
-<header class="topbar">
-  <button class="hamb" id="menuToggle" aria-label="Open navigation" aria-expanded="false">☰</button>
-  <div class="top-title" id="pageTitle">Dashboard</div>
-  <div class="top-actions">
-    <button class="circle-btn" aria-label="Theme">☾</button>
-    <button class="circle-btn bell" aria-label="Notifications">♧</button>
-    
-    <div class="user-dropdown" id="userDropdownTrigger">
-      <div class="user">
-        <div class="avatar" id="topAvatar">●</div>
-        <div>
-          <div class="user-name" id="topName">Client</div>
-          <div class="user-role">Client</div>
-        </div>
-        <span class="chev">⌄</span>
-      </div>
-      <div class="profile-menu" id="profileMenu">
-        <a class="profile-menu-item" id="topMenuProfile">⚙ Profile Settings</a>
-        <a href="verify-identity.html" class="profile-menu-item">♢ KYC Verification</a>
-        <a href="deposit.html" class="profile-menu-item">↓ Deposit Funds</a>
-        <a href="withdraw.html" class="profile-menu-item">↑ Withdraw Funds</a>
-        <div class="profile-menu-divider"></div>
-        <a href="#" class="profile-menu-item" id="topLogout" style="color:#ff5965">↪ Logout</a>
-      </div>
-    </div>
-  </div>
-</header>
-<main class="content"><div id="app"><div class="loading">Loading your secure client area…</div></div></main>
-</section>
-</div>
-
-<script type="module">
-import { supabase } from './supabase-config.js';
-
-let inactivityTimer;
-function resetInactivityTimer() {
-  clearTimeout(inactivityTimer);
-  inactivityTimer = setTimeout(async () => {
-    await supabase.auth.signOut();
-    location.href = 'client-login.html';
-  }, 2 * 60 * 1000);
-}
-['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(e => window.addEventListener(e, resetInactivityTimer, true));
-resetInactivityTimer();
-
-const app = document.getElementById('app');
-const money = n => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(Number(n||0));
-const esc = s => String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-
-let currentUser = null;
-let currentProfile = {};
-let currentAccounts = [];
-let currentTx = [];
-let activeTab = 'dashboard';
-
-async function loadData() {
-  const { data: { user } } = await supabase.auth.getUser();
-  if(!user) { location.href = 'client-login.html'; return; }
-  currentUser = user;
-
-  const [profileRes, accountsRes, txRes] = await Promise.all([
-    supabase.from('profiles').select('*').eq('id', user.id).maybeSingle(),
-    supabase.from('trading_accounts').select('*').eq('user_id', user.id).order('created_at', { ascending: true }),
-    supabase.from('transactions').select('*').eq('user_id', user.id).order('transaction_date', { ascending: false }).limit(10)
-  ]);
-
-  currentProfile = profileRes.data || {};
-  currentAccounts = accountsRes.data || [];
-  currentTx = txRes.data || [];
-
-  updateHeaderAndSidebar();
-  render();
-}
-
-function updateHeaderAndSidebar() {
-  const name = (currentProfile.full_name || currentUser.email?.split('@')[0] || 'Client').toUpperCase();
-  document.getElementById('topName').textContent = name;
-  const kyc = currentProfile.kyc_status || 'Pending';
-  document.getElementById('kycSide').textContent = kyc === 'Verified' ? 'Verified' : kyc;
-
-  const avatarEl = document.getElementById('topAvatar');
-  if (currentProfile.avatar_url) {
-    avatarEl.innerHTML = `<img src="${currentProfile.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" />`;
-  } else {
-    avatarEl.textContent = '●';
-  }
-}
-
-function render() {
-  document.querySelectorAll('.side-link').forEach(el => el.classList.remove('active'));
-
-  if (activeTab === 'dashboard') {
-    document.getElementById('navDashboard').classList.add('active');
-    document.getElementById('pageTitle').textContent = 'Dashboard';
-    renderDashboard();
-  } else if (activeTab === 'profile') {
-    document.getElementById('navProfile').classList.add('active');
-    document.getElementById('pageTitle').textContent = 'Profile Settings';
-    renderProfileSettings();
-  }
-}
-
-function renderDashboard() {
-  const totalBalance = currentAccounts.reduce((x,v)=>x+Number(v.balance||0),0);
-  const equity = currentAccounts.reduce((x,v)=>x+Number(v.equity||0),0);
-  const free = currentAccounts.reduce((x,v)=>x+(Number(v.equity||0)-Number(v.used_margin||0)),0);
-  const pl = currentAccounts.reduce((x,v)=>x+Number(v.today_pl||0),0);
-  const name = (currentProfile.full_name || currentUser.email?.split('@')[0] || 'Client').toUpperCase();
-
-  app.innerHTML = `
-  <section class="hero"><img class="hero-logo" src="buraq-logo.jpg" alt="Buraq Markets"><div class="hero-line"></div><div class="hero-copy"><small>Welcome back,</small><h1>${esc(name)}</h1><p>Here's what's happening with your accounts today.</p></div></section>
-  <section class="kpis">
-    <div class="kpi"><div class="kpi-icon i-green"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h20"/><circle cx="12" cy="14" r="1.5"/></svg></div><div class="kpi-head"><span>Total Balance</span><b>›</b></div><div class="kpi-value">${money(totalBalance)}</div><div class="kpi-sub">All trading accounts combined</div></div>
-    <div class="kpi"><div class="kpi-icon i-purple"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-6"/></svg></div><div class="kpi-head"><span>Total Equity</span><b>›</b></div><div class="kpi-value">${money(equity)}</div><div class="kpi-sub">Current account equity</div></div>
-    <div class="kpi"><div class="kpi-icon i-blue"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div class="kpi-head"><span>Total Free Margin</span><b>›</b></div><div class="kpi-value">${money(free)}</div><div class="kpi-sub">Equity minus used margin</div></div>
-    <div class="kpi"><div class="kpi-icon i-darkgreen"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 7-7"/><path d="M14 8h6v6"/></svg></div><div class="kpi-head"><span>Total P/L</span><b>›</b></div><div class="kpi-value ${pl>=0?'green-text':'red-text'}">${pl>=0?'+':''}${money(pl)}</div><div class="kpi-sub ${pl>=0?'green':''}">${totalBalance?((pl/Math.max(totalBalance,1))*100).toFixed(2):'0.00'}% from balance</div></div>
-  </section>
-  <section class="panel accounts-panel" id="accounts"><div class="panel-head"><div class="panel-title">Trading Accounts</div><a class="btn-primary" href="new-account.html">＋ Open New Account</a></div><div class="table-wrap"><table class="account-table"><thead><tr><th>Account</th><th>Type</th><th>Platform</th><th>Balance</th><th>Equity</th><th>P/L</th><th>Status</th><th>Action</th></tr></thead><tbody>
-  ${currentAccounts.length?currentAccounts.map(v=>{const isDemo=String(v.account_type||'').toLowerCase().includes('demo')||String(v.account_name||'').toLowerCase().includes('demo');const type=String(v.account_type||v.account_name||'Standard');const pL=Number(v.today_pl||0);return `<tr><td><span class="pill ${isDemo?'demo':'live'}">${isDemo?'Demo':'Live'}</span><div class="account-main" style="margin-top:8px">${esc(v.account_number||'—')}</div><div class="account-sub">${esc(type)} / ${esc(v.leverage||'1:500')} / ${esc(v.currency||'USD')}</div></td><td><span class="pill ${type.toLowerCase().includes('ecn')?'ecn':'standard'}">${esc(type)}</span></td><td><div class="platform"><span class="mt5">M</span> ${esc(v.platform||'MT5')}</div></td><td>${money(v.balance)}</td><td>${money(v.equity)}</td><td class="${pL>=0?'positive':'red-text'}">${pL>=0?'+':''}${money(pL)}</td><td><span class="pill ${isDemo?'demo':'active'}">${isDemo?'Demo':esc(v.status||'Active')}</span></td><td><button class="manage" onclick="location.href='new-account.html'">Manage⌄</button></td></tr>`}).join(''):'<tr><td colspan="8" class="empty-row">No trading account has been created yet.</td></tr>'}
-  </tbody></table></div></section>
-  <section class="panel quick-panel" id="funds"><div class="panel-title">Quick Actions</div><div class="quick-grid"><a class="quick" href="deposit.html"><span class="quick-icon q-green"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 19h14"/></svg></span><div><b>Deposit Funds</b><span>Add money to wallet</span></div></a><a class="quick" href="withdraw.html"><span class="quick-icon q-red"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 21V9"/><path d="M7 14l5-5 5 5"/><path d="M5 5h14"/></svg></span><div><b>Withdraw Funds</b><span>Withdraw to bank account</span></div></a><a class="quick" href="transfer.html"><span class="quick-icon q-blue"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 16l-4-4 4-4"/><path d="M3 12h11"/><path d="M17 8l4 4-4 4"/><path d="M21 12H10"/></svg></span><div><b>Transfer Funds</b><span>Internal transfer</span></div></a><a class="quick" href="#" onclick="return false"><span class="quick-icon q-purple"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><rect x="4" y="17" width="16" height="4" rx="1"/></svg></span><div><b>Download MT5</b><span>Windows / Android / iOS</span></div></a><a class="quick" href="contact.html"><span class="quick-icon q-gold"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg></span><div><b>Contact Support</b><span>We're here to help</span></div></a></div></section>
-  <section class="lower"><div class="panel" id="transactions"><div class="panel-title" style="margin-bottom:12px">Recent Transactions</div>${currentTx.length?`<div class="table-wrap"><table class="tx-table"><tr><th>Date</th><th>Type</th><th>Reference</th><th>Amount</th><th>Status</th></tr>${currentTx.map(v=>{const st=String(v.status||'').toLowerCase();const cls=st==='approved'||st==='completed'?'green':(st==='cancelled'||st==='rejected'?'red':'pending');return `<tr><td>${new Date(v.transaction_date).toLocaleDateString()}</td><td>${esc(v.type)}</td><td>${esc(v.reference)}</td><td class="${Number(v.amount)>=0?'green-text':'red-text'}">${Number(v.amount)>=0?'+':''}${money(v.amount)}</td><td><span class="statusbadge ${cls}">${esc(v.status)}</span></td></tr>`}).join('')}</table></div>`:'<div class="empty">No transactions yet.</div>'}</div>
-  <div class="panel"><div class="panel-title" style="margin-bottom:12px">Account Summary</div><div class="row"><span>Account Holder</span><b>${esc((currentProfile.full_name||'—').toUpperCase())}</b></div><div class="row"><span>Client ID</span><b>${esc(currentProfile.client_id||'—')}</b></div><div class="row"><span>Email</span><b>${esc(currentUser.email)}</b></div><div class="row"><span>KYC Status</span><b class="${(currentProfile.kyc_status||'Pending')==='Verified'?'green-text':'gold-text'}">${esc(currentProfile.kyc_status||'Pending')}</b></div></div></section>`;
-}
-
-function renderProfileSettings() {
-  const avatarUrl = currentProfile.avatar_url || '';
-  app.innerHTML = `
-  <div class="profile-card">
-    <div class="profile-avatar-wrap">
-      <div class="profile-avatar-large" id="avatarPreview">
-        ${avatarUrl ? `<img src="${avatarUrl}"/>` : '👤'}
-      </div>
-      <button class="avatar-btn" id="changeAvatarBtn">Change Photo</button>
-      <input type="file" id="avatarInput" accept="image/*" style="display:none" />
-    </div>
-    
-    <form class="profile-form" id="profileForm">
-      <div class="form-group">
-        <label>Full Name (View Only)</label>
-        <input type="text" class="form-input" value="${esc(currentProfile.full_name || '')}" disabled />
-      </div>
-      <div class="form-group">
-        <label>Email Address (View Only)</label>
-        <input type="text" class="form-input" value="${esc(currentUser.email || '')}" disabled />
-      </div>
-      <div class="form-group">
-        <label>Client ID (View Only)</label>
-        <input type="text" class="form-input" value="${esc(currentProfile.client_id || '—')}" disabled />
-      </div>
-      <div class="form-group">
-        <label>KYC Status (View Only)</label>
-        <input type="text" class="form-input" value="${esc(currentProfile.kyc_status || 'Pending')}" disabled />
-      </div>
-      <div class="form-group">
-        <label>Phone Number (Editable)</label>
-        <input type="text" id="phoneInput" class="form-input" value="${esc(currentProfile.phone || '')}" placeholder="+92 300 1234567" />
-      </div>
-      <button type="submit" class="save-btn" id="saveProfileBtn">Save Changes</button>
-      <button type="button" class="back-dash-btn" id="backToDashBtn">← Back to Dashboard</button>
-    </form>
-  </div>`;
-
-  const changeAvatarBtn = document.getElementById('changeAvatarBtn');
-  const avatarInput = document.getElementById('avatarInput');
-  const profileForm = document.getElementById('profileForm');
-  const backToDashBtn = document.getElementById('backToDashBtn');
-
-  backToDashBtn.addEventListener('click', () => {
-    activeTab = 'dashboard';
-    render();
-  });
-
-  changeAvatarBtn.addEventListener('click', () => avatarInput.click());
-
-  avatarInput.addEventListener('change', async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = async (evt) => {
-      const base64Image = evt.target.result;
-      document.getElementById('avatarPreview').innerHTML = `<img src="${base64Image}"/>`;
-      
-      const { error } = await supabase.from('profiles').update({ avatar_url: base64Image }).eq('id', currentUser.id);
-      if (!error) {
-        currentProfile.avatar_url = base64Image;
-        updateHeaderAndSidebar();
-      }
-    };
-    reader.readAsDataURL(file);
-  });
-
-  profileForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const newPhone = document.getElementById('phoneInput').value;
-    const saveBtn = document.getElementById('saveProfileBtn');
-    
-    saveBtn.textContent = 'Saving...';
-    saveBtn.disabled = true;
-
-    const { error } = await supabase.from('profiles').update({ phone: newPhone }).eq('id', currentUser.id);
-    
-    if (!error) {
-      currentProfile.phone = newPhone;
-      saveBtn.textContent = 'Saved!';
-    } else {
-      saveBtn.textContent = 'Error!';
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buraq Markets - Client Dashboard</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0f1115;
+      --card-bg: #161a22;
+      --accent-gold: #d4af37;
+      --gold-gradient: linear-gradient(105deg, #181c24 0%, #232936 35%, #8a6f28 75%, #cca63b 100%);
+      --text-main: #ffffff;
+      --text-muted: #9fa8b6;
+      --border-color: #262c38;
+      --green: #22c55e;
+      --red: #ef4444;
     }
 
-    setTimeout(() => {
-      saveBtn.textContent = 'Save Changes';
-      saveBtn.disabled = false;
-    }, 2000);
-  });
-}
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
 
-// Sidebar Navigation Actions
-document.getElementById('navDashboard').addEventListener('click', () => { activeTab = 'dashboard'; render(); setMenu(false); });
-document.getElementById('navProfile').addEventListener('click', () => { activeTab = 'profile'; render(); setMenu(false); });
-document.getElementById('topMenuProfile').addEventListener('click', () => { activeTab = 'profile'; render(); });
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
 
-// Quick Jump Anchors
-document.getElementById('navAccounts')?.addEventListener('click', () => { activeTab = 'dashboard'; render(); setMenu(false); setTimeout(() => document.getElementById('accounts')?.scrollIntoView(), 100); });
-document.getElementById('navFunds')?.addEventListener('click', () => { activeTab = 'dashboard'; render(); setMenu(false); setTimeout(() => document.getElementById('funds')?.scrollIntoView(), 100); });
-document.getElementById('navTransactions')?.addEventListener('click', () => { activeTab = 'dashboard'; render(); setMenu(false); setTimeout(() => document.getElementById('transactions')?.scrollIntoView(), 100); });
+    /* Top Navigation Bar */
+    .navbar {
+      height: 70px;
+      background-color: #12151c;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 30px;
+    }
 
-// Sidebar Toggle Logic
-const sidebar = document.querySelector('.sidebar');
-const overlay = document.getElementById('sidebarOverlay');
-const menuToggle = document.getElementById('menuToggle');
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
 
-function setMenu(open) {
- sidebar.classList.toggle('open', open);
- overlay.classList.toggle('show', open);
- menuToggle.setAttribute('aria-expanded', String(open));
- overlay.setAttribute('aria-hidden', String(!open));
- document.body.style.overflow = open ? 'hidden' : '';
-}
+    .brand-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent-gold);
+      letter-spacing: 0.5px;
+    }
 
-menuToggle.addEventListener('click', () => setMenu(!sidebar.classList.contains('open')));
-overlay.addEventListener('click', () => setMenu(false));
-document.addEventListener('keydown', e => { if (e.key === 'Escape') setMenu(false) });
+    .nav-links {
+      display: flex;
+      gap: 15px;
+      list-style: none;
+      margin-left: 20px;
+    }
 
-// Top Dropdown
-const trigger = document.getElementById('userDropdownTrigger');
-const menu = document.getElementById('profileMenu');
-trigger.addEventListener('click', (e) => { e.stopPropagation(); menu.classList.toggle('show'); });
-document.addEventListener('click', () => menu.classList.remove('show'));
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      padding: 8px 16px;
+      border-radius: 6px;
+      transition: 0.3s;
+    }
 
-// Logout
-const handleLogout = async (e) => {
-  e.preventDefault();
-  await supabase.auth.signOut();
-  location.href = 'client-login.html';
-};
-document.getElementById('sideLogout').addEventListener('click', handleLogout);
-document.getElementById('topLogout').addEventListener('click', handleLogout);
+    .nav-links a.active, .nav-links a:hover {
+      background-color: rgba(212, 175, 55, 0.15);
+      color: var(--accent-gold);
+    }
 
-loadData();
-</script>
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--card-bg);
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      background: var(--accent-gold);
+      color: #000;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    /* Main Container */
+    .dashboard-container {
+      padding: 30px;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Premium Banner */
+    .welcome-banner {
+      width: 100%;
+      height: 180px;
+      background: var(--gold-gradient);
+      border: 1px solid var(--accent-gold);
+      border-radius: 16px;
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 40px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 30px;
+    }
+
+    .welcome-banner::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 35%;
+      height: 100%;
+      background: rgba(15, 17, 21, 0.85);
+      z-index: 1;
+    }
+
+    .banner-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .greeting-sub {
+      font-size: 15px;
+      color: #e0e0e0;
+      margin-bottom: 5px;
+    }
+
+    .user-name {
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    .status-sub {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .banner-logo-wrapper {
+      position: relative;
+      z-index: 2;
+    }
+
+    .banner-logo-text {
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--accent-gold);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Grid Layout */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 25px;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .card-title {
+      font-size: 18px;
+      color: var(--accent-gold);
+      margin-bottom: 15px;
+      font-weight: 600;
+    }
+
+    /* Balance Section */
+    .balance-val {
+      font-size: 32px;
+      font-weight: 700;
+      margin: 10px 0;
+    }
+
+    .green-text { color: var(--green); }
+    .red-text { color: var(--red); }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 14px;
+    }
+
+    th {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <nav class="navbar">
+    <div class="nav-left">
+      <div class="brand-title"><i class="fa-solid fa-horse"></i> BURAQ MARKETS</div>
+      <ul class="nav-links">
+        <li><a href="#" class="active">Dashboard</a></li>
+        <li><a href="#">Portfolio</a></li>
+        <li><a href="#">Markets</a></li>
+        <li><a href="#">Tools</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <div class="user-profile">
+        <div class="avatar">A</div>
+        <div>
+          <div style="font-size: 13px; font-weight: bold;">AQEEL</div>
+          <div style="font-size: 10px; color: var(--text-muted);">Client</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Dashboard Main Content -->
+  <div class="dashboard-container">
+
+    <!-- Premium Header Banner -->
+    <div class="welcome-banner">
+      <div class="banner-content">
+        <p class="greeting-sub">Welcome back,</p>
+        <h1 class="user-name">AQEEL</h1>
+        <p class="status-sub">Here's what's happening with your accounts today.</p>
+      </div>
+
+      <div class="banner-logo-wrapper">
+        <!-- Logo Image Path Yahan Set Karein -->
+        <div class="banner-logo-text">
+          <i class="fa-solid fa-horse-head"></i> BURAQ MARKETS
+        </div>
+      </div>
+    </div>
+
+    <!-- Grid Layout -->
+    <div class="dashboard-grid">
+      <!-- Left Column -->
+      <div style="display: flex; flex-direction: column; gap: 25px;">
+        <!-- Portfolio Summary Card -->
+        <div class="card">
+          <div class="card-title">Portfolio Summary</div>
+          <p style="color: var(--text-muted); font-size: 13px;">Total Account Value</p>
+          <div class="balance-val">$125,450.78</div>
+          <p class="green-text" style="font-size: 14px;">+3.1% (+$3,821.50) Today</p>
+        </div>
+
+        <!-- Top Markets Card -->
+        <div class="card">
+          <div class="card-title">Top Markets</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Asset</th>
+                <th>Price</th>
+                <th>24h Change</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Gold (XAU/USD)</td>
+                <td>$2,034.50</td>
+                <td class="green-text">+1.25%</td>
+              </tr>
+              <tr>
+                <td>EUR/USD</td>
+                <td>1.0882</td>
+                <td class="red-text">-0.15%</td>
+              </tr>
+              <tr>
+                <td>Bitcoin (BTC)</td>
+                <td>$62,400.00</td>
+                <td class="green-text">+4.80%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Right Column -->
+      <div class="card">
+        <div class="card-title">Recent Activity</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Action</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Buy Gold<br><small style="color: var(--text-muted);">Today 10:45 AM</small></td>
+              <td class="green-text">+$1,200.00</td>
+            </tr>
+            <tr>
+              <td>Withdrawal<br><small style="color: var(--text-muted);">Yesterday</small></td>
+              <td class="red-text">-$500.00</td>
+            </tr>
+            <tr>
+              <td>Deposit<br><small style="color: var(--text-muted);">22 Aug 2026</small></td>
+              <td class="green-text">+$5,000.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
 </body>
 </html>
