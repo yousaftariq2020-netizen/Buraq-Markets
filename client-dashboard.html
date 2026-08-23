@@ -16,24 +16,20 @@ body{margin:0;background:#080a0c;color:#e1e7ec;font-family:Inter,Arial,sans-seri
 .logout-btn{background:#e63946;color:#fff}.logout-btn:hover{background:#c72c38}
 .deposit-btn{background:#f4cf72;color:#080a0c}.deposit-btn:hover{background:#e0ba5c}
 
-/* Top Summary Cards Grid */
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:30px}
+/* Summary Grid */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:30px}
 .stat-card{background:#0d1117;border:1px solid #1f2937;border-radius:12px;padding:20px;display:flex;flex-direction:column;justify-content:space-between}
 .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .stat-card .title{font-size:13px;color:#9ca3af;font-weight:500}
 .stat-card .chevron{color:#6b7280;font-size:14px}
-.stat-card .value{font-size:24px;font-weight:700;color:#ffffff;margin-bottom:6px}
+.stat-card .value{font-size:26px;font-weight:700;color:#ffffff;margin-bottom:6px}
 .stat-card .subtext{font-size:12px;color:#6b7280}
 .text-green{color:#10b981 !important}
 
-/* Table Design */
-.section-title{font-size:16px;font-weight:bold;margin-bottom:12px;color:#fff}
-.table-container{background:#0d1117;border:1px solid #1f2937;border-radius:12px;overflow-x:auto}
-.data-table{width:100%;border-collapse:collapse;text-align:left;font-size:13px}
-.data-table th{background:#161b22;padding:14px 16px;color:#9ca3af;font-weight:600;border-bottom:1px solid #1f2937}
-.data-table td{padding:14px 16px;border-bottom:1px solid #161b22;color:#d1d5db}
+/* Wallet Badge on Top of Card */
+.wallet-badge{background:rgba(244,207,114,0.15);color:#f4cf72;border:1px solid rgba(244,207,114,0.3);padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600}
 
-/* Modal Popup for Deposit */
+/* Modal Popup */
 .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);justify-content:center;align-items:center;z-index:999}
 .modal-box{background:#11161d;border:1px solid #1f2933;border-radius:12px;padding:25px;width:100%;max-width:420px;color:#fff}
 .modal-box h3{margin-top:0;color:#f4cf72}
@@ -56,23 +52,14 @@ body{margin:0;background:#080a0c;color:#e1e7ec;font-family:Inter,Arial,sans-seri
   </div>
 </div>
 
-<!-- Top Summary Cards -->
+<!-- 4 Panel Cards Layout -->
 <div class="stats-grid">
-  <!-- Wallet Account Card -->
-  <div class="stat-card">
-    <div class="card-header">
-      <span class="title">Wallet Account</span>
-      <span class="chevron">›</span>
-    </div>
-    <div class="value" id="walletAccountVal" style="color:#f4cf72;">Fetching...</div>
-    <div class="subtext">Primary trading wallet ID</div>
-  </div>
 
-  <!-- Total Balance Card -->
+  <!-- Total Balance Card (Wallet No. is inside top header) -->
   <div class="stat-card">
     <div class="card-header">
       <span class="title">Total Balance</span>
-      <span class="chevron">›</span>
+      <span class="wallet-badge" id="walletAccountVal">Wallet: Loading...</span>
     </div>
     <div class="value" id="totalBalanceVal">$0.00</div>
     <div class="subtext">All trading accounts combined</div>
@@ -107,29 +94,10 @@ body{margin:0;background:#080a0c;color:#e1e7ec;font-family:Inter,Arial,sans-seri
     <div class="value text-green" id="plVal">+$0.00</div>
     <div class="subtext text-green">0.00% from balance</div>
   </div>
+
 </div>
 
-<!-- Transaction History -->
-<div class="section-title">Recent Transactions</div>
-<div class="table-container">
-  <table class="data-table">
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Wallet Account</th>
-        <th>Type</th>
-        <th>Reference ID</th>
-        <th>Amount</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody id="txHistoryBody">
-      <tr><td colspan="6" style="text-align:center;">Loading transactions...</td></tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- Deposit Modal Popup -->
+<!-- Deposit Modal -->
 <div class="modal-overlay" id="depositModal">
   <div class="modal-box">
     <h3>Deposit Funds</h3>
@@ -166,7 +134,6 @@ const totalBalanceVal = document.getElementById('totalBalanceVal');
 const totalEquityVal = document.getElementById('totalEquityVal');
 const freeMarginVal = document.getElementById('freeMarginVal');
 const plVal = document.getElementById('plVal');
-const txHistoryBody = document.getElementById('txHistoryBody');
 
 const depositModal = document.getElementById('depositModal');
 const openDepositModalBtn = document.getElementById('openDepositModalBtn');
@@ -185,7 +152,6 @@ async function initClientDashboard() {
   clientEmailEl.textContent = user.email;
 
   await loadClientProfile();
-  await loadTransactions();
 }
 
 async function loadClientProfile() {
@@ -203,10 +169,11 @@ async function loadClientProfile() {
 
   const merged = { ...profile, ...clientData };
 
-  // Strict Priority for Client ID as Wallet Account Number
+  // Fetch client_id as primary wallet number
   currentWalletNo = merged.client_id || merged.account_number || merged.wallet_address || merged.id;
 
-  walletAccountVal.textContent = currentWalletNo;
+  // Display top badge on Total Balance Card & set modal input
+  walletAccountVal.textContent = '#' + currentWalletNo;
   depositWalletInput.value = currentWalletNo;
 
   const bal = parseFloat(merged.balance || 0);
@@ -218,32 +185,6 @@ async function loadClientProfile() {
   totalEquityVal.textContent = '$' + eq.toFixed(2);
   freeMarginVal.textContent = '$' + freeMargin.toFixed(2);
   plVal.textContent = (pl >= 0 ? '+' : '') + '$' + pl.toFixed(2);
-}
-
-async function loadTransactions() {
-  const { data: txs } = await supabase
-    .from('transactions')
-    .select('*')
-    .or(`user_id.eq.${currentUser.id},email.eq.${currentUser.email}`)
-    .order('created_at', { ascending: false });
-
-  if (!txs || txs.length === 0) {
-    txHistoryBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No transaction history found.</td></tr>`;
-    return;
-  }
-
-  txHistoryBody.innerHTML = txs.map(t => {
-    return `
-      <tr>
-        <td>${t.created_at ? new Date(t.created_at).toLocaleDateString() : 'Today'}</td>
-        <td style="color:#f4cf72;font-weight:bold;">${t.wallet_address || currentWalletNo}</td>
-        <td>${t.type || 'Deposit'}</td>
-        <td>${t.reference || t.ref_id || '-'}</td>
-        <td style="color:#10b981;font-weight:bold;">$${parseFloat(t.amount || 0).toFixed(2)}</td>
-        <td><span style="color:${t.status === 'Approved' ? '#10b981' : '#f4cf72'}">${t.status || 'Pending'}</span></td>
-      </tr>
-    `;
-  }).join('');
 }
 
 depositForm.addEventListener('submit', async (e) => {
@@ -266,11 +207,10 @@ depositForm.addEventListener('submit', async (e) => {
   if (error) {
     alert('Deposit Failed: ' + error.message);
   } else {
-    alert('Deposit request submitted successfully!');
+    alert('Deposit request submitted successfully for Wallet: ' + currentWalletNo);
     depositModal.style.display = 'none';
     depositForm.reset();
     depositWalletInput.value = currentWalletNo;
-    await loadTransactions();
   }
 });
 
