@@ -13,10 +13,15 @@ h2{margin:0 0 8px;text-align:center;font-size:22px}
 p{margin:0 0 24px;text-align:center;color:var(--muted);font-size:13px}
 .form-group{margin-bottom:16px}
 label{display:block;font-size:12px;margin-bottom:6px;color:var(--muted)}
+.password-wrapper{position:relative;display:flex;align-items:center}
 input{width:100%;background:#0a0f12;border:1px solid var(--border);color:var(--text);padding:12px;border-radius:8px;font-size:14px;outline:none}
+.password-wrapper input{padding-right:40px}
 input:focus{border-color:var(--gold)}
-button{width:100%;background:var(--gold);color:#000;border:none;padding:12px;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;margin-top:8px}
-button:hover{opacity:0.9}
+.toggle-password{position:absolute;right:12px;background:none;border:none;color:var(--muted);cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;width:auto;margin:0}
+.toggle-password:hover{color:var(--gold);opacity:1}
+.toggle-password svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+button[type="submit"]{width:100%;background:var(--gold);color:#000;border:none;padding:12px;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;margin-top:8px}
+button[type="submit"]:hover{opacity:0.9}
 .error{background:#2a1113;border:1px solid #5a1d22;color:#ff6d77;padding:10px;border-radius:6px;font-size:12px;margin-bottom:16px;display:none}
 </style>
 </head>
@@ -35,7 +40,15 @@ button:hover{opacity:0.9}
     </div>
     <div class="form-group">
       <label>Password</label>
-      <input type="password" id="password" required placeholder="••••••••">
+      <div class="password-wrapper">
+        <input type="password" id="password" required placeholder="••••••••">
+        <button type="button" class="toggle-password" id="togglePassword" aria-label="Toggle password visibility">
+          <svg id="eyeIcon" viewBox="0 0 24 24">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </button>
+      </div>
     </div>
     <button type="submit" id="submitBtn">Sign In</button>
   </form>
@@ -44,18 +57,39 @@ button:hover{opacity:0.9}
 <script type="module">
 import { supabase } from './supabase-config.js';
 
+// Password Show/Hide Toggle Logic
+const togglePasswordBtn = document.getElementById('togglePassword');
+const passwordInput = document.getElementById('password');
+const eyeIcon = document.getElementById('eyeIcon');
+
+togglePasswordBtn.addEventListener('click', () => {
+  const isPassword = passwordInput.type === 'password';
+  passwordInput.type = isPassword ? 'text' : 'password';
+  
+  // Icon update (Eye / Eye Off)
+  if (isPassword) {
+    eyeIcon.innerHTML = `
+      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+      <line x1="1" y1="1" x2="23" y2="23"></line>
+    `;
+  } else {
+    eyeIcon.innerHTML = `
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+      <circle cx="12" cy="12" r="3"></circle>
+    `;
+  }
+});
+
 // Auto Role-based Redirect Logic
 async function handleUserRedirect(user) {
   if (!user) return;
 
-  // Check user role from profiles table
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')
     .eq('id', user.id)
     .maybeSingle();
 
-  // Redirect based on exact role
   if (profile?.role === 'admin') {
     window.location.href = 'admin-dashboard.html';
   } else {
@@ -91,7 +125,6 @@ loginForm.addEventListener('submit', async (e) => {
     submitBtn.textContent = 'Sign In';
     submitBtn.disabled = false;
   } else {
-    // Redirect user to their respective dashboard
     await handleUserRedirect(data.user);
   }
 });
