@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Buraq Markets — Client Dashboard</title>
 <style>
-:root{--bg:#070b0d;--sidebar:#090f12;--panel:#0d1117;--panel-card:#0b1114;--border:#1b2428;--text:#f4f7f6;--muted:#7e8b8f;--gold:#d6a93b;--gold-hover:#b88f2d;--green:#18c879;--red:#ff5360}
+:root{--bg:#070b0d;--sidebar:#090f12;--panel:#0d1117;--border:#1b2428;--text:#f4f7f6;--muted:#7e8b8f;--gold:#d6a93b;--gold-hover:#b88f2d;--green:#18c879;--red:#ff5360}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 75% 0%,#211b0b 0,transparent 28%),var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif;font-size:13px}a{text-decoration:none;color:inherit}button,input,select{font:inherit}
 
 .layout{min-height:100vh;display:flex}
@@ -41,9 +41,15 @@
 
 .content{padding:24px 28px 36px;max-width:1450px;margin:auto}
 
+/* HERO WITH PROFESSIONAL WALLET NUMBER */
 .hero{position:relative;overflow:hidden;min-height:150px;border:1px solid #5b4817;border-radius:12px;background:linear-gradient(110deg,#241c09,#171208 56%,#211a08);padding:28px 32px;margin-bottom:18px}
 .hero-line{position:absolute;right:-4%;bottom:12px;width:58%;height:100px;opacity:.55;background:linear-gradient(135deg,transparent 0 15%,rgba(214,169,59,.2) 16% 17%,transparent 18% 29%,rgba(214,169,59,.35) 30% 31%,transparent 32% 43%,rgba(214,169,59,.6) 44% 45%,transparent 46% 58%,rgba(214,169,59,.72) 59% 60%,transparent 61% 72%,rgba(214,169,59,.8) 73% 74%,transparent 75%);transform:skewY(-13deg)}
-.hero-copy{position:relative;z-index:2}.hero small{color:#bfa76a;font-size:14px}.hero h1{margin:4px 0 6px;font-size:30px;letter-spacing:-.5px;color:#fff}.hero p{margin:0;color:#9e9786;font-size:12px}.hero-logo{position:absolute;z-index:2;right:38px;top:20px;width:200px;max-height:100px;object-fit:contain}
+.hero-copy{position:relative;z-index:2}
+.hero small{color:#bfa76a;font-size:14px}
+.hero h1{margin:4px 0 6px;font-size:30px;letter-spacing:-.5px;color:#fff;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.wallet-badge{background:rgba(214,169,59,0.15);border:1px solid var(--gold);color:var(--gold);font-size:12px;padding:4px 12px;border-radius:20px;font-family:monospace;letter-spacing:1px;font-weight:700}
+.hero p{margin:0;color:#9e9786;font-size:12px}
+.hero-logo{position:absolute;z-index:2;right:38px;top:20px;width:200px;max-height:100px;object-fit:contain}
 
 /* KPIs */
 .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:18px}
@@ -55,15 +61,27 @@
 .kpi-sub{font-size:11px;color:var(--muted);margin-top:8px;font-weight:400}
 .green-text{color:#18c879!important}
 
-/* Panels */
-.panel{background:#0a0f12;border:1px solid var(--border);border-radius:12px;margin-bottom:18px}
-.panel-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:12px}
-.panel-title{font-size:18px;font-weight:700;color:#fff}
-.header-btns{display:flex;align-items:center;gap:12px;width:auto}
+/* ACTION BUTTON CARDS SECTION */
+.action-cards-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+@media(max-width:600px){.action-cards-grid{grid-template-columns:1fr}}
+.create-card{background:#0d1317;border:1px dashed var(--border);border-radius:12px;padding:22px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:.2s}
+.create-card:hover{border-color:var(--gold);background:#10171d}
+.create-card.live-card{border:1px solid #3c2d0b;background:linear-gradient(90deg,#141006,#0d1317)}
+.create-card.live-card:hover{border-color:var(--gold)}
+.card-info h4{margin:0 0 4px;font-size:16px;color:#fff}
+.card-info p{margin:0;font-size:12px;color:var(--muted)}
+
 .btn-gold{background:var(--gold);color:#000;border:0;border-radius:8px;padding:10px 18px;font-weight:700;font-size:12px;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;justify-content:center}
 .btn-gold:hover{background:var(--gold-hover)}
 .btn-outline{background:#0c1a26;color:#3b9dff;border:1px solid #1a3650;border-radius:8px;padding:10px 18px;font-weight:700;font-size:12px;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;justify-content:center}
 .btn-outline:hover{background:#102233}
+
+/* DYNAMIC ACCOUNTS CONTAINER */
+.accounts-container{display:none;margin-bottom:18px}
+.accounts-container.has-data{display:block}
+.panel{background:#0a0f12;border:1px solid var(--border);border-radius:12px;margin-bottom:18px}
+.panel-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border)}
+.panel-title{font-size:18px;font-weight:700;color:#fff}
 
 .table-wrap{overflow-x:auto}
 .account-table{width:100%;border-collapse:collapse;min-width:700px}
@@ -146,18 +164,18 @@
 
 <main class="content">
   <div id="app">
-    <!-- Hero Banner -->
+    <!-- Hero Banner with Wallet Tag -->
     <section class="hero">
       <img class="hero-logo" src="buraq-logo.jpg" alt="Buraq Markets">
       <div class="hero-line"></div>
       <div class="hero-copy">
         <small>Welcome back,</small>
-        <h1 id="heroName">AQEEL</h1>
+        <h1><span id="heroName">AQEEL</span> <span class="wallet-badge" id="heroWalletId">BM-1A6633D8</span></h1>
         <p>Here's what's happening with your accounts today.</p>
       </div>
     </section>
 
-    <!-- KPIs Matching Screenshot 2 -->
+    <!-- KPIs -->
     <section class="kpis">
       <div class="kpi">
         <div class="kpi-head"><span>Total Balance</span><span class="arrow">❯</span></div>
@@ -181,14 +199,28 @@
       </div>
     </section>
 
-    <!-- Trading Accounts Panel -->
-    <section class="panel">
-      <div class="panel-head">
-        <div class="panel-title">Trading Accounts</div>
-        <div class="header-btns">
-          <button class="btn-outline" id="btnOpenDemo">+ Open Demo Account</button>
-          <button class="btn-gold" id="btnOpenLive">+ Open Live Account</button>
+    <!-- Clean Action Cards for Open Accounts -->
+    <section class="action-cards-grid">
+      <div class="create-card live-card" id="btnOpenLive">
+        <div class="card-info">
+          <h4>Open Live Account</h4>
+          <p>Trade with real market funds & leverage</p>
         </div>
+        <button class="btn-gold">+ Live</button>
+      </div>
+      <div class="create-card" id="btnOpenDemo">
+        <div class="card-info">
+          <h4>Open Demo Account</h4>
+          <p>Practice strategies with virtual balance</p>
+        </div>
+        <button class="btn-outline">+ Demo</button>
+      </div>
+    </section>
+
+    <!-- Dynamic Trading Accounts Section (Hidden if empty, shown when accounts exist) -->
+    <section class="panel accounts-container" id="accountsSection">
+      <div class="panel-head">
+        <div class="panel-title">Active Accounts</div>
       </div>
       <div class="table-wrap">
         <table class="account-table">
@@ -204,22 +236,16 @@
               <th>Action</th>
             </tr>
           </thead>
-          <tbody id="accountsList">
-            <tr>
-              <td colspan="8" style="text-align:center;padding:20px;color:var(--muted)">Loading accounts...</td>
-            </tr>
-          </tbody>
+          <tbody id="accountsList"></tbody>
         </table>
       </div>
     </section>
 
-    <!-- Recent Transactions Bar / Panel -->
+    <!-- Recent Transactions Bar -->
     <section class="panel">
       <div class="panel-head">
         <div class="panel-title">Recent Transactions</div>
-        <div class="header-btns">
-          <a href="deposit.html" class="btn-gold" style="padding:6px 12px;font-size:11px;">+ Deposit</a>
-        </div>
+        <a href="deposit.html" class="btn-gold" style="padding:6px 12px;font-size:11px;">+ Deposit</a>
       </div>
       <div class="table-wrap">
         <table class="account-table">
@@ -248,7 +274,7 @@
         <h3>Profile & KYC</h3>
         <table class="info-table">
           <tr><td>Account Holder</td><td class="val" id="kycName">yousaf tariq</td></tr>
-          <tr><td>Client ID</td><td class="val" id="kycClientId">BM-1A6633D8</td></tr>
+          <tr><td>Client Wallet ID</td><td class="val" id="kycClientId">BM-1A6633D8</td></tr>
           <tr><td>Email</td><td class="val" id="kycEmail">yousaftariq2020@gmail.com</td></tr>
           <tr><td>KYC Status</td><td class="val green" id="kycStatus">Verified</td></tr>
         </table>
@@ -431,18 +457,23 @@ async function loadData() {
 
       const fullName = profile.full_name || currentUser.email.split('@')[0];
       const upperName = fullName.toUpperCase();
+      const walletId = profile.client_id || 'BM-' + currentUser.id.substring(0,8).toUpperCase();
 
       document.getElementById('topName').textContent = upperName;
       document.getElementById('heroName').textContent = upperName;
+      document.getElementById('heroWalletId').textContent = walletId;
       document.getElementById('topAvatar').textContent = upperName.charAt(0);
 
       // KYC Section
       document.getElementById('kycName').textContent = fullName;
-      document.getElementById('kycClientId').textContent = profile.client_id || 'BM-' + currentUser.id.substring(0,8).toUpperCase();
+      document.getElementById('kycClientId').textContent = walletId;
       document.getElementById('kycEmail').textContent = currentUser.email;
       document.getElementById('kycStatus').textContent = profile.kyc_status || 'Verified';
 
+      const accountsSection = document.getElementById('accountsSection');
+
       if (accounts.length > 0) {
+        accountsSection.classList.add('has-data');
         const totalBalance = accounts.reduce((x,v)=>x+Number(v.balance||0),0);
         const equity = accounts.reduce((x,v)=>x+Number(v.equity||0),0);
         const freeMargin = accounts.reduce((x,v)=>x+Number(v.free_margin||v.balance||0),0);
@@ -470,11 +501,7 @@ async function loadData() {
           </tr>
         `).join('');
       } else {
-        document.getElementById('accountsList').innerHTML = `
-          <tr>
-            <td colspan="8" style="text-align:center;padding:20px;color:var(--muted)">No trading accounts found. Click above to create one.</td>
-          </tr>
-        `;
+        accountsSection.classList.remove('has-data');
       }
 
       // Populate Transactions
