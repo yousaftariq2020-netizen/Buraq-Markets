@@ -21,28 +21,33 @@
 .lower{display:grid;grid-template-columns:1.4fr .8fr;gap:15px;margin-top:18px}.lower .panel{padding:20px}.tx-table{width:100%;border-collapse:collapse;font-size:11px}.tx-table th,.tx-table td{padding:11px 7px;border-bottom:1px solid #20292d;text-align:left}.tx-table th{color:#7f8b8f;font-weight:500}.tx-table td{color:#cbd4d3}.statusbadge{display:inline-block;padding:4px 8px;border-radius:20px;font-size:9px;font-weight:700;text-transform:uppercase}.statusbadge.pending{background:#33290d;color:#efc24b;border:1px solid #594811}.statusbadge.green{background:#0d3020;color:#4be090;border:1px solid #1b5a39}.statusbadge.red{background:#351316;color:#ff6d77;border:1px solid #5a1d22}.row{display:flex;justify-content:space-between;gap:15px;padding:11px 0;border-bottom:1px solid #20292d;font-size:11px}.row span{color:#7f8b8f}.row b{color:#dbe3e2;text-align:right}.green-text{color:#2ddd84!important}.red-text{color:#ff6670!important}.gold-text{color:#e3b64e!important}.empty{color:#778487;font-size:12px;padding:20px 0}.loading{padding:80px;text-align:center;color:#9ba6a8}
 
 /* Custom Notification Toast */
-.custom-toast {
-  position: fixed;
-  top: 25px;
-  right: 25px;
-  background: #151d21;
-  border: 1px solid #ff5360;
-  border-left: 5px solid #ff5360;
-  color: #fff;
-  padding: 14px 20px;
-  border-radius: 8px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  z-index: 9999;
-  animation: slideIn 0.3s ease-out forwards;
+.custom-toast{position:fixed;top:25px;right:25px;background:#151d21;border:1px solid #ff5360;border-left:5px solid #ff5360;color:#fff;padding:14px 20px;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.6);display:flex;align-items:center;gap:12px;z-index:9999;animation:slideIn .3s ease-out forwards}.custom-toast strong{display:block;font-size:13px;color:#ff5360}.custom-toast p{margin:2px 0 0;font-size:12px;color:#aeb8ba}@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* MOBILE RESPONSIVE FIXES */
+@media (max-width: 992px) {
+  .kpis { grid-template-columns: repeat(2, 1fr); }
+  .quick-grid { grid-template-columns: repeat(2, 1fr); }
+  .lower { grid-template-columns: 1fr; }
 }
-.custom-toast strong { display: block; font-size: 13px; color: #ff5360; }
-.custom-toast p { margin: 2px 0 0; font-size: 12px; color: #aeb8ba; }
-@keyframes slideIn {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+
+@media (max-width: 600px) {
+  .topbar { padding: 0 15px; }
+  .top-actions { gap: 10px; }
+  .user-role, .chev { display: none; }
+  .content { padding: 15px; }
+  .hero { padding: 20px; flex-direction: column-reverse; display: flex; text-align: left; }
+  .hero-logo { position: relative; right: 0; top: 0; width: 150px; margin-bottom: 12px; }
+  .hero h1 { font-size: 24px; }
+  .hero-line { display: none; }
+  .kpis { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .kpi { padding: 12px; }
+  .kpi-value { font-size: 18px; }
+  .panel-head { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .panel-head-actions { width: 100%; display: flex; gap: 8px; }
+  .btn-primary, .btn-secondary { flex: 1; justify-content: center; font-size: 11px; padding: 10px 8px; }
+  .quick-grid { grid-template-columns: 1fr; }
+  .quick { border-radius: 12px; }
+  .custom-toast { left: 15px; right: 15px; top: 15px; }
 }
 </style>
 
@@ -58,7 +63,7 @@ body{background:radial-gradient(circle at 75% 0%,#211b0b 0,transparent 28%),var(
 <body>
 <div class="layout">
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
-<aside class="sidebar">
+<aside class="sidebar" id="sidebar">
   <div class="logo-wrap"><a href="index.html"><img class="logo" src="buraq-logo.jpg" alt="Buraq Markets"></a></div>
   <nav class="side-nav">
     <a class="side-link active" id="navDashboard"><span class="ico">▦</span>Dashboard</a>
@@ -298,6 +303,18 @@ function renderDashboard() {
     }
   });
 }
+
+// Sidebar Mobile Toggle Handling
+const menuToggle = document.getElementById('menuToggle');
+const sidebar = id => document.getElementById(id);
+menuToggle?.addEventListener('click', () => {
+  sidebar('sidebar')?.classList.toggle('open');
+  sidebar('sidebarOverlay')?.classList.toggle('show');
+});
+sidebar('sidebarOverlay')?.addEventListener('click', () => {
+  sidebar('sidebar')?.classList.remove('open');
+  sidebar('sidebarOverlay')?.classList.remove('show');
+});
 
 const trigger = document.getElementById('userDropdownTrigger');
 const menu = document.getElementById('profileMenu');
