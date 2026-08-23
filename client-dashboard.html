@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Buraq Markets — Client Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 :root{--bg:#070b0d;--sidebar:#090f12;--panel:#0d1117;--border:#1b2428;--text:#f4f7f6;--muted:#7e8b8f;--gold:#d6a93b;--gold-hover:#b88f2d;--green:#18c879;--red:#ff5360}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 75% 0%,#211b0b 0,transparent 28%),var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif;font-size:13px}a{text-decoration:none;color:inherit}button,input,select{font:inherit}
@@ -39,6 +40,18 @@
 .profile-menu-item{display:flex;align-items:center;gap:10px;padding:10px 14px;color:#cdd5d7;font-size:12px;cursor:pointer}
 .profile-menu-item:hover{background:#172227;color:#fff}
 
+/* KYC ALERT BANNER */
+.kyc-alert{background:linear-gradient(90deg,#3b2707,#1d1303);border:1px solid #735118;padding:12px 28px;display:flex;align-items:center;justify-content:space-between;color:#e3be6b;font-weight:500;font-size:12px}
+.kyc-alert button{background:var(--gold);color:#000;border:0;padding:6px 14px;border-radius:6px;font-weight:700;cursor:pointer}
+
+/* MARKET TICKER */
+.market-ticker{background:#0a0f12;border-bottom:1px solid var(--border);padding:8px 28px;display:flex;gap:24px;overflow-x:auto;font-size:12px}
+.ticker-item{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.ticker-sym{font-weight:700;color:#fff}
+.ticker-price{color:#d7dddd}
+.ticker-up{color:var(--green);font-weight:600}
+.ticker-down{color:var(--red);font-weight:600}
+
 .content{padding:24px 28px 36px;max-width:1450px;margin:auto}
 
 .hero{position:relative;overflow:hidden;min-height:150px;border:1px solid #5b4817;border-radius:12px;background:linear-gradient(110deg,#241c09,#171208 56%,#211a08);padding:28px 32px;margin-bottom:18px}
@@ -59,6 +72,13 @@
 .kpi-sub{font-size:11px;color:var(--muted);margin-top:8px;font-weight:400}
 .green-text{color:#18c879!important}
 
+/* PLATFORMS BAR */
+.download-bar{background:#0d1317;border:1px solid var(--border);border-radius:12px;padding:16px 22px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+.download-title{font-weight:700;color:#fff;display:flex;align-items:center;gap:8px}
+.download-links{display:flex;gap:10px;flex-wrap:wrap}
+.dl-btn{background:#131c21;border:1px solid var(--border);color:#cdd5d7;padding:8px 14px;border-radius:6px;font-size:11px;font-weight:600;display:flex;align-items:center;gap:6px;transition:.2s}
+.dl-btn:hover{border-color:var(--gold);color:#fff;background:#17232b}
+
 .quick-actions-title{font-size:16px;font-weight:700;color:#fff;margin-bottom:12px}
 .action-cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:18px}
 .create-card{background:#0d1317;border:1px solid var(--border);border-radius:12px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:.2s}
@@ -73,10 +93,19 @@
 .btn-outline{background:#0c1a26;color:#3b9dff;border:1px solid #1a3650;border-radius:8px;padding:8px 14px;font-weight:700;font-size:11px;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;justify-content:center}
 .btn-outline:hover{background:#102233}
 
+/* CHART CONTAINER */
+.chart-card{background:#0d1317;border:1px solid var(--border);border-radius:12px;padding:22px;margin-bottom:18px}
+.chart-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.chart-title{font-weight:700;color:#fff;font-size:16px}
+
 .accounts-container{display:none;margin-bottom:18px}
 .panel{background:#0a0f12;border:1px solid var(--border);border-radius:12px;margin-bottom:18px}
 .panel-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border)}
 .panel-title{font-size:18px;font-weight:700;color:#fff}
+
+.view-toggle{display:flex;gap:4px;background:#131c21;padding:4px;border-radius:6px;border:1px solid var(--border)}
+.view-btn{background:none;border:0;color:var(--muted);padding:4px 8px;border-radius:4px;cursor:pointer;font-size:12px}
+.view-btn.active{background:var(--gold);color:#000;font-weight:700}
 
 .table-wrap{overflow-x:auto}
 .account-table{width:100%;border-collapse:collapse;min-width:700px}
@@ -92,6 +121,11 @@
 .badge-pending{background:#2b220d;color:#e3b64e;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600}
 .badge-rejected{background:#2d1215;color:#ff5360;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600}
 .btn-manage{background:transparent;border:1px solid #283439;color:#dce4e3;border-radius:6px;padding:6px 12px;font-size:11px;cursor:pointer}
+
+/* ACCOUNTS GRID VIEW */
+.accounts-grid-view{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;padding:18px}
+.acc-card{background:#0d1317;border:1px solid var(--border);border-radius:10px;padding:18px}
+.acc-card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid #162024;padding-bottom:10px}
 
 .bottom-grid{display:grid;grid-template-columns:1fr;gap:18px;margin-top:18px}
 @media(min-width:850px){.bottom-grid{grid-template-columns:1fr 1fr}}
@@ -156,6 +190,20 @@
   </div>
 </header>
 
+<!-- KYC WARNING BANNER (Daikhega agar status unverified hai) -->
+<div class="kyc-alert" id="kycBanner" style="display:none;">
+  <span>⚠️ <b>Verification Required:</b> Your profile is unverified. Complete KYC to enable trading & withdrawals.</span>
+  <button onclick="alert('Redirecting to KYC Page...')">Verify Identity</button>
+</div>
+
+<!-- LIVE MARKET TICKER -->
+<div class="market-ticker">
+  <div class="ticker-item"><span class="ticker-sym">XAU/USD (Gold)</span> <span class="ticker-price">2,482.10</span> <span class="ticker-up">+0.42%</span></div>
+  <div class="ticker-item"><span class="ticker-sym">EUR/USD</span> <span class="ticker-price">1.0924</span> <span class="ticker-down">-0.11%</span></div>
+  <div class="ticker-item"><span class="ticker-sym">BTC/USD</span> <span class="ticker-price">64,120.00</span> <span class="ticker-up">+1.85%</span></div>
+  <div class="ticker-item"><span class="ticker-sym">GBP/USD</span> <span class="ticker-price">1.2845</span> <span class="ticker-up">+0.05%</span></div>
+</div>
+
 <main class="content">
   <div id="app">
     <section class="hero">
@@ -165,6 +213,17 @@
         <small>Welcome back,</small>
         <h1><span id="heroName">AQEEL</span> <span class="wallet-badge" id="heroWalletId">BM-1A6633D8</span></h1>
         <p>Here's what's happening with your accounts today.</p>
+      </div>
+    </section>
+
+    <!-- DOWNLOAD PLATFORMS BAR -->
+    <section class="download-bar">
+      <div class="download-title">💻 Trading Terminals</div>
+      <div class="download-links">
+        <a href="#" class="dl-btn"><span>⬇ MT4 Desktop</span></a>
+        <a href="#" class="dl-btn"><span>⬇ MT5 Desktop</span></a>
+        <a href="#" class="dl-btn"><span>📱 WebTrader</span></a>
+        <a href="#" class="dl-btn"><span>📲 cTrader App</span></a>
       </div>
     </section>
 
@@ -188,6 +247,16 @@
         <div class="kpi-head"><span>Total P/L</span><span class="arrow">❯</span></div>
         <div class="kpi-value green-text" id="valPL">+$0.00</div>
         <div class="kpi-sub green-text">0.00% from balance</div>
+      </div>
+    </section>
+
+    <!-- EQUITY GROWTH CHART -->
+    <section class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Equity Growth</div>
+      </div>
+      <div style="height: 220px; width: 100%;">
+        <canvas id="equityChart"></canvas>
       </div>
     </section>
 
@@ -227,12 +296,17 @@
       </a>
     </section>
 
-    <!-- ACTIVE ACCOUNTS: Hidden until custom trading accounts are created -->
-    <section class="panel accounts-container" id="accountsSection" style="display:none;">
+    <!-- ACTIVE ACCOUNTS WITH TABLE/CARD TOGGLE -->
+    <section class="panel accounts-container" id="accountsSection">
       <div class="panel-head">
         <div class="panel-title">Active Accounts</div>
+        <div class="view-toggle">
+          <button class="view-btn active" id="btnTableView">Table</button>
+          <button class="view-btn" id="btnGridView">Cards</button>
+        </div>
       </div>
-      <div class="table-wrap">
+      
+      <div class="table-wrap" id="tableViewContainer">
         <table class="account-table">
           <thead>
             <tr>
@@ -249,6 +323,8 @@
           <tbody id="accountsList"></tbody>
         </table>
       </div>
+
+      <div class="accounts-grid-view" id="gridViewContainer" style="display:none;"></div>
     </section>
 
     <section class="panel">
@@ -368,6 +444,53 @@ import { supabase } from './supabase-config.js';
 
 let currentUser = null;
 let userKycStatus = 'Unverified';
+
+// INITIALIZE EQUITY CHART
+const ctx = document.getElementById('equityChart').getContext('2d');
+const equityChart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    datasets: [{
+      label: 'Equity Growth ($)',
+      data: [0, 0, 0, 0, 0, 0, 0],
+      borderColor: '#d6a93b',
+      backgroundColor: 'rgba(214, 169, 59, 0.08)',
+      fill: true,
+      tension: 0.35,
+      borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: '#162024' }, ticks: { color: '#7e8b8f' } },
+      y: { grid: { color: '#162024' }, ticks: { color: '#7e8b8f' } }
+    }
+  }
+});
+
+// VIEW SWITCHER TOGGLE
+const btnTable = document.getElementById('btnTableView');
+const btnGrid = document.getElementById('btnGridView');
+const tableCont = document.getElementById('tableViewContainer');
+const gridCont = document.getElementById('gridViewContainer');
+
+btnTable?.addEventListener('click', () => {
+  btnTable.classList.add('active');
+  btnGrid.classList.remove('active');
+  tableCont.style.display = 'block';
+  gridCont.style.display = 'none';
+});
+
+btnGrid?.addEventListener('click', () => {
+  btnGrid.classList.add('active');
+  btnTable.classList.remove('active');
+  tableCont.style.display = 'none';
+  gridCont.style.display = 'grid';
+});
 
 const menuToggle = document.getElementById('menuToggle');
 const sidebar = document.getElementById('sidebar');
@@ -500,6 +623,7 @@ async function loadData() {
       document.getElementById('heroWalletId').textContent = walletId;
       document.getElementById('topAvatar').textContent = upperName.charAt(0);
 
+      const kycBanner = document.getElementById('kycBanner');
       const kycElem = document.getElementById('kycStatus');
       document.getElementById('kycName').textContent = fullName;
       document.getElementById('kycClientId').textContent = walletId;
@@ -508,8 +632,10 @@ async function loadData() {
       
       if (userKycStatus.toLowerCase() === 'verified') {
         kycElem.className = 'val green';
+        kycBanner.style.display = 'none';
       } else {
         kycElem.className = 'val red';
+        kycBanner.style.display = 'flex';
       }
 
       const accountsSection = document.getElementById('accountsSection');
@@ -526,6 +652,11 @@ async function loadData() {
         document.getElementById('valMargin').textContent = money(freeMargin);
         document.getElementById('valPL').textContent = (totalPL >= 0 ? '+' : '') + money(totalPL);
 
+        // UPDATE CHART WITH REAL EQUITY
+        equityChart.data.datasets[0].data = [0, totalBalance * 0.2, totalBalance * 0.5, totalBalance * 0.8, equity, equity, equity];
+        equityChart.update();
+
+        // RENDER TABLE
         document.getElementById('accountsList').innerHTML = accounts.map(a => `
           <tr>
             <td>
@@ -542,6 +673,26 @@ async function loadData() {
             <td><button class="btn-manage">Manage ▾</button></td>
           </tr>
         `).join('');
+
+        // RENDER CARDS VIEW
+        document.getElementById('gridViewContainer').innerHTML = accounts.map(a => `
+          <div class="acc-card">
+            <div class="acc-card-head">
+              <div>
+                <span class="acc-tag ${a.type && a.type.toLowerCase() === 'demo' ? 'demo' : ''}">${a.type || 'Live'}</span>
+                <div class="acc-num">${a.account_number}</div>
+              </div>
+              <span class="badge-platform">${a.platform || 'MT5'}</span>
+            </div>
+            <div style="margin-bottom:12px;font-size:12px;color:var(--muted)">
+              <div>Tier: <b>${a.category || 'Standard'}</b></div>
+              <div>Leverage: <b>${a.leverage || '1:500'}</b></div>
+            </div>
+            <div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:12px;">${money(a.balance)}</div>
+            <button class="btn-gold" style="width:100%;">Deposit</button>
+          </div>
+        `).join('');
+
       } else {
         accountsSection.style.display = 'none';
         document.getElementById('valBalance').textContent = '$0.00';
