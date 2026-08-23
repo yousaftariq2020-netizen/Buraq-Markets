@@ -51,9 +51,12 @@ body{margin:0;min-height:100vh;background:#070707;color:#fff;font-family:Inter,A
 </div>
 <script type="module">
 import { supabase } from './supabase-config.js';
+import { sendLoginEmail } from './email-helper.js';
+
 const form = document.getElementById('loginForm');
 const btn = document.getElementById('loginBtn');
 const error = document.getElementById('error');
+
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   error.style.display = 'none';
@@ -63,6 +66,7 @@ form.addEventListener('submit', async (e) => {
     email: email.value.trim(),
     password: password.value
   });
+  
   if (err) {
     error.textContent = err.message;
     error.style.display = 'block';
@@ -71,15 +75,19 @@ form.addEventListener('submit', async (e) => {
     return;
   }
 
-  // Figure out where to send this user. If the URL was opened with
-  // ?redirect=admin-dashboard.html (e.g. someone hit admin-dashboard.html
-  // directly without a session and got bounced here), and this account is
-  // actually an admin, honor it. Otherwise admins land on admin-dashboard.html
-  // automatically and everyone else lands on client-dashboard.html.
+  const userId = signInData?.user?.id;
+  const userEmail = signInData?.user?.email;
+  const userName = signInData?.user?.user_metadata?.full_name || 'Valued Trader';
+
+  // Send Security Login Email
+  if (userEmail) {
+    sendLoginEmail(userEmail, userName);
+  }
+
   const params = new URLSearchParams(location.search);
   const redirectParam = params.get('redirect');
-  const userId = signInData?.user?.id;
   let destination = 'client-dashboard.html';
+
   if (userId) {
     const { data: profile } = await supabase.from('profiles').select('role').eq('id', userId).maybeSingle();
     if (profile?.role === 'admin') {
