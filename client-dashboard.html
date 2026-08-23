@@ -109,6 +109,7 @@
 .info-table td{padding:12px 0;font-size:12px;color:var(--muted)}
 .info-table td.val{text-align:right;color:#fff;font-weight:600}
 .info-table td.val.green{color:#18c879}
+.info-table td.val.red{color:#ff5360}
 .info-table td.val.gold-link{color:var(--gold);cursor:pointer}
 
 /* MODAL STYLES */
@@ -199,7 +200,7 @@
       </div>
     </section>
 
-    <!-- Clean Action Cards for Open Accounts -->
+    <!-- Action Cards for Open Accounts -->
     <section class="action-cards-grid">
       <div class="create-card live-card" id="btnOpenLive">
         <div class="card-info">
@@ -217,7 +218,7 @@
       </div>
     </section>
 
-    <!-- Dynamic Trading Accounts Section (Hidden if empty, shown when accounts exist) -->
+    <!-- Dynamic Trading Accounts Section -->
     <section class="panel accounts-container" id="accountsSection">
       <div class="panel-head">
         <div class="panel-title">Active Accounts</div>
@@ -273,10 +274,10 @@
       <div class="card-box">
         <h3>Profile & KYC</h3>
         <table class="info-table">
-          <tr><td>Account Holder</td><td class="val" id="kycName">yousaf tariq</td></tr>
-          <tr><td>Client Wallet ID</td><td class="val" id="kycClientId">BM-1A6633D8</td></tr>
-          <tr><td>Email</td><td class="val" id="kycEmail">yousaftariq2020@gmail.com</td></tr>
-          <tr><td>KYC Status</td><td class="val green" id="kycStatus">Verified</td></tr>
+          <tr><td>Account Holder</td><td class="val" id="kycName">Loading...</td></tr>
+          <tr><td>Client Wallet ID</td><td class="val" id="kycClientId">Loading...</td></tr>
+          <tr><td>Email</td><td class="val" id="kycEmail">Loading...</td></tr>
+          <tr><td>KYC Status</td><td class="val" id="kycStatus">Unverified</td></tr>
         </table>
       </div>
 
@@ -348,6 +349,7 @@
 import { supabase } from './supabase-config.js';
 
 let currentUser = null;
+let userKycStatus = 'Unverified';
 
 // UI Event Listeners
 const menuToggle = document.getElementById('menuToggle');
@@ -379,27 +381,41 @@ const modalTitle = document.getElementById('modalTitle');
 const accTypeInput = document.getElementById('accTypeInput');
 const demoBalanceGroup = document.getElementById('demoBalanceGroup');
 
-document.getElementById('btnOpenLive')?.addEventListener('click', () => {
-  modalTitle.textContent = "Open Live Trading Account";
-  accTypeInput.value = "Live";
-  demoBalanceGroup.style.display = "none";
+const checkKycAndOpenModal = (type) => {
+  if (userKycStatus.toLowerCase() !== 'verified') {
+    alert("Verification Required: Your account is currently unverified. Please complete your KYC verification to create trading accounts.");
+    return;
+  }
+  
+  if(type === 'Live') {
+    modalTitle.textContent = "Open Live Trading Account";
+    accTypeInput.value = "Live";
+    demoBalanceGroup.style.display = "none";
+  } else {
+    modalTitle.textContent = "Open Demo Practice Account";
+    accTypeInput.value = "Demo";
+    demoBalanceGroup.style.display = "block";
+  }
   modal.classList.add('active');
-});
+};
 
-document.getElementById('btnOpenDemo')?.addEventListener('click', () => {
-  modalTitle.textContent = "Open Demo Practice Account";
-  accTypeInput.value = "Demo";
-  demoBalanceGroup.style.display = "block";
-  modal.classList.add('active');
-});
+document.getElementById('btnOpenLive')?.addEventListener('click', () => checkKycAndOpenModal('Live'));
+document.getElementById('btnOpenDemo')?.addEventListener('click', () => checkKycAndOpenModal('Demo'));
 
 const closeModal = () => modal.classList.remove('active');
 document.getElementById('closeModal')?.addEventListener('click', closeModal);
 document.getElementById('cancelModal')?.addEventListener('click', closeModal);
 
-// Form Submit
+// Form Submit with Professional English Notifications
 document.getElementById('createAccForm')?.addEventListener('submit', async (e) => {
   e.preventDefault();
+
+  if (userKycStatus.toLowerCase() !== 'verified') {
+    alert("KYC Verification Required: Account creation is restricted until your identity verification is approved.");
+    closeModal();
+    return;
+  }
+
   const btn = document.getElementById('submitAccBtn');
   btn.disabled = true;
   btn.textContent = "Creating...";
@@ -458,6 +474,7 @@ async function loadData() {
       const fullName = profile.full_name || currentUser.email.split('@')[0];
       const upperName = fullName.toUpperCase();
       const walletId = profile.client_id || 'BM-' + currentUser.id.substring(0,8).toUpperCase();
+      userKycStatus = profile.kyc_status || 'Unverified';
 
       document.getElementById('topName').textContent = upperName;
       document.getElementById('heroName').textContent = upperName;
@@ -465,10 +482,17 @@ async function loadData() {
       document.getElementById('topAvatar').textContent = upperName.charAt(0);
 
       // KYC Section
+      const kycElem = document.getElementById('kycStatus');
       document.getElementById('kycName').textContent = fullName;
       document.getElementById('kycClientId').textContent = walletId;
       document.getElementById('kycEmail').textContent = currentUser.email;
-      document.getElementById('kycStatus').textContent = profile.kyc_status || 'Verified';
+      kycElem.textContent = userKycStatus;
+      
+      if (userKycStatus.toLowerCase() === 'verified') {
+        kycElem.className = 'val green';
+      } else {
+        kycElem.className = 'val red';
+      }
 
       const accountsSection = document.getElementById('accountsSection');
 
