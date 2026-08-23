@@ -101,7 +101,7 @@ footer{text-align:center;border-top:1px solid #242329;padding:18px;color:#777;fo
 <footer>© 2026 Buraq Markets. All rights reserved.</footer>
 <script type="module">
 import { supabase } from './supabase-config.js';
-import { sendNotification } from './email-helper.js';
+import { sendDepositRequestEmail } from './email-helper.js';
 
 const walletBox = document.getElementById('walletBox');
 const form = document.getElementById('depositForm');
@@ -178,10 +178,12 @@ form.addEventListener('submit', async (e) => {
     return;
   }
 
+  const txType = `Deposit - ${methodLabel}`;
+
   const { error } = await supabase.from('transactions').insert({
     user_id: currentUser.id,
     trading_account_id: walletAccount.id,
-    type: `Deposit - ${methodLabel}`,
+    type: txType,
     amount: amount,
     reference: reference,
     slip_path: slipPath,
@@ -194,13 +196,11 @@ form.addEventListener('submit', async (e) => {
   } else {
     status.textContent = 'Deposit request submitted. It is now Pending review.';
     status.style.color = '#8ee0a5';
-    const emailResult = await sendNotification({
-      to_email: currentUser.email,
-      subject: 'Deposit Request Received — Buraq Markets',
-      heading: 'Your deposit request has been received',
-      message: `We received your deposit request of $${amount.toFixed(2)} via ${methodLabel} (Reference: ${reference}). It is now Pending review and you will be notified once it is processed.`
-    });
-    if (!emailResult.ok) console.warn('Deposit saved, but client notification could not be sent.');
+
+    // Trigger EmailJS Deposit Request Email
+    const userName = currentUser.user_metadata?.full_name || 'Valued Trader';
+    sendDepositRequestEmail(currentUser.email, userName, amount, reference, txType);
+
     form.reset();
     setTimeout(() => { location.href = 'client-dashboard.html#transactions'; }, 1800);
   }
