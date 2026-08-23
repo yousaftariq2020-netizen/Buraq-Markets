@@ -113,17 +113,6 @@ body{background:radial-gradient(circle at 75% 0%,#211b0b 0,transparent 28%),var(
 <script type="module">
 import { supabase } from './supabase-config.js';
 
-let inactivityTimer;
-function resetInactivityTimer() {
-  clearTimeout(inactivityTimer);
-  inactivityTimer = setTimeout(async () => {
-    await supabase.auth.signOut();
-    location.href = 'client-login.html';
-  }, 2 * 60 * 1000);
-}
-['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(e => window.addEventListener(e, resetInactivityTimer, true));
-resetInactivityTimer();
-
 const app = document.getElementById('app');
 const money = n => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(Number(n||0));
 const esc = s => String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
@@ -134,27 +123,39 @@ let currentAccounts = [];
 let currentTx = [];
 let activeTab = 'dashboard';
 
+// Safe query helper with 2.5s Timeout to prevent hanging screen
+async function safeQuery(promise) {
+  const timeout = new Promise(resolve => setTimeout(() => resolve({ data: null, error: 'timeout' }), 2500));
+  return Promise.race([promise, timeout]);
+}
+
 async function loadData() {
-  const { data: { user } } = await supabase.auth.getUser();
-  if(!user) { location.href = 'client-login.html'; return; }
-  currentUser = user;
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if(!user) { location.href = 'client-login.html'; return; }
+    currentUser = user;
 
-  const [profileRes, accountsRes, txRes] = await Promise.all([
-    supabase.from('profiles').select('*').eq('id', user.id).maybeSingle(),
-    supabase.from('trading_accounts').select('*').eq('user_id', user.id).order('created_at', { ascending: true }),
-    supabase.from('transactions').select('*').eq('user_id', user.id).order('transaction_date', { ascending: false }).limit(10)
-  ]);
+    // Parallel background fetching with safety timeouts
+    const [profileRes, accountsRes, txRes] = await Promise.all([
+      safeQuery(supabase.from('profiles').select('*').eq('id', user.id).maybeSingle()),
+      safeQuery(supabase.from('trading_accounts').select('*').eq('user_id', user.id).order('created_at', { ascending: true })),
+      safeQuery(supabase.from('transactions').select('*').eq('user_id', user.id).order('transaction_date', { ascending: false }).limit(10))
+    ]);
 
-  currentProfile = profileRes.data || {};
-  currentAccounts = accountsRes.data || [];
-  currentTx = txRes.data || [];
+    currentProfile = profileRes.data || {};
+    currentAccounts = accountsRes.data || [];
+    currentTx = txRes.data || [];
 
-  updateHeaderAndSidebar();
-  render();
+  } catch(e) {
+    console.warn("Load data fallback triggered:", e);
+  } finally {
+    updateHeaderAndSidebar();
+    render();
+  }
 }
 
 function updateHeaderAndSidebar() {
-  const name = (currentProfile.full_name || currentUser.email?.split('@')[0] || 'Client').toUpperCase();
+  const name = (currentProfile.full_name || currentUser?.email?.split('@')[0] || 'Client').toUpperCase();
   document.getElementById('topName').textContent = name;
   const kyc = currentProfile.kyc_status || 'Pending';
   document.getElementById('kycSide').textContent = kyc === 'Verified' ? 'Verified' : kyc;
@@ -163,7 +164,7 @@ function updateHeaderAndSidebar() {
   if (currentProfile.avatar_url) {
     avatarEl.innerHTML = `<img src="${currentProfile.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" />`;
   } else {
-    avatarEl.textContent = '●';
+    avatarEl.textContent = name.charAt(0) || '●';
   }
 }
 
@@ -186,7 +187,7 @@ function renderDashboard() {
   const equity = currentAccounts.reduce((x,v)=>x+Number(v.equity||0),0);
   const free = currentAccounts.reduce((x,v)=>x+(Number(v.equity||0)-Number(v.used_margin||0)),0);
   const pl = currentAccounts.reduce((x,v)=>x+Number(v.today_pl||0),0);
-  const name = (currentProfile.full_name || currentUser.email?.split('@')[0] || 'Client').toUpperCase();
+  const name = (currentProfile.full_name || currentUser?.email?.split('@')[0] || 'Client').toUpperCase();
 
   app.innerHTML = `
   <section class="hero"><img class="hero-logo" src="buraq-logo.jpg" alt="Buraq Markets"><div class="hero-line"></div><div class="hero-copy"><small>Welcome back,</small><h1>${esc(name)}</h1><p>Here's what's happening with your accounts today.</p></div></section>
@@ -201,7 +202,7 @@ function renderDashboard() {
   </tbody></table></div></section>
   <section class="panel quick-panel" id="funds"><div class="panel-title">Quick Actions</div><div class="quick-grid"><a class="quick" href="deposit.html"><span class="quick-icon q-green"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 19h14"/></svg></span><div><b>Deposit Funds</b><span>Add money to wallet</span></div></a><a class="quick" href="withdraw.html"><span class="quick-icon q-red"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 21V9"/><path d="M7 14l5-5 5 5"/><path d="M5 5h14"/></svg></span><div><b>Withdraw Funds</b><span>Withdraw to bank account</span></div></a><a class="quick" href="transfer.html"><span class="quick-icon q-blue"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 16l-4-4 4-4"/><path d="M3 12h11"/><path d="M17 8l4 4-4 4"/><path d="M21 12H10"/></svg></span><div><b>Transfer Funds</b><span>Internal transfer</span></div></a><a class="quick" href="#" onclick="return false"><span class="quick-icon q-purple"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><rect x="4" y="17" width="16" height="4" rx="1"/></svg></span><div><b>Download MT5</b><span>Windows / Android / iOS</span></div></a><a class="quick" href="contact.html"><span class="quick-icon q-gold"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg></span><div><b>Contact Support</b><span>We're here to help</span></div></a></div></section>
   <section class="lower"><div class="panel" id="transactions"><div class="panel-title" style="margin-bottom:12px">Recent Transactions</div>${currentTx.length?`<div class="table-wrap"><table class="tx-table"><tr><th>Date</th><th>Type</th><th>Reference</th><th>Amount</th><th>Status</th></tr>${currentTx.map(v=>{const st=String(v.status||'').toLowerCase();const cls=st==='approved'||st==='completed'?'green':(st==='cancelled'||st==='rejected'?'red':'pending');return `<tr><td>${new Date(v.transaction_date).toLocaleDateString()}</td><td>${esc(v.type)}</td><td>${esc(v.reference)}</td><td class="${Number(v.amount)>=0?'green-text':'red-text'}">${Number(v.amount)>=0?'+':''}${money(v.amount)}</td><td><span class="statusbadge ${cls}">${esc(v.status)}</span></td></tr>`}).join('')}</table></div>`:'<div class="empty">No transactions yet.</div>'}</div>
-  <div class="panel"><div class="panel-title" style="margin-bottom:12px">Account Summary</div><div class="row"><span>Account Holder</span><b>${esc((currentProfile.full_name||'—').toUpperCase())}</b></div><div class="row"><span>Client ID</span><b>${esc(currentProfile.client_id||'—')}</b></div><div class="row"><span>Email</span><b>${esc(currentUser.email)}</b></div><div class="row"><span>KYC Status</span><b class="${(currentProfile.kyc_status||'Pending')==='Verified'?'green-text':'gold-text'}">${esc(currentProfile.kyc_status||'Pending')}</b></div></div></section>`;
+  <div class="panel"><div class="panel-title" style="margin-bottom:12px">Account Summary</div><div class="row"><span>Account Holder</span><b>${esc((currentProfile.full_name||'—').toUpperCase())}</b></div><div class="row"><span>Client ID</span><b>${esc(currentProfile.client_id||'—')}</b></div><div class="row"><span>Email</span><b>${esc(currentUser?.email || '—')}</b></div><div class="row"><span>KYC Status</span><b class="${(currentProfile.kyc_status||'Pending')==='Verified'?'green-text':'gold-text'}">${esc(currentProfile.kyc_status||'Pending')}</b></div></div></section>`;
 }
 
 function renderProfileSettings() {
@@ -223,7 +224,7 @@ function renderProfileSettings() {
       </div>
       <div class="form-group">
         <label>Email Address (View Only)</label>
-        <input type="text" class="form-input" value="${esc(currentUser.email || '')}" disabled />
+        <input type="text" class="form-input" value="${esc(currentUser?.email || '')}" disabled />
       </div>
       <div class="form-group">
         <label>Client ID (View Only)</label>
