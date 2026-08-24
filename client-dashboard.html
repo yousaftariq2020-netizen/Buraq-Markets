@@ -381,9 +381,13 @@ document.getElementById('dropdownLogout')?.addEventListener('click', handleLogou
 // BTC/USD              -> CoinGecko (free, no key, includes real 24h change)
 // EUR/USD, GBP/USD      -> Frankfurter.app (ECB rates, free, no key)
 // XAU/USD, XAG/USD       -> Gold-API.com (free, no key, live spot price)
-// US30, US100, OIL(WTI)  -> TwelveData (requires the API key set below).
-//                           Free-tier TwelveData accounts are rate-limited,
-//                           so this group refreshes every 60s instead of 30s.
+// US30, US100, OIL(WTI)  -> Yahoo Finance, fetched through a free public
+//                           CORS proxy (allorigins.win). NOTE: TwelveData
+//                           was tried here, but its free/demo plan does NOT
+//                           include indices or commodities (confirmed 404:
+//                           "available starting the Grow or Venture plan").
+//                           If you upgrade TwelveData later, swap this block
+//                           back to the /quote endpoint for more reliability.
 // Ticker refreshes every 30 seconds. Any single feed failing never
 // breaks the others — each fetch is wrapped in its own try/catch.
 
@@ -484,32 +488,35 @@ async function updateSilver() {
 // US30, US100 and Oil — via TwelveData (needs an API key; free plan is
 // rate-limited, so this group refreshes on its own slower 60s interval
 // below instead of every 30s like the other feeds).
-const TWELVEDATA_API_KEY = 'cfdf25e332cd4e35ac585d3d6739a79a';
-
-async function getTwelveDataQuote(symbol) {
-  const res = await fetch(`https://api.twelvedata.com/quote?symbol=${encodeURIComponent(symbol)}&apikey=${TWELVEDATA_API_KEY}`);
+// US30, US100 and Oil — via Yahoo Finance through a free public CORS proxy,
+// since TwelveData's free plan doesn't include indices/commodities.
+async function getYahooQuote(symbol) {
+  const target = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=2d`;
+  const proxied = `https://api.allorigins.win/raw?url=${encodeURIComponent(target)}`;
+  const res = await fetch(proxied);
   const data = await res.json();
-  if (data.status === 'error' || data.code) {
-    throw new Error(data.message || 'TwelveData error');
-  }
-  return { price: parseFloat(data.close), change: parseFloat(data.percent_change) };
+  const meta = data.chart.result[0].meta;
+  const price = meta.regularMarketPrice;
+  const prevClose = meta.chartPreviousClose ?? meta.previousClose;
+  const change = prevClose ? ((price - prevClose) / prevClose) * 100 : null;
+  return { price, change };
 }
 
 async function updateIndicesAndOil() {
   try {
-    const dow = await getTwelveDataQuote('DJI'); // US30 (Dow Jones)
+    const dow = await getYahooQuote('^DJI'); // US30
     setTickerValue('US30', dow.price.toLocaleString('en-US', { maximumFractionDigits: 0 }), dow.change);
   } catch (e) {
     console.error('US30 fetch failed:', e);
   }
   try {
-    const ndx = await getTwelveDataQuote('NDX'); // US100 (Nasdaq 100)
+    const ndx = await getYahooQuote('^NDX'); // US100
     setTickerValue('US100', ndx.price.toLocaleString('en-US', { maximumFractionDigits: 0 }), ndx.change);
   } catch (e) {
     console.error('US100 fetch failed:', e);
   }
   try {
-    const oil = await getTwelveDataQuote('WTI/USD'); // Crude Oil WTI Spot
+    const oil = await getYahooQuote('CL=F'); // WTI Crude Oil
     setTickerValue('OIL', oil.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), oil.change);
   } catch (e) {
     console.error('OIL fetch failed:', e);
@@ -527,7 +534,7 @@ updateTicker();
 setInterval(updateTicker, 30000);
 
 updateIndicesAndOil();
-setInterval(updateIndicesAndOil, 60000);
+setInterval(updateIndicesAndOil, 30000);
 // ===================== END LIVE MARKET TICKER =====================
 
 let equityChart;
