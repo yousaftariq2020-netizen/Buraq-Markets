@@ -149,6 +149,7 @@
         <span class="chev">▾</span>
       </div>
       <div class="profile-menu" id="profileMenu">
+        <a class="profile-menu-item" href="client-profile.html"><span class="ico">👤</span>Profile</a>
         <div class="profile-menu-item" id="dropdownLogout"><span class="ico" style="color:#ff5360">↪</span>Logout</div>
       </div>
     </div>
@@ -186,10 +187,10 @@
   <section class="download-bar">
     <div class="download-title">💻 Trading Terminals</div>
     <div class="download-links">
-      <a href="#" class="dl-btn"><span>⬇ MT4 Desktop</span></a>
-      <a href="#" class="dl-btn"><span>⬇ MT5 Desktop</span></a>
-      <a href="#" class="dl-btn"><span>📱 WebTrader</span></a>
-      <a href="#" class="dl-btn"><span>📲 cTrader App</span></a>
+      <a href="https://download.mql5.com/cdn/web/metaquotes.ltd/mt4/mt4setup.exe" class="dl-btn" download><span>⬇ MT4 Desktop</span></a>
+      <a href="https://download.mql5.com/cdn/web/metaquotes.ltd/mt5/mt5setup.exe" class="dl-btn" download><span>⬇ MT5 Desktop</span></a>
+      <a href="https://trade.mql5.com/trade" class="dl-btn" target="_blank" rel="noopener"><span>📱 WebTrader</span></a>
+      <a href="https://www.metatrader5.com/en/mobile-trading" class="dl-btn" target="_blank" rel="noopener"><span>📲 Mobile App</span></a>
     </div>
   </section>
 
@@ -414,6 +415,9 @@ async function syncDashboard() {
     document.getElementById('topName').textContent = fullName;
     document.getElementById('heroName').textContent = fullName;
     document.getElementById('topAvatar').textContent = fullName.charAt(0);
+    if (profile.avatar_url) {
+      document.getElementById('topAvatar').innerHTML = `<img src="${profile.avatar_url}" alt="" style="width:100%;height:100%;object-fit:cover;">`;
+    }
     document.getElementById('heroWalletId').textContent = walletId;
     document.getElementById('kycName').textContent = fullName;
     document.getElementById('kycClientId').textContent = walletId;
