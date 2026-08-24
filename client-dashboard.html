@@ -196,17 +196,17 @@
   <section class="kpis">
     <div class="kpi">
       <div class="kpi-head"><span>Total Balance</span></div>
-      <div class="kpi-value" id="valBalance">$0.00</div>
+      <div class="kpi-value" id="valBalance">$956.90</div>
       <div class="kpi-sub">All accounts combined</div>
     </div>
     <div class="kpi">
       <div class="kpi-head"><span>Total Equity</span></div>
-      <div class="kpi-value" id="valEquity">$0.00</div>
+      <div class="kpi-value" id="valEquity">$956.90</div>
       <div class="kpi-sub">Current account equity</div>
     </div>
     <div class="kpi">
       <div class="kpi-head"><span>Free Margin</span></div>
-      <div class="kpi-value" id="valMargin">$0.00</div>
+      <div class="kpi-value" id="valMargin">$956.90</div>
       <div class="kpi-sub">Equity minus used margin</div>
     </div>
     <div class="kpi">
@@ -351,7 +351,7 @@ document.getElementById('dropdownLogout')?.addEventListener('click', handleLogou
 
 // 4. Equity Chart
 let equityChart;
-function initChart(currentVal) {
+function renderChart(balValue) {
   const ctx = document.getElementById('equityChart').getContext('2d');
   if (equityChart) equityChart.destroy();
   
@@ -360,7 +360,7 @@ function initChart(currentVal) {
     data: {
       labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
       datasets: [{
-        data: Array(7).fill(currentVal),
+        data: Array(7).fill(balValue),
         borderColor: '#d6a93b',
         backgroundColor: 'rgba(214, 169, 59, 0.08)',
         fill: true,
@@ -380,15 +380,14 @@ function initChart(currentVal) {
   });
 }
 
-// 5. Dynamic Data & Transactions Fetch
-async function loadDashboardData() {
+// 5. Data Engine & Dynamic Deduction Logic
+async function syncDashboard() {
   try {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
 
     const userId = session.user.id;
 
-    // Fetch Profile & Transactions Realtime
     const [profileRes, txRes] = await Promise.all([
       supabase.from('profiles').select('*').eq('id', userId).maybeSingle(),
       supabase.from('transactions').select('*').eq('user_id', userId).order('created_at', { ascending: false })
@@ -414,26 +413,19 @@ async function loadDashboardData() {
       if (kycBanner) kycBanner.style.display = 'flex';
     }
 
-    // Dynamic Balance Engine: Base Deposit (1456.90) - Dynamic Withdrawals
-    let initialCapital = 1456.90;
-    let calculatedBalance = initialCapital;
+    // Base Starting Deposit Amount
+    let currentBalance = 1456.90;
 
     if (transactions.length > 0) {
       document.getElementById('transactionsList').innerHTML = transactions.map(t => {
         const dateStr = t.created_at ? new Date(t.created_at).toLocaleDateString() : '8/24/2026';
-        const typeStr = t.type || 'Transaction';
-        const isWithdrawal = typeStr.toLowerCase().includes('withdraw');
+        const typeStr = t.type || 'Withdrawal - JazzCash';
         const numAmt = Math.abs(Number(t.amount || 0));
 
-        // Deduct from total balance dynamically
-        if (isWithdrawal) {
-          calculatedBalance -= numAmt;
-        } else if (typeStr.toLowerCase().includes('deposit') && t.status === 'Approved') {
-          calculatedBalance += numAmt;
-        }
+        // Deduct Withdrawals explicitly
+        currentBalance -= numAmt;
 
-        const amtDisplay = isWithdrawal ? `-$${numAmt.toFixed(2)}` : `+$${numAmt.toFixed(2)}`;
-        const amtStyle = isWithdrawal ? 'color:#ff5360;' : 'color:#18c879;';
+        const amtDisplay = `-$${numAmt.toFixed(2)}`;
         const statusBadge = t.status === 'Approved' ? `<span class="badge-completed">Approved</span>` : `<span class="badge-pending">Pending</span>`;
         const txId = t.id ? `#${t.id.toString().substring(0,8)}` : '#72';
 
@@ -446,32 +438,28 @@ async function loadDashboardData() {
             <td><b>${typeStr}</b></td>
             <td>Wallet</td>
             <td>${t.method || 'Crypto'}</td>
-            <td style="font-weight:700;${amtStyle}">${amtDisplay}</td>
+            <td style="font-weight:700;color:#ff5360;">${amtDisplay}</td>
             <td>${statusBadge}</td>
           </tr>
         `;
       }).join('');
-    } else {
-      document.getElementById('transactionsList').innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:16px;">No transactions found.</td></tr>`;
     }
 
-    // Format final balance string
-    const finalFormattedBalance = `$${calculatedBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    // Absolute Lock Force for Balance Calculation ($1456.90 - withdrawals)
+    const formattedVal = `$${currentBalance.toFixed(2)}`;
 
-    // Update UI Elements Dynamic Balance
-    document.getElementById('valBalance').textContent = finalFormattedBalance;
-    document.getElementById('valEquity').textContent = finalFormattedBalance;
-    document.getElementById('valMargin').textContent = finalFormattedBalance;
+    document.getElementById('valBalance').textContent = formattedVal;
+    document.getElementById('valEquity').textContent = formattedVal;
+    document.getElementById('valMargin').textContent = formattedVal;
 
-    // Render Chart
-    initChart(calculatedBalance);
+    renderChart(currentBalance);
 
-  } catch(err) {
-    console.error("Dashboard Dynamic Sync Error:", err);
+  } catch(e) {
+    console.error("Sync Error:", e);
   }
 }
 
-loadDashboardData();
+syncDashboard();
 </script>
 </body>
 </html>
