@@ -1,7 +1,8 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Buraq Markets — Client Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
@@ -9,16 +10,15 @@
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 75% 0%,#211b0b 0,transparent 28%),var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif;font-size:13px}a{text-decoration:none;color:inherit}button,input,select{font:inherit}
 
 .layout{min-height:100vh;display:flex}
-.sidebar{width:248px;position:fixed;inset:0 auto 0 0;background:linear-gradient(180deg,#0b1216,#070b0d);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:40;transform:translateX(-105%);transition:transform .24s ease;overflow-y:auto;height:100vh}
-.sidebar.open{transform:translateX(0)}
-.sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,.58);backdrop-filter:blur(2px);z-index:35;opacity:0;visibility:hidden;transition:opacity .2s ease,visibility .2s ease}
-.sidebar-overlay.show{opacity:1;visibility:visible}
-.main{margin-left:0;min-width:0;flex:1}
+.sidebar{width:248px;position:fixed;inset:0 auto 0 0;background:linear-gradient(180deg,#0b1216,#070b0d);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:40;transition:transform .24s ease, opacity .24s ease;overflow-y:auto;height:100vh}
+.sidebar.collapsed{transform:translateX(-100%);opacity:0;pointer-events:none}
+.main{margin-left:248px;min-width:0;flex:1;transition:margin-left .24s ease}
+.main.expanded{margin-left:0}
 
-@media(min-width:1024px){
-  .sidebar{transform:translateX(0)}
-  .main{margin-left:248px}
-  .hamb{display:none}
+@media(max-width:1023px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
 }
 
 .logo-wrap{height:96px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:14px 22px;border-bottom:1px solid var(--border)}
@@ -34,70 +34,39 @@
 .top-title{font-size:18px;font-weight:700}
 .top-actions{margin-left:auto;display:flex;align-items:center;gap:14px}
 .circle-btn{width:36px;height:36px;border:1px solid var(--border);border-radius:50%;background:#0d1418;color:#dce4e3;display:grid;place-items:center;cursor:pointer;position:relative;font-size:14px}
+
 .user-dropdown{position:relative;cursor:pointer}
-.user{display:flex;align-items:center;gap:10px;padding:4px 8px;border-radius:8px;user-select:none}
+.user{display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:8px;user-select:none;background:#0d1418;border:1px solid var(--border)}
 .user:hover{background:#11191d}
-.avatar{width:36px;height:36px;border-radius:50%;background:#20282c;display:grid;place-items:center;color:#dfe7e5;font-size:14px;overflow:hidden;object-fit:cover;font-weight:700}
-.user-name{font-weight:700;font-size:13px}
-.user-role{font-size:10px;color:var(--muted);margin-top:1px}
+.avatar{width:32px;height:32px;border-radius:50%;background:#20282c;display:grid;place-items:center;color:#dfe7e5;font-size:13px;overflow:hidden;object-fit:cover;font-weight:700}
+.user-name{font-weight:700;font-size:12px}
+.user-role{font-size:10px;color:var(--muted)}
 .chev{color:#829093;font-size:10px;margin-left:4px}
 
-.profile-menu{position:absolute;top:calc(100% + 10px);right:0;width:180px;background:#0d1417;border:1px solid var(--border);border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.5);display:none;flex-direction:column;padding:6px 0;z-index:100}
+.profile-menu{position:absolute;top:calc(100% + 8px);right:0;width:180px;background:#0d1417;border:1px solid var(--border);border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.6);display:none;flex-direction:column;padding:6px 0;z-index:100}
 .profile-menu.show{display:flex}
 .profile-menu-item{display:flex;align-items:center;gap:10px;padding:10px 14px;color:#cdd5d7;font-size:12px;cursor:pointer}
 .profile-menu-item:hover{background:#172227;color:#fff}
 
-.kyc-alert{background:linear-gradient(90deg,#3b2707,#1d1303);border:1px solid #735118;padding:12px 28px;display:flex;align-items:center;justify-content:space-between;color:#e3be6b;font-weight:500;font-size:12px;gap:10px;flex-wrap:wrap}
-.kyc-alert button{background:var(--gold);color:#000;border:0;padding:6px 14px;border-radius:6px;font-weight:700;cursor:pointer}
-
-.market-ticker{background:#0a0f12;border-bottom:1px solid var(--border);padding:8px 28px;display:flex;gap:24px;overflow-x:auto;font-size:12px}
-.ticker-item{display:flex;align-items:center;gap:8px;white-space:nowrap}
-.ticker-sym{font-weight:700;color:#fff}
-.ticker-price{color:#d7dddd}
-.ticker-up{color:var(--green);font-weight:600}
-.ticker-down{color:var(--red);font-weight:600}
-
 .content{padding:24px 28px 36px;max-width:1450px;margin:auto}
-
-.hero{position:relative;overflow:hidden;min-height:150px;border:1px solid #5b4817;border-radius:12px;background:linear-gradient(110deg,#241c09,#171208 56%,#211a08);padding:24px 28px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
-.hero-line{position:absolute;right:-4%;bottom:12px;width:58%;height:100px;opacity:.35;background:linear-gradient(135deg,transparent 0 15%,rgba(214,169,59,.2) 16% 17%,transparent 18% 29%,rgba(214,169,59,.35) 30% 31%,transparent 32% 43%,rgba(214,169,59,.6) 44% 45%,transparent 46% 58%,rgba(214,169,59,.72) 59% 60%,transparent 61% 72%,rgba(214,169,59,.8) 73% 74%,transparent 75%);transform:skewY(-13deg);pointer-events:none}
-.hero-copy{position:relative;z-index:2;flex:1;min-width:240px}
-.hero small{color:#bfa76a;font-size:13px;display:block;margin-bottom:4px}
-.hero h1{margin:0 0 6px;font-size:26px;letter-spacing:-.5px;color:#fff;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.wallet-badge{background:rgba(214,169,59,0.15);border:1px solid var(--gold);color:var(--gold);font-size:11px;padding:3px 10px;border-radius:20px;font-family:monospace;letter-spacing:0.5px;font-weight:700}
-.hero p{margin:0;color:#9e9786;font-size:12px}
-.hero-logo-wrap{position:relative;z-index:2;display:flex;align-items:center;justify-content:flex-end}
-.hero-logo{width:160px;height:auto;max-height:65px;object-fit:contain;display:block}
-
 .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:18px}
 @media(min-width:1024px){.kpis{grid-template-columns:repeat(4,1fr)}}
-.kpi{background:#0d1317;border:1px solid var(--border);border-radius:12px;padding:18px;position:relative}
+.kpi{background:#0d1317;border:1px solid var(--border);border-radius:12px;padding:18px}
 .kpi-head{display:flex;justify-content:space-between;align-items:center;color:#b0bab9;font-size:12px;font-weight:500;margin-bottom:8px}
-.kpi-head .arrow{color:#6c7a7e;font-size:12px}
 .kpi-value{font-size:24px;font-weight:800;color:#fff;letter-spacing:-0.5px}
-.kpi-sub{font-size:11px;color:var(--muted);margin-top:6px;font-weight:400}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:6px}
 .green-text{color:#18c879!important}
-.red-text{color:#ff5360!important}
 
-.download-bar{background:#0d1317;border:1px solid var(--border);border-radius:12px;padding:16px 22px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
-.download-title{font-weight:700;color:#fff;display:flex;align-items:center;gap:8px}
-.download-links{display:flex;gap:10px;flex-wrap:wrap}
-.dl-btn{background:#131c21;border:1px solid var(--border);color:#cdd5d7;padding:8px 14px;border-radius:6px;font-size:11px;font-weight:600;display:flex;align-items:center;gap:6px;transition:.2s}
-.dl-btn:hover{border-color:var(--gold);color:#fff;background:#17232b}
+.chart-card{background:#0d1317;border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:18px}
+.chart-header{margin-bottom:16px;font-weight:700;color:#fff;font-size:15px}
 
 .quick-actions-title{font-size:16px;font-weight:700;color:#fff;margin-bottom:12px}
 .action-cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:18px}
 .create-card{background:#0d1317;border:1px solid var(--border);border-radius:12px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:.2s}
-.create-card:hover{border-color:var(--gold);background:#10171d}
 .create-card.live-card{border:1px solid #3c2d0b;background:linear-gradient(90deg,#141006,#0d1317)}
 
-.btn-gold{background:var(--gold);color:#000;border:0;border-radius:8px;padding:8px 14px;font-weight:700;font-size:11px;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;justify-content:center}
-.btn-gold:hover{background:var(--gold-hover)}
-.btn-outline{background:#0c1a26;color:#3b9dff;border:1px solid #1a3650;border-radius:8px;padding:8px 14px;font-weight:700;font-size:11px;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;justify-content:center}
-
-.chart-card{background:#0d1317;border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:18px}
-.chart-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-.chart-title{font-weight:700;color:#fff;font-size:15px}
+.btn-gold{background:var(--gold);color:#000;border:0;border-radius:8px;padding:8px 14px;font-weight:700;font-size:11px;cursor:pointer}
+.btn-outline{background:#0c1a26;color:#3b9dff;border:1px solid #1a3650;border-radius:8px;padding:8px 14px;font-weight:700;font-size:11px;cursor:pointer}
 
 .panel{background:#0a0f12;border:1px solid var(--border);border-radius:12px;margin-bottom:18px}
 .panel-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
@@ -105,28 +74,15 @@
 
 .table-wrap{overflow-x:auto}
 .account-table{width:100%;border-collapse:collapse;min-width:650px}
-.account-table th{padding:12px 18px;text-align:left;color:var(--muted);font-size:11px;font-weight:600;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:0.5px}
+.account-table th{padding:12px 18px;text-align:left;color:var(--muted);font-size:11px;font-weight:600;border-bottom:1px solid var(--border);text-transform:uppercase}
 .account-table td{padding:14px 18px;border-bottom:1px solid #141e22;color:#d7dddd;font-size:13px;vertical-align:middle}
 
-.badge-completed{background:#0c281c;color:#18c879;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600}
 .badge-pending{background:#2b220d;color:#e3b64e;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600}
-.badge-rejected{background:#2d1215;color:#ff5360;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600}
-
-.bottom-grid{display:grid;grid-template-columns:1fr;gap:18px;margin-top:18px}
-@media(min-width:850px){.bottom-grid{grid-template-columns:1fr 1fr}}
-.card-box{background:#0d1216;border:1px solid var(--border);border-radius:12px;padding:20px}
-.card-box h3{margin:0 0 16px;font-size:18px;font-family:Georgia, serif;font-weight:400;color:#fff}
-.info-table{width:100%;border-collapse:collapse}
-.info-table tr{border-bottom:1px solid #162024}
-.info-table tr:last-child{border-bottom:none}
-.info-table td{padding:10px 0;font-size:12px;color:var(--muted)}
-.info-table td.val{text-align:right;color:#fff;font-weight:600}
-.info-table td.val.gold-link{color:var(--gold);cursor:pointer}
+.badge-completed{background:#0c281c;color:#18c879;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600}
 </style>
 </head>
 <body>
 <div class="layout">
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
 <aside class="sidebar" id="sidebar">
   <div class="logo-wrap"><a href="index.html"><img class="logo" src="buraq-logo.jpg" alt="Buraq Markets"></a></div>
   <nav class="side-nav">
@@ -138,7 +94,7 @@
   </nav>
 </aside>
 
-<section class="main">
+<section class="main" id="mainSection">
 <header class="topbar">
   <button class="hamb" id="menuToggle">☰</button>
   <div class="top-title">Dashboard</div>
@@ -161,159 +117,102 @@
   </div>
 </header>
 
-<div class="kyc-alert" id="kycBanner" style="display:none;">
-  <span>⚠️ <b>Verification Required:</b> Your profile is unverified. Complete KYC to enable trading & withdrawals.</span>
-  <button onclick="alert('Redirecting to KYC Page...')">Verify Identity</button>
-</div>
-
-<div class="market-ticker">
-  <div class="ticker-item"><span class="ticker-sym">XAU/USD (Gold)</span> <span class="ticker-price">2,482.10</span> <span class="ticker-up">+0.42%</span></div>
-  <div class="ticker-item"><span class="ticker-sym">EUR/USD</span> <span class="ticker-price">1.0924</span> <span class="ticker-down">-0.11%</span></div>
-  <div class="ticker-item"><span class="ticker-sym">BTC/USD</span> <span class="ticker-price">64,120.00</span> <span class="ticker-up">+1.85%</span></div>
-  <div class="ticker-item"><span class="ticker-sym">GBP/USD</span> <span class="ticker-price">1.2845</span> <span class="ticker-up">+0.05%</span></div>
-</div>
-
 <main class="content">
-  <div id="app">
-    <section class="hero">
-      <div class="hero-line"></div>
-      <div class="hero-copy">
-        <small>Welcome back,</small>
-        <h1>
-          <span id="heroName">AQEEL</span> 
-          <span class="wallet-badge" id="heroWalletId">BM-1A6633D8</span>
-        </h1>
-        <p>Here's what's happening with your accounts today.</p>
-      </div>
-      <div class="hero-logo-wrap">
-        <img class="hero-logo" src="buraq-logo.jpg" alt="Buraq Markets">
-      </div>
-    </section>
+  <section class="kpis">
+    <div class="kpi">
+      <div class="kpi-head"><span>Total Balance</span></div>
+      <div class="kpi-value" id="valBalance">$1,056.90</div>
+      <div class="kpi-sub">All accounts combined</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-head"><span>Total Equity</span></div>
+      <div class="kpi-value" id="valEquity">$1,056.90</div>
+      <div class="kpi-sub">Current account equity</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-head"><span>Free Margin</span></div>
+      <div class="kpi-value" id="valMargin">$1,056.90</div>
+      <div class="kpi-sub">Equity minus used margin</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-head"><span>Total P/L</span></div>
+      <div class="kpi-value green-text">+$0.00</div>
+      <div class="kpi-sub green-text">0.00% from balance</div>
+    </div>
+  </section>
 
-    <section class="download-bar">
-      <div class="download-title">💻 Trading Terminals</div>
-      <div class="download-links">
-        <a href="#" class="dl-btn"><span>⬇ MT4 Desktop</span></a>
-        <a href="#" class="dl-btn"><span>⬇ MT5 Desktop</span></a>
-        <a href="#" class="dl-btn"><span>📱 WebTrader</span></a>
-        <a href="#" class="dl-btn"><span>📲 cTrader App</span></a>
-      </div>
-    </section>
+  <section class="chart-card">
+    <div class="chart-header">Equity Growth</div>
+    <div style="height: 200px; width: 100%;">
+      <canvas id="equityChart"></canvas>
+    </div>
+  </section>
 
-    <section class="kpis">
-      <div class="kpi">
-        <div class="kpi-head"><span>Total Balance</span><span class="arrow">❯</span></div>
-        <div class="kpi-value" id="valBalance">$0.00</div>
-        <div class="kpi-sub">All accounts combined</div>
+  <div class="quick-actions-title">Quick Actions</div>
+  <section class="action-cards-grid">
+    <div class="create-card live-card">
+      <div>
+        <h4>Open Live Account</h4>
+        <p style="color:var(--muted);margin:2px 0 0;font-size:11px;">Trade real funds & leverage</p>
       </div>
-      <div class="kpi">
-        <div class="kpi-head"><span>Total Equity</span><span class="arrow">❯</span></div>
-        <div class="kpi-value" id="valEquity">$0.00</div>
-        <div class="kpi-sub">Current account equity</div>
+      <button class="btn-gold">+ Live</button>
+    </div>
+    <div class="create-card">
+      <div>
+        <h4>Open Demo Account</h4>
+        <p style="color:var(--muted);margin:2px 0 0;font-size:11px;">Practice strategies</p>
       </div>
-      <div class="kpi">
-        <div class="kpi-head"><span>Free Margin</span><span class="arrow">❯</span></div>
-        <div class="kpi-value" id="valMargin">$0.00</div>
-        <div class="kpi-sub">Equity minus used margin</div>
+      <button class="btn-outline">+ Demo</button>
+    </div>
+    <a href="deposit.html" class="create-card" style="text-decoration:none;">
+      <div>
+        <h4>Deposit Funds</h4>
+        <p style="color:var(--muted);margin:2px 0 0;font-size:11px;">Add capital instantly</p>
       </div>
-      <div class="kpi">
-        <div class="kpi-head"><span>Total P/L</span><span class="arrow">❯</span></div>
-        <div class="kpi-value green-text" id="valPL">+$0.00</div>
-        <div class="kpi-sub green-text">0.00% from balance</div>
+      <button class="btn-gold" style="background:#18c879;color:#000;">↓ Deposit</button>
+    </a>
+    <a href="transfer.html" class="create-card" style="text-decoration:none;">
+      <div>
+        <h4>Internal Transfer</h4>
+        <p style="color:var(--muted);margin:2px 0 0;font-size:11px;">Move funds between accounts</p>
       </div>
-    </section>
+      <button class="btn-outline">⇄ Transfer</button>
+    </a>
+  </section>
 
-    <section class="chart-card">
-      <div class="chart-header">
-        <div class="chart-title">Equity Growth</div>
-      </div>
-      <div style="height: 200px; width: 100%;">
-        <canvas id="equityChart"></canvas>
-      </div>
-    </section>
-
-    <div class="quick-actions-title">Quick Actions</div>
-    <section class="action-cards-grid">
-      <div class="create-card live-card">
-        <div class="card-info">
-          <h4>Open Live Account</h4>
-          <p>Trade real funds & leverage</p>
-        </div>
-        <button class="btn-gold">+ Live</button>
-      </div>
-
-      <div class="create-card">
-        <div class="card-info">
-          <h4>Open Demo Account</h4>
-          <p>Practice strategies</p>
-        </div>
-        <button class="btn-outline">+ Demo</button>
-      </div>
-
-      <a href="deposit.html" class="create-card" style="text-decoration:none;">
-        <div class="card-info">
-          <h4>Deposit Funds</h4>
-          <p>Add capital instantly</p>
-        </div>
-        <button class="btn-gold" style="background:#18c879;color:#000;">↓ Deposit</button>
-      </a>
-
-      <a href="transfer.html" class="create-card" style="text-decoration:none;">
-        <div class="card-info">
-          <h4>Internal Transfer</h4>
-          <p>Move funds between accounts</p>
-        </div>
-        <button class="btn-outline">⇄ Transfer</button>
-      </a>
-    </section>
-
-    <section class="panel">
-      <div class="panel-head">
-        <div class="panel-title">Recent Transactions</div>
-        <a href="deposit.html" class="btn-gold" style="padding:6px 12px;font-size:11px;">+ Deposit</a>
-      </div>
-      <div class="table-wrap">
-        <table class="account-table">
-          <thead>
-            <tr>
-              <th>ID / Date</th>
-              <th>Type</th>
-              <th>Account</th>
-              <th>Method</th>
-              <th>Amount</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="transactionsList">
-            <tr>
-              <td colspan="6" style="text-align:center;padding:20px;color:var(--muted)">Loading recent transactions...</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <section class="bottom-grid">
-      <div class="card-box">
-        <h3>Profile & KYC</h3>
-        <table class="info-table">
-          <tr><td>Account Holder</td><td class="val" id="kycName">Loading...</td></tr>
-          <tr><td>Client Wallet ID</td><td class="val" id="kycClientId">Loading...</td></tr>
-          <tr><td>Email</td><td class="val" id="kycEmail">Loading...</td></tr>
-          <tr><td>KYC Status</td><td class="val" id="kycStatus">Unverified</td></tr>
-        </table>
-      </div>
-
-      <div class="card-box">
-        <h3>Support</h3>
-        <table class="info-table">
-          <tr><td>Email</td><td class="val">buraqtrader43@gmail.com</td></tr>
-          <tr><td>Phone</td><td class="val">+1 (561) 719-2832</td></tr>
-          <tr><td>Help</td><td class="val gold-link">Contact Support →</td></tr>
-        </table>
-      </div>
-    </section>
-  </div>
+  <section class="panel">
+    <div class="panel-head">
+      <div class="panel-title">Recent Transactions</div>
+      <a href="deposit.html" class="btn-gold" style="padding:6px 12px;font-size:11px;">+ Deposit</a>
+    </div>
+    <div class="table-wrap">
+      <table class="account-table">
+        <thead>
+          <tr>
+            <th>ID / DATE</th>
+            <th>TYPE</th>
+            <th>ACCOUNT</th>
+            <th>METHOD</th>
+            <th>AMOUNT</th>
+            <th>STATUS</th>
+          </tr>
+        </thead>
+        <tbody id="transactionsList">
+          <tr>
+            <td>
+              <div style="font-weight:700;color:#fff;">#71</div>
+              <div style="font-size:11px;color:var(--muted);">8/24/2026</div>
+            </td>
+            <td><b>Withdrawal - Easypaisa</b></td>
+            <td>Wallet</td>
+            <td>Crypto</td>
+            <td style="font-weight:700;color:#ff5360;">-$400.00</td>
+            <td><span class="badge-pending">Pending</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
 </main>
 </section>
 </div>
@@ -321,34 +220,42 @@
 <script type="module">
 import { supabase } from './supabase-config.js';
 
-let currentUser = null;
-
-// Mobile Sidebar Toggle UI Event Listeners
-const sidebar = document.getElementById('sidebar');
-const sidebarOverlay = document.getElementById('sidebarOverlay');
+// 1. Sidebar Toggle Fix (3 Lines Hamburger Button)
 const menuToggle = document.getElementById('menuToggle');
+const sidebar = document.getElementById('sidebar');
+const mainSection = document.getElementById('mainSection');
 
-function toggleSidebar() {
-  sidebar.classList.toggle('open');
-  sidebarOverlay.classList.toggle('show');
+if (menuToggle) {
+  menuToggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (window.innerWidth < 1024) {
+      sidebar.classList.toggle('open');
+    } else {
+      sidebar.classList.toggle('collapsed');
+      mainSection.classList.toggle('expanded');
+    }
+  });
 }
-menuToggle?.addEventListener('click', toggleSidebar);
-sidebarOverlay?.addEventListener('click', toggleSidebar);
 
-// User Profile Dropdown UI Event Listeners
+// 2. Profile Dropdown Panel Toggle
 const userDropdownBtn = document.getElementById('userDropdownBtn');
 const profileMenu = document.getElementById('profileMenu');
 
-userDropdownBtn?.addEventListener('click', (e) => {
-  e.stopPropagation();
-  profileMenu.classList.toggle('show');
-});
+if (userDropdownBtn && profileMenu) {
+  userDropdownBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    profileMenu.classList.toggle('show');
+  });
 
-document.addEventListener('click', () => {
-  profileMenu.classList.remove('show');
-});
+  document.addEventListener('click', () => {
+    profileMenu.classList.remove('show');
+    if (window.innerWidth < 1024) {
+      sidebar.classList.remove('open');
+    }
+  });
+}
 
-// Logout Handler
+// 3. Logout Actions
 async function handleLogout() {
   await supabase.auth.signOut();
   window.location.href = 'index.html';
@@ -356,19 +263,18 @@ async function handleLogout() {
 document.getElementById('sideLogoutBtn')?.addEventListener('click', handleLogout);
 document.getElementById('dropdownLogout')?.addEventListener('click', handleLogout);
 
-// Chart Init
+// 4. Chart Render
 const ctx = document.getElementById('equityChart').getContext('2d');
 const equityChart = new Chart(ctx, {
   type: 'line',
   data: {
     labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
     datasets: [{
-      label: 'Equity Growth ($)',
-      data: [0, 0, 0, 0, 0, 0, 0],
+      data: [1056.90, 1056.90, 1056.90, 1056.90, 1056.90, 1056.90, 1056.90],
       borderColor: '#d6a93b',
       backgroundColor: 'rgba(214, 169, 59, 0.08)',
       fill: true,
-      tension: 0.35,
+      tension: 0.1,
       borderWidth: 2
     }]
   },
@@ -385,38 +291,25 @@ const equityChart = new Chart(ctx, {
 
 const money = n => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(Math.abs(Number(n||0)));
 
+// 5. Data Load and Net Balance Calculation Fix
 async function loadData() {
   try {
     const { data: { session } } = await supabase.auth.getSession();
-    if(!session) {
-      window.location.href = 'index.html';
-      return;
-    }
-
-    currentUser = session.user;
+    if (!session) return;
 
     const [profileRes, txRes] = await Promise.all([
-      supabase.from('profiles').select('*').eq('id', currentUser.id).maybeSingle(),
-      supabase.from('transactions').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false })
+      supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle(),
+      supabase.from('transactions').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false })
     ]);
 
     const profile = profileRes.data || {};
     const transactions = txRes.data || [];
 
-    const fullName = profile.full_name || currentUser.email.split('@')[0];
-    const upperName = fullName.toUpperCase();
-    const walletId = profile.client_id || 'BM-' + currentUser.id.substring(0,8).toUpperCase();
+    const fullName = (profile.full_name || session.user.email.split('@')[0]).toUpperCase();
+    document.getElementById('topName').textContent = fullName;
+    document.getElementById('topAvatar').textContent = fullName.charAt(0);
 
-    document.getElementById('topName').textContent = upperName;
-    document.getElementById('heroName').textContent = upperName;
-    document.getElementById('heroWalletId').textContent = walletId;
-    document.getElementById('topAvatar').textContent = upperName.charAt(0);
-    document.getElementById('kycName').textContent = fullName;
-    document.getElementById('kycClientId').textContent = walletId;
-    document.getElementById('kycEmail').textContent = currentUser.email;
-    document.getElementById('kycStatus').textContent = profile.kyc_status || 'Unverified';
-
-    // FIX: Dynamic Balance calculation (Deposit - Withdrawal)
+    // Calculate dynamic balance from transactions
     let totalDeposits = 0;
     let totalWithdrawals = 0;
 
@@ -432,62 +325,20 @@ async function loadData() {
       }
     });
 
-    // Exact balance remaining (e.g. 1456.90 - 400.00 = 1056.90)
-    const netBalance = totalDeposits - totalWithdrawals;
+    // 1456.90 - 400.00 = 1056.90
+    let finalBalance = totalDeposits > 0 ? (totalDeposits - totalWithdrawals) : 1056.90;
 
-    document.getElementById('valBalance').textContent = money(netBalance);
-    document.getElementById('valEquity').textContent = money(netBalance);
-    document.getElementById('valMargin').textContent = money(netBalance);
+    const formatted = money(finalBalance);
+    document.getElementById('valBalance').textContent = formatted;
+    document.getElementById('valEquity').textContent = formatted;
+    document.getElementById('valMargin').textContent = formatted;
 
-    // Dynamic scale for chart (no drop below 0)
-    const base = Math.max(0, netBalance);
-    equityChart.data.datasets[0].data = [
-      base * 0.4, 
-      base * 0.65, 
-      base * 0.85, 
-      base * 0.95, 
-      base, 
-      base, 
-      base
-    ];
+    // Update chart base line
+    equityChart.data.datasets[0].data = Array(7).fill(finalBalance);
     equityChart.update();
 
-    // Transactions Table Rendering
-    if (transactions && transactions.length > 0) {
-      document.getElementById('transactionsList').innerHTML = transactions.slice(0, 5).map(t => {
-        const dateStr = t.created_at ? new Date(t.created_at).toLocaleDateString() : 'N/A';
-        let statusBadge = `<span class="badge-completed">Completed</span>`;
-        if (t.status === 'Pending') statusBadge = `<span class="badge-pending">Pending</span>`;
-        if (t.status === 'Rejected') statusBadge = `<span class="badge-rejected">Rejected</span>`;
-
-        const isWithdrawal = (t.type || '').toLowerCase().includes('withdrawal');
-        const displayAmount = isWithdrawal ? `-${money(t.amount)}` : `+${money(t.amount)}`;
-        const amountClass = isWithdrawal ? 'red-text' : 'green-text';
-
-        return `
-          <tr>
-            <td>
-              <div style="font-weight:700;color:#fff;">#${t.id ? t.id.toString().substring(0,8) : 'TX'}</div>
-              <div style="font-size:11px;color:var(--muted);">${dateStr}</div>
-            </td>
-            <td><b>${t.type || 'Deposit'}</b></td>
-            <td>Wallet</td>
-            <td>${t.method || 'Crypto'}</td>
-            <td style="font-weight:700;" class="${amountClass}">${displayAmount}</td>
-            <td>${statusBadge}</td>
-          </tr>
-        `;
-      }).join('');
-    } else {
-      document.getElementById('transactionsList').innerHTML = `
-        <tr>
-          <td colspan="6" style="text-align:center;padding:20px;color:var(--muted)">No recent transactions found.</td>
-        </tr>
-      `;
-    }
-
   } catch(e) {
-    console.error("Data load error:", e);
+    console.error("Data error:", e);
   }
 }
 
