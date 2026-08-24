@@ -394,6 +394,19 @@ document.getElementById('dropdownLogout')?.addEventListener('click', handleLogou
 let lastGoldPrice = null;
 let lastSilverPrice = null;
 
+// TwelveData is used for Forex (EUR/USD, GBP/USD) — confirmed working on
+// the free plan, unlike indices/commodities which need a paid plan.
+const TWELVEDATA_API_KEY = 'cfdf25e332cd4e35ac585d3d6739a79a';
+
+async function getTwelveDataQuote(symbol) {
+  const res = await fetch(`https://api.twelvedata.com/quote?symbol=${encodeURIComponent(symbol)}&apikey=${TWELVEDATA_API_KEY}`);
+  const data = await res.json();
+  if (data.status === 'error' || data.code) {
+    throw new Error(data.message || 'TwelveData error');
+  }
+  return { price: parseFloat(data.close), change: parseFloat(data.percent_change) };
+}
+
 function setTickerValue(key, priceText, changePct) {
   // Two copies of each item exist in the DOM (for the seamless scroll
   // loop), so update every match, not just the first.
@@ -422,35 +435,16 @@ async function updateBTC() {
   }
 }
 
-async function getFrankfurterQuote(fromCurrency) {
-  const todayRes = await fetch(`https://api.frankfurter.app/latest?from=${fromCurrency}&to=USD`);
-  const todayData = await todayRes.json();
-  const priceToday = todayData.rates.USD;
-
-  let change = null;
-  try {
-    const yestDate = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-    const yestRes = await fetch(`https://api.frankfurter.app/${yestDate}?from=${fromCurrency}&to=USD`);
-    const yestData = await yestRes.json();
-    const priceYesterday = yestData.rates.USD;
-    change = ((priceToday - priceYesterday) / priceYesterday) * 100;
-  } catch (e) {
-    // historical rate unavailable (e.g. weekend) — skip the % change, still show price
-  }
-
-  return { price: priceToday, change };
-}
-
 async function updateForex() {
   try {
-    const eur = await getFrankfurterQuote('EUR');
+    const eur = await getTwelveDataQuote('EUR/USD');
     setTickerValue('EURUSD', eur.price.toFixed(4), eur.change);
   } catch (e) {
     console.error('EUR/USD price fetch failed:', e);
   }
 
   try {
-    const gbp = await getFrankfurterQuote('GBP');
+    const gbp = await getTwelveDataQuote('GBP/USD');
     setTickerValue('GBPUSD', gbp.price.toFixed(4), gbp.change);
   } catch (e) {
     console.error('GBP/USD price fetch failed:', e);
@@ -490,11 +484,29 @@ async function updateSilver() {
 // below instead of every 30s like the other feeds).
 // US30, US100 and Oil — via Yahoo Finance through a free public CORS proxy,
 // since TwelveData's free plan doesn't include indices/commodities.
+// Two proxies are tried in order — if the first one is down/slow (public
+// proxies do go down sometimes), it falls back to the second automatically.
+async function fetchViaProxy(targetUrl) {
+  const proxies = [
+    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`
+  ];
+  let lastErr;
+  for (const proxyUrl of proxies) {
+    try {
+      const res = await fetch(proxyUrl);
+      if (!res.ok) throw new Error(`Proxy responded with status ${res.status}`);
+      return await res.json();
+    } catch (e) {
+      lastErr = e;
+    }
+  }
+  throw lastErr;
+}
+
 async function getYahooQuote(symbol) {
   const target = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=2d`;
-  const proxied = `https://api.allorigins.win/raw?url=${encodeURIComponent(target)}`;
-  const res = await fetch(proxied);
-  const data = await res.json();
+  const data = await fetchViaProxy(target);
   const meta = data.chart.result[0].meta;
   const price = meta.regularMarketPrice;
   const prevClose = meta.chartPreviousClose ?? meta.previousClose;
@@ -525,13 +537,17 @@ async function updateIndicesAndOil() {
 
 function updateTicker() {
   updateBTC();
-  updateForex();
   updateGold();
   updateSilver();
 }
 
 updateTicker();
 setInterval(updateTicker, 30000);
+
+// Forex (TwelveData) refreshes every 2.5 minutes to stay well within the
+// free plan's rate limit.
+updateForex();
+setInterval(updateForex, 150000);
 
 updateIndicesAndOil();
 setInterval(updateIndicesAndOil, 30000);
