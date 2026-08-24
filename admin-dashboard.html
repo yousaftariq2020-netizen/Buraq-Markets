@@ -11,7 +11,7 @@ body{margin:0;background:#080a0c;color:#e1e7ec;font-family:Inter,Arial,sans-seri
 .brand{font:bold 24px Georgia,serif;color:#f4cf72}
 .user-info{display:flex;align-items:center;gap:15px}
 .user-email{background:#13181e;padding:8px 14px;border-radius:6px;border:1px solid #232d38;font-size:12px;color:#f4cf72}
-.logout-btn{background:#e63946;color:#fff;border:none;padding:99px 16px;border-radius:6px;cursor:pointer;font-weight:bold;font-size:12px}
+.logout-btn{background:#e63946;color:#fff;border:none;padding:10px 16px;border-radius:6px;cursor:pointer;font-weight:bold;font-size:12px}
 .logout-btn:hover{background:#c72c38}
 
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin-bottom:25px}
@@ -190,7 +190,6 @@ async function loadProfilesMap() {
     allProfiles = data;
     totalClientsCount.textContent = data.length;
     
-    // Pending KYC calculation
     const pendingKycList = data.filter(p => (p.kyc_status || 'Pending').toLowerCase() === 'pending');
     pendingKycCount.textContent = pendingKycList.length;
 
@@ -322,8 +321,14 @@ async function handleTxAction(e) {
   const tx = allTransactions.find(t => String(t.id) === String(id));
   let error;
 
-  const targetStatus = isApprove ? 'Approved' : 'Declined';
-  ({ error } = await supabase.from('transactions').update({ status: targetStatus }).eq('id', id));
+  if (!isApprove && tx?.type?.toLowerCase().includes('withdrawal')) {
+    // Withdrawal Reject karne par RPC Function call hoga taaki balance refund ho jaye
+    ({ error } = await supabase.rpc('decline_withdrawal', { p_transaction_id: Number(id) }));
+  } else {
+    // Baaki normal transactions (Deposit/Approve) ke liye status update
+    const targetStatus = isApprove ? 'Approved' : 'Declined';
+    ({ error } = await supabase.from('transactions').update({ status: targetStatus }).eq('id', id));
+  }
 
   if (error) {
     alert('Update failed: ' + error.message);
