@@ -70,6 +70,7 @@
 .kpi-value{font-size:24px;font-weight:800;color:#fff;letter-spacing:-0.5px}
 .kpi-sub{font-size:11px;color:var(--muted);margin-top:6px;font-weight:400}
 .green-text{color:#18c879!important}
+.red-text{color:#ff5360!important}
 
 .download-bar{background:#0d1317;border:1px solid var(--border);border-radius:12px;padding:16px 22px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
 .download-title{font-weight:700;color:#fff;display:flex;align-items:center;gap:8px}
@@ -397,65 +398,6 @@
 </section>
 </div>
 
-<div class="modal-bg" id="accountModal">
-  <div class="modal-box">
-    <div class="modal-header">
-      <h3 id="modalTitle">Create Trading Account</h3>
-      <button class="modal-close" id="closeModal">✕</button>
-    </div>
-    <form id="createAccForm">
-      <input type="hidden" id="accTypeInput" value="Live">
-      
-      <div class="form-group">
-        <label>Trading Platform</label>
-        <select class="form-control" id="accPlatform">
-          <option value="MT4">MetaTrader 4 (MT4)</option>
-          <option value="MT5" selected>MetaTrader 5 (MT5)</option>
-          <option value="cTrader">cTrader</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Account Tier</label>
-        <select class="form-control" id="accCategory">
-          <option value="Standard" selected>Standard (Zero Commission)</option>
-          <option value="ECN">ECN Raw (0.0 Pip Spread)</option>
-          <option value="Cent">Micro / Cent Account</option>
-          <option value="Islamic">Islamic (Swap-Free)</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Account Currency</label>
-        <select class="form-control" id="accCurrency">
-          <option value="USD">USD ($)</option>
-          <option value="EUR">EUR (€)</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Select Leverage</label>
-        <select class="form-control" id="accLeverage">
-          <option value="1:100">1:100</option>
-          <option value="1:200">1:200</option>
-          <option value="1:500" selected>1:500</option>
-          <option value="1:1000">1:1000</option>
-        </select>
-      </div>
-
-      <div class="form-group" id="demoBalanceGroup" style="display:none;">
-        <label>Virtual Deposit Amount (Demo)</label>
-        <input type="number" class="form-control" id="demoDeposit" value="10000" step="1000">
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn-outline" id="cancelModal">Cancel</button>
-        <button type="submit" class="btn-gold" id="submitAccBtn">Create Account</button>
-      </div>
-    </form>
-  </div>
-</div>
-
 <script type="module">
 import { supabase } from './supabase-config.js';
 
@@ -488,127 +430,7 @@ const equityChart = new Chart(ctx, {
   }
 });
 
-const btnTable = document.getElementById('btnTableView');
-const btnGrid = document.getElementById('btnGridView');
-const tableCont = document.getElementById('tableViewContainer');
-const gridCont = document.getElementById('gridViewContainer');
-
-btnTable?.addEventListener('click', () => {
-  btnTable.classList.add('active');
-  btnGrid.classList.remove('active');
-  tableCont.style.display = 'block';
-  gridCont.style.display = 'none';
-});
-
-btnGrid?.addEventListener('click', () => {
-  btnGrid.classList.add('active');
-  btnTable.classList.remove('active');
-  tableCont.style.display = 'none';
-  gridCont.style.display = 'grid';
-});
-
-const menuToggle = document.getElementById('menuToggle');
-const sidebar = document.getElementById('sidebar');
-const sidebarOverlay = document.getElementById('sidebarOverlay');
-const userDropdownBtn = document.getElementById('userDropdownBtn');
-const profileMenu = document.getElementById('profileMenu');
-
-menuToggle?.addEventListener('click', () => {
-  sidebar.classList.toggle('open');
-  sidebarOverlay.classList.toggle('show');
-});
-
-sidebarOverlay?.addEventListener('click', () => {
-  sidebar.classList.remove('open');
-  sidebarOverlay.classList.remove('show');
-});
-
-userDropdownBtn?.addEventListener('click', (e) => {
-  e.stopPropagation();
-  profileMenu.classList.toggle('show');
-});
-
-document.addEventListener('click', () => profileMenu?.classList.remove('show'));
-
-const modal = document.getElementById('accountModal');
-const modalTitle = document.getElementById('modalTitle');
-const accTypeInput = document.getElementById('accTypeInput');
-const demoBalanceGroup = document.getElementById('demoBalanceGroup');
-
-const checkKycAndOpenModal = (type) => {
-  if (userKycStatus.toLowerCase() !== 'verified') {
-    alert("Verification Required: Your account is currently unverified. Please complete your KYC verification to create trading accounts.");
-    return;
-  }
-  
-  if(type === 'Live') {
-    modalTitle.textContent = "Open Live Trading Account";
-    accTypeInput.value = "Live";
-    demoBalanceGroup.style.display = "none";
-  } else {
-    modalTitle.textContent = "Open Demo Practice Account";
-    accTypeInput.value = "Demo";
-    demoBalanceGroup.style.display = "block";
-  }
-  modal.classList.add('active');
-};
-
-document.getElementById('btnOpenLive')?.addEventListener('click', () => checkKycAndOpenModal('Live'));
-document.getElementById('btnOpenDemo')?.addEventListener('click', () => checkKycAndOpenModal('Demo'));
-
-const closeModal = () => modal.classList.remove('active');
-document.getElementById('closeModal')?.addEventListener('click', closeModal);
-document.getElementById('cancelModal')?.addEventListener('click', closeModal);
-
-document.getElementById('createAccForm')?.addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  if (userKycStatus.toLowerCase() !== 'verified') {
-    alert("KYC Verification Required: Account creation is restricted until your identity verification is approved.");
-    closeModal();
-    return;
-  }
-
-  const btn = document.getElementById('submitAccBtn');
-  btn.disabled = true;
-  btn.textContent = "Creating...";
-
-  const type = accTypeInput.value;
-  const platform = document.getElementById('accPlatform').value;
-  const category = document.getElementById('accCategory').value;
-  const leverage = document.getElementById('accLeverage').value;
-  const currency = document.getElementById('accCurrency').value;
-  const initialBalance = type === 'Demo' ? parseFloat(document.getElementById('demoDeposit').value) : 0;
-  const accNum = (type === 'Demo' ? 'D' : 'W') + Math.floor(100000 + Math.random() * 900000);
-
-  try {
-    if (currentUser) {
-      const { error } = await supabase.from('trading_accounts').insert([{
-        user_id: currentUser.id,
-        account_number: accNum,
-        type: type,
-        category: category,
-        platform: platform,
-        leverage: leverage,
-        currency: currency,
-        balance: initialBalance,
-        equity: initialBalance,
-        profit_loss: 0,
-        status: 'Active'
-      }]);
-      if(error) throw error;
-    }
-    closeModal();
-    await loadData();
-  } catch (err) {
-    alert("Error creating account: " + err.message);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = "Create Account";
-  }
-});
-
-const money = n => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(Number(n||0));
+const money = n => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(Math.abs(Number(n||0)));
 
 async function loadData() {
   try {
@@ -619,17 +441,12 @@ async function loadData() {
       const [profileRes, accountsRes, txRes] = await Promise.all([
         supabase.from('profiles').select('*').eq('id', currentUser.id).maybeSingle(),
         supabase.from('trading_accounts').select('*').eq('user_id', currentUser.id),
-        supabase.from('transactions').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }).limit(5)
+        supabase.from('transactions').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false })
       ]);
 
       const profile = profileRes.data || {};
       let allAccounts = accountsRes.data || [];
       const transactions = txRes.data || [];
-
-      // Wallet rows (platform = 'Internal' or is_wallet = true) hold deposited
-      // funds that haven't been assigned to an MT4/MT5/cTrader trading account yet.
-      const walletAccounts = allAccounts.filter(a => a.is_wallet || a.platform === 'Internal');
-      const tradingAccounts = allAccounts.filter(a => a.platform && a.platform !== 'Internal' && !a.is_wallet);
 
       const fullName = profile.full_name || currentUser.email.split('@')[0];
       const upperName = fullName.toUpperCase();
@@ -647,90 +464,45 @@ async function loadData() {
       document.getElementById('kycClientId').textContent = walletId;
       document.getElementById('kycEmail').textContent = currentUser.email;
       kycElem.textContent = userKycStatus;
-      
-      if (userKycStatus.toLowerCase() === 'verified') {
-        kycElem.className = 'val green';
-        kycBanner.style.display = 'none';
-      } else {
-        kycElem.className = 'val red';
-        kycBanner.style.display = 'flex';
-      }
 
-      const accountsSection = document.getElementById('accountsSection');
+      // Real-time Balance Calculation Fix (Subtract Pending/Approved Withdrawals)
+      let calculatedBalance = 0;
+      let calculatedEquity = 0;
 
-      // Totals now include BOTH the wallet balance and any real trading accounts,
-      // so a deposit shows up immediately on the dashboard even before the user
-      // opens a Live/Demo trading account.
-      const walletBalance = walletAccounts.reduce((x,v)=>x+Number(v.balance||0),0);
-      const walletEquity = walletAccounts.reduce((x,v)=>x+Number(v.equity||v.balance||0),0);
+      // Summing all transactions dynamically
+      transactions.forEach(t => {
+        const type = (t.type || '').toLowerCase();
+        const status = (t.status || '').toLowerCase();
+        const amt = Math.abs(Number(t.amount || 0));
 
-      const tradingBalance = tradingAccounts.reduce((x,v)=>x+Number(v.balance||0),0);
-      const tradingEquity = tradingAccounts.reduce((x,v)=>x+Number(v.equity||0),0);
-      const tradingFreeMargin = tradingAccounts.reduce((x,v)=>x+Number(v.free_margin||v.balance||0),0);
-      const totalPL = tradingAccounts.reduce((x,v)=>x+Number(v.profit_loss||0),0);
+        if (type.includes('deposit') && status === 'approved') {
+          calculatedBalance += amt;
+          calculatedEquity += amt;
+        } else if (type.includes('withdrawal') && status !== 'rejected') {
+          // Subtract both 'Pending' & 'Approved' withdrawals directly from total display
+          calculatedBalance -= amt;
+          calculatedEquity -= amt;
+        }
+      });
 
-      const totalBalance = walletBalance + tradingBalance;
-      const totalEquity = walletEquity + tradingEquity;
-      const totalFreeMargin = walletBalance + tradingFreeMargin;
+      document.getElementById('valBalance').textContent = money(calculatedBalance);
+      document.getElementById('valEquity').textContent = money(calculatedEquity);
+      document.getElementById('valMargin').textContent = money(calculatedEquity);
 
-      document.getElementById('valBalance').textContent = money(totalBalance);
-      document.getElementById('valEquity').textContent = money(totalEquity);
-      document.getElementById('valMargin').textContent = money(totalFreeMargin);
-      document.getElementById('valPL').textContent = (totalPL >= 0 ? '+' : '') + money(totalPL);
-
-      equityChart.data.datasets[0].data = [0, totalBalance * 0.2, totalBalance * 0.5, totalBalance * 0.8, totalEquity, totalEquity, totalEquity];
+      equityChart.data.datasets[0].data = [0, calculatedBalance * 0.2, calculatedBalance * 0.5, calculatedBalance * 0.8, calculatedEquity, calculatedEquity, calculatedEquity];
       equityChart.update();
 
-      // "Active Accounts" table stays focused on real trading accounts only —
-      // the wallet is reflected in the KPI cards above, not as a row here.
-      if (tradingAccounts.length > 0) {
-        accountsSection.style.display = 'block';
-
-        document.getElementById('accountsList').innerHTML = tradingAccounts.map(a => `
-          <tr>
-            <td>
-              <span class="acc-tag ${a.type && a.type.toLowerCase() === 'demo' ? 'demo' : ''}">${a.type || 'Live'}</span>
-              <div class="acc-num">${a.account_number}</div>
-              <div class="acc-sub">${a.currency || 'USD'} / ${a.leverage || '1:500'}</div>
-            </td>
-            <td><span class="badge-blue">${a.category || 'Standard'}</span></td>
-            <td><span class="badge-platform">${a.platform || 'MT5'}</span></td>
-            <td>${money(a.balance)}</td>
-            <td>${money(a.equity)}</td>
-            <td class="green-text">+${money(a.profit_loss || 0)}</td>
-            <td><span class="badge-active">${a.status || 'Active'}</span></td>
-            <td><button class="btn-manage">Manage ▾</button></td>
-          </tr>
-        `).join('');
-
-        document.getElementById('gridViewContainer').innerHTML = tradingAccounts.map(a => `
-          <div class="acc-card">
-            <div class="acc-card-head">
-              <div>
-                <span class="acc-tag ${a.type && a.type.toLowerCase() === 'demo' ? 'demo' : ''}">${a.type || 'Live'}</span>
-                <div class="acc-num">${a.account_number}</div>
-              </div>
-              <span class="badge-platform">${a.platform || 'MT5'}</span>
-            </div>
-            <div style="margin-bottom:12px;font-size:12px;color:var(--muted)">
-              <div>Tier: <b>${a.category || 'Standard'}</b></div>
-              <div>Leverage: <b>${a.leverage || '1:500'}</b></div>
-            </div>
-            <div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:12px;">${money(a.balance)}</div>
-            <button class="btn-gold" style="width:100%;">Deposit</button>
-          </div>
-        `).join('');
-
-      } else {
-        accountsSection.style.display = 'none';
-      }
-
+      // Transactions Table Display Logic
       if (transactions && transactions.length > 0) {
-        document.getElementById('transactionsList').innerHTML = transactions.map(t => {
+        document.getElementById('transactionsList').innerHTML = transactions.slice(0, 5).map(t => {
           const dateStr = t.created_at ? new Date(t.created_at).toLocaleDateString() : 'N/A';
           let statusBadge = `<span class="badge-completed">Completed</span>`;
           if (t.status === 'Pending') statusBadge = `<span class="badge-pending">Pending</span>`;
           if (t.status === 'Rejected') statusBadge = `<span class="badge-rejected">Rejected</span>`;
+
+          const isWithdrawal = (t.type || '').toLowerCase().includes('withdrawal');
+          const displayAmount = isWithdrawal ? `-${money(t.amount)}` : `+${money(t.amount)}`;
+          const amountClass = isWithdrawal ? 'red-text' : 'green-text';
 
           return `
             <tr>
@@ -739,11 +511,9 @@ async function loadData() {
                 <div style="font-size:11px;color:var(--muted);">${dateStr}</div>
               </td>
               <td><b>${t.type || 'Deposit'}</b></td>
-              <td>${t.account_number || 'Wallet'}</td>
+              <td>Wallet</td>
               <td>${t.method || 'Crypto'}</td>
-              <td style="font-weight:700;color:${t.type === 'Withdrawal' ? 'var(--red)' : 'var(--green)'}">
-                ${t.type === 'Withdrawal' ? '-' : '+'}${money(t.amount)}
-              </td>
+              <td style="font-weight:700;" class="${amountClass}">${displayAmount}</td>
               <td>${statusBadge}</td>
             </tr>
           `;
@@ -761,15 +531,6 @@ async function loadData() {
     console.error("Data load error:", e);
   }
 }
-
-const handleLogout = async (e) => {
-  e.preventDefault();
-  await supabase.auth.signOut();
-  window.location.href = 'client-login.html';
-};
-
-document.getElementById('sideLogout')?.addEventListener('click', handleLogout);
-document.getElementById('dropdownLogout')?.addEventListener('click', handleLogout);
 
 loadData();
 </script>
