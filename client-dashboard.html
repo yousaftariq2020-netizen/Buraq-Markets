@@ -310,6 +310,13 @@ const menuToggle = document.getElementById('menuToggle');
 const sidebar = document.getElementById('sidebar');
 const mainSection = document.getElementById('mainSection');
 
+// Restore sidebar state from last time (desktop only) so it doesn't
+// reset to "open" on every refresh.
+if (window.innerWidth >= 1024 && localStorage.getItem('sidebarCollapsed') === 'true') {
+  sidebar.classList.add('collapsed');
+  mainSection.classList.add('expanded');
+}
+
 if (menuToggle) {
   menuToggle.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -318,6 +325,7 @@ if (menuToggle) {
     } else {
       sidebar.classList.toggle('collapsed');
       mainSection.classList.toggle('expanded');
+      localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
     }
   });
 }
