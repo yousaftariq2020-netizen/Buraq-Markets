@@ -353,7 +353,7 @@ if (userDropdownBtn && profileMenu) {
 
 async function handleLogout() {
   await supabase.auth.signOut();
-  window.location.href = 'index.html';
+  window.location.href = 'client-login.html';
 }
 document.getElementById('sideLogoutBtn')?.addEventListener('click', handleLogout);
 document.getElementById('dropdownLogout')?.addEventListener('click', handleLogout);
@@ -391,7 +391,12 @@ function renderChart(balValue) {
 async function syncDashboard() {
   try {
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    if (!session) {
+      // Not logged in (or session lost) — send back to login instead of
+      // silently showing an empty/placeholder dashboard.
+      window.location.href = 'client-login.html';
+      return;
+    }
 
     const userId = session.user.id;
 
@@ -441,9 +446,12 @@ async function syncDashboard() {
         const dateStr = t.created_at ? new Date(t.created_at).toLocaleDateString() : '-';
         const typeStr = t.type || 'Transaction';
         const statusStr = t.status || 'Pending';
-        const rawAmt = Number(t.amount || 0);
-        const isDeposit = rawAmt > 0;
-        const numAmt = Math.abs(rawAmt);
+        const numAmt = Math.abs(Number(t.amount || 0));
+
+        // Sign/color is based on the transaction TYPE, not the raw amount's
+        // sign — amounts are stored as positive numbers regardless of
+        // deposit or withdrawal (see supabase-schema.sql).
+        const isDeposit = typeStr.toLowerCase().includes('deposit');
 
         const amtDisplay = isDeposit ? `+$${numAmt.toFixed(2)}` : `-$${numAmt.toFixed(2)}`;
         const amtStyle = isDeposit ? 'color:#18c879;' : 'color:#ff5360;';
