@@ -153,7 +153,7 @@ async function init(){
 
   if(error){
     setupError.style.display = 'block';
-    setupError.innerHTML = '<b>Withdrawal setup incomplete.</b><br>Please make sure <code>supabase-deposit-policy.sql</code> has been run in the Supabase SQL Editor, then refresh this page.';
+    setupError.innerHTML = '<b>Withdrawal setup incomplete.</b><br>Please make sure SQL script has been run in Supabase.';
     accountSel.innerHTML = '<option value="">Unable to load accounts</option>';
     return;
   }
@@ -199,27 +199,29 @@ form.addEventListener('submit', async (e) => {
   const reference = genReference();
   const fullType = `Withdrawal - ${methodLabel} (to: ${payout})${note ? ' — ' + note : ''}`;
 
-  const { error } = await supabase.from('transactions').insert({
-    user_id: currentUser.id,
-    trading_account_id: Number(accountId),
-    type: fullType,
-    amount: -Math.abs(amount),
-    reference: reference,
-    status: 'Pending'
+  // Supabase SQL Function ko call kar rahe hain jo Balance Cut karega aur History me (-) amount save karega
+  const { error } = await supabase.rpc('process_withdrawal_request', {
+    p_user_id: currentUser.id,
+    p_account_id: Number(accountId),
+    p_amount: amount,
+    p_type: fullType,
+    p_reference: reference
   });
 
   if(error){
     status.textContent = error.message;
     status.style.color = '#ff8b8b';
   } else {
-    status.textContent = 'Withdrawal request submitted. It is now Pending review.';
+    status.textContent = 'Withdrawal request submitted! Funds deducted and request is Pending.';
     status.style.color = '#8ee0a5';
+
     const emailResult = await sendNotification({
       to_email: currentUser.email,
       subject: 'Withdrawal Request Received — Buraq Markets',
       heading: 'Your withdrawal request has been received',
-      message: `We received your withdrawal request of $${amount.toFixed(2)} via ${methodLabel} (Reference: ${reference}). It is now Pending review and you will be notified once it is processed.`
+      message: `We received your withdrawal request of $${amount.toFixed(2)} via ${methodLabel} (Reference: ${reference}). It is now Pending review.`
     });
+    
     if (!emailResult.ok) console.warn('Withdrawal saved, but client notification could not be sent.');
     form.reset();
     setTimeout(() => { location.href = 'client-dashboard.html#transactions'; }, 1800);
