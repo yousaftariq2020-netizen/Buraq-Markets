@@ -48,7 +48,34 @@
 .profile-menu-item{display:flex;align-items:center;gap:10px;padding:10px 14px;color:#cdd5d7;font-size:12px;cursor:pointer}
 .profile-menu-item:hover{background:#172227;color:#fff}
 
+.kyc-alert{background:linear-gradient(90deg,#3b2707,#1d1303);border:1px solid #735118;padding:12px 28px;display:flex;align-items:center;justify-content:space-between;color:#e3be6b;font-weight:500;font-size:12px;gap:10px;flex-wrap:wrap}
+.kyc-alert button{background:var(--gold);color:#000;border:0;padding:6px 14px;border-radius:6px;font-weight:700;cursor:pointer}
+
+.market-ticker{background:#0a0f12;border-bottom:1px solid var(--border);padding:8px 28px;display:flex;gap:24px;overflow-x:auto;font-size:12px}
+.ticker-item{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.ticker-sym{font-weight:700;color:#fff}
+.ticker-price{color:#d7dddd}
+.ticker-up{color:var(--green);font-weight:600}
+.ticker-down{color:var(--red);font-weight:600}
+
 .content{padding:24px 28px 36px;max-width:1450px;margin:auto}
+
+.hero{position:relative;overflow:hidden;min-height:150px;border:1px solid #5b4817;border-radius:12px;background:linear-gradient(110deg,#241c09,#171208 56%,#211a08);padding:24px 28px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.hero-line{position:absolute;right:-4%;bottom:12px;width:58%;height:100px;opacity:.35;background:linear-gradient(135deg,transparent 0 15%,rgba(214,169,59,.2) 16% 17%,transparent 18% 29%,rgba(214,169,59,.35) 30% 31%,transparent 32% 43%,rgba(214,169,59,.6) 44% 45%,transparent 46% 58%,rgba(214,169,59,.72) 59% 60%,transparent 61% 72%,rgba(214,169,59,.8) 73% 74%,transparent 75%);transform:skewY(-13deg);pointer-events:none}
+.hero-copy{position:relative;z-index:2;flex:1;min-width:240px}
+.hero small{color:#bfa76a;font-size:13px;display:block;margin-bottom:4px}
+.hero h1{margin:0 0 6px;font-size:26px;letter-spacing:-.5px;color:#fff;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.wallet-badge{background:rgba(214,169,59,0.15);border:1px solid var(--gold);color:var(--gold);font-size:11px;padding:3px 10px;border-radius:20px;font-family:monospace;letter-spacing:0.5px;font-weight:700}
+.hero p{margin:0;color:#9e9786;font-size:12px}
+.hero-logo-wrap{position:relative;z-index:2;display:flex;align-items:center;justify-content:flex-end}
+.hero-logo{width:160px;height:auto;max-height:65px;object-fit:contain;display:block}
+
+.download-bar{background:#0d1317;border:1px solid var(--border);border-radius:12px;padding:16px 22px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+.download-title{font-weight:700;color:#fff;display:flex;align-items:center;gap:8px}
+.download-links{display:flex;gap:10px;flex-wrap:wrap}
+.dl-btn{background:#131c21;border:1px solid var(--border);color:#cdd5d7;padding:8px 14px;border-radius:6px;font-size:11px;font-weight:600;display:flex;align-items:center;gap:6px;transition:.2s}
+.dl-btn:hover{border-color:var(--gold);color:#fff;background:#17232b}
+
 .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:18px}
 @media(min-width:1024px){.kpis{grid-template-columns:repeat(4,1fr)}}
 .kpi{background:#0d1317;border:1px solid var(--border);border-radius:12px;padding:18px}
@@ -56,6 +83,7 @@
 .kpi-value{font-size:24px;font-weight:800;color:#fff;letter-spacing:-0.5px}
 .kpi-sub{font-size:11px;color:var(--muted);margin-top:6px}
 .green-text{color:#18c879!important}
+.red-text{color:#ff5360!important}
 
 .chart-card{background:#0d1317;border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:18px}
 .chart-header{margin-bottom:16px;font-weight:700;color:#fff;font-size:15px}
@@ -78,6 +106,18 @@
 .account-table td{padding:14px 18px;border-bottom:1px solid #141e22;color:#d7dddd;font-size:13px;vertical-align:middle}
 
 .badge-pending{background:#2b220d;color:#e3b64e;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600}
+.badge-completed{background:#0c281c;color:#18c879;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600}
+
+.bottom-grid{display:grid;grid-template-columns:1fr;gap:18px;margin-top:18px}
+@media(min-width:850px){.bottom-grid{grid-template-columns:1fr 1fr}}
+.card-box{background:#0d1216;border:1px solid var(--border);border-radius:12px;padding:20px}
+.card-box h3{margin:0 0 16px;font-size:18px;font-family:Georgia, serif;font-weight:400;color:#fff}
+.info-table{width:100%;border-collapse:collapse}
+.info-table tr{border-bottom:1px solid #162024}
+.info-table tr:last-child{border-bottom:none}
+.info-table td{padding:10px 0;font-size:12px;color:var(--muted)}
+.info-table td.val{text-align:right;color:#fff;font-weight:600}
+.info-table td.val.gold-link{color:var(--gold);cursor:pointer}
 </style>
 </head>
 <body>
@@ -116,7 +156,44 @@
   </div>
 </header>
 
+<div class="kyc-alert" id="kycBanner" style="display:none;">
+  <span>⚠️ <b>Verification Required:</b> Your profile is unverified. Complete KYC to enable trading & withdrawals.</span>
+  <button onclick="alert('Redirecting to KYC Page...')">Verify Identity</button>
+</div>
+
+<div class="market-ticker">
+  <div class="ticker-item"><span class="ticker-sym">XAU/USD (Gold)</span> <span class="ticker-price">2,482.10</span> <span class="ticker-up">+0.42%</span></div>
+  <div class="ticker-item"><span class="ticker-sym">EUR/USD</span> <span class="ticker-price">1.0924</span> <span class="ticker-down">-0.11%</span></div>
+  <div class="ticker-item"><span class="ticker-sym">BTC/USD</span> <span class="ticker-price">64,120.00</span> <span class="ticker-up">+1.85%</span></div>
+  <div class="ticker-item"><span class="ticker-sym">GBP/USD</span> <span class="ticker-price">1.2845</span> <span class="ticker-up">+0.05%</span></div>
+</div>
+
 <main class="content">
+  <section class="hero">
+    <div class="hero-line"></div>
+    <div class="hero-copy">
+      <small>Welcome back,</small>
+      <h1>
+        <span id="heroName">AQEEL</span> 
+        <span class="wallet-badge" id="heroWalletId">BM-1A6633D8</span>
+      </h1>
+      <p>Here's what's happening with your accounts today.</p>
+    </div>
+    <div class="hero-logo-wrap">
+      <img class="hero-logo" src="buraq-logo.jpg" alt="Buraq Markets">
+    </div>
+  </section>
+
+  <section class="download-bar">
+    <div class="download-title">💻 Trading Terminals</div>
+    <div class="download-links">
+      <a href="#" class="dl-btn"><span>⬇ MT4 Desktop</span></a>
+      <a href="#" class="dl-btn"><span>⬇ MT5 Desktop</span></a>
+      <a href="#" class="dl-btn"><span>📱 WebTrader</span></a>
+      <a href="#" class="dl-btn"><span>📲 cTrader App</span></a>
+    </div>
+  </section>
+
   <section class="kpis">
     <div class="kpi">
       <div class="kpi-head"><span>Total Balance</span></div>
@@ -212,6 +289,27 @@
       </table>
     </div>
   </section>
+
+  <section class="bottom-grid">
+    <div class="card-box">
+      <h3>Profile & KYC</h3>
+      <table class="info-table">
+        <tr><td>Account Holder</td><td class="val" id="kycName">AQEEL</td></tr>
+        <tr><td>Client Wallet ID</td><td class="val" id="kycClientId">BM-1A6633D8</td></tr>
+        <tr><td>Email</td><td class="val" id="kycEmail">Loading...</td></tr>
+        <tr><td>KYC Status</td><td class="val" id="kycStatus">Unverified</td></tr>
+      </table>
+    </div>
+
+    <div class="card-box">
+      <h3>Support</h3>
+      <table class="info-table">
+        <tr><td>Email</td><td class="val">buraqtrader43@gmail.com</td></tr>
+        <tr><td>Phone</td><td class="val">+1 (561) 719-2832</td></tr>
+        <tr><td>Help</td><td class="val gold-link">Contact Support →</td></tr>
+      </table>
+    </div>
+  </section>
 </main>
 </section>
 </div>
@@ -236,7 +334,7 @@ if (menuToggle) {
   });
 }
 
-// 2. Profile Dropdown Panel
+// 2. Profile Dropdown Toggle
 const userDropdownBtn = document.getElementById('userDropdownBtn');
 const profileMenu = document.getElementById('profileMenu');
 
@@ -262,7 +360,7 @@ async function handleLogout() {
 document.getElementById('sideLogoutBtn')?.addEventListener('click', handleLogout);
 document.getElementById('dropdownLogout')?.addEventListener('click', handleLogout);
 
-// 4. Chart Init
+// 4. Equity Chart Init
 const ctx = document.getElementById('equityChart').getContext('2d');
 const equityChart = new Chart(ctx, {
   type: 'line',
@@ -288,37 +386,81 @@ const equityChart = new Chart(ctx, {
   }
 });
 
-// 5. LOCKED BALANCE ENFORCER (Prevents reverting to 290.00)
-const TARGET_BALANCE = "$1,056.90";
+// 5. Hard Balance Locking Guard (Overwrites any background script resetting balance)
+const CORRECT_BALANCE = "$1,056.90";
 
-function lockBalance() {
+function enforceCorrectBalance() {
   const elBal = document.getElementById('valBalance');
   const elEq = document.getElementById('valEquity');
   const elMar = document.getElementById('valMargin');
 
-  if (elBal) elBal.textContent = TARGET_BALANCE;
-  if (elEq) elEq.textContent = TARGET_BALANCE;
-  if (elMar) elMar.textContent = TARGET_BALANCE;
+  if (elBal && elBal.textContent !== CORRECT_BALANCE) elBal.textContent = CORRECT_BALANCE;
+  if (elEq && elEq.textContent !== CORRECT_BALANCE) elEq.textContent = CORRECT_BALANCE;
+  if (elMar && elMar.textContent !== CORRECT_BALANCE) elMar.textContent = CORRECT_BALANCE;
 }
 
-// Continuously Guard Balance Display
-lockBalance();
-setInterval(lockBalance, 300);
+setInterval(enforceCorrectBalance, 200);
 
-// Load Auth Profile Details
+// 6. Data Loader for Profiles & Transactions
 async function loadData() {
   try {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
 
-    const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle();
+    const [profileRes, txRes] = await Promise.all([
+      supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle(),
+      supabase.from('transactions').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false })
+    ]);
+
+    const profile = profileRes.data || {};
+    const transactions = txRes.data || [];
+
     const fullName = ((profile && profile.full_name) || session.user.email.split('@')[0]).toUpperCase();
-    
+    const walletId = profile.client_id || ('BM-' + session.user.id.substring(0,8).toUpperCase());
+
     document.getElementById('topName').textContent = fullName;
+    document.getElementById('heroName').textContent = fullName;
     document.getElementById('topAvatar').textContent = fullName.charAt(0);
-    lockBalance();
+    document.getElementById('heroWalletId').textContent = walletId;
+    document.getElementById('kycName').textContent = fullName;
+    document.getElementById('kycClientId').textContent = walletId;
+    document.getElementById('kycEmail').textContent = session.user.email;
+    document.getElementById('kycStatus').textContent = profile.kyc_status || 'Unverified';
+
+    if (profile.kyc_status === 'unverified' || !profile.kyc_status) {
+      const kycBanner = document.getElementById('kycBanner');
+      if (kycBanner) kycBanner.style.display = 'flex';
+    }
+
+    // Render Transactions without hiding the table
+    if (transactions.length > 0) {
+      document.getElementById('transactionsList').innerHTML = transactions.map(t => {
+        const dateStr = t.created_at ? new Date(t.created_at).toLocaleDateString() : '8/24/2026';
+        const isWithdrawal = (t.type || '').toLowerCase().includes('withdrawal');
+        const amtVal = Math.abs(Number(t.amount || 0)).toFixed(2);
+        const displayAmt = isWithdrawal ? `-$${amtVal}` : `+$${amtVal}`;
+        const amtClass = isWithdrawal ? 'color:#ff5360;' : 'color:#18c879;';
+        const statusBadge = t.status === 'Approved' ? `<span class="badge-completed">Approved</span>` : `<span class="badge-pending">Pending</span>`;
+
+        return `
+          <tr>
+            <td>
+              <div style="font-weight:700;color:#fff;">#${t.id ? t.id.toString().substring(0,8) : '71'}</div>
+              <div style="font-size:11px;color:var(--muted);">${dateStr}</div>
+            </td>
+            <td><b>${t.type || 'Withdrawal - Easypaisa'}</b></td>
+            <td>Wallet</td>
+            <td>${t.method || 'Crypto'}</td>
+            <td style="font-weight:700;${amtClass}">${displayAmt}</td>
+            <td>${statusBadge}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    enforceCorrectBalance();
   } catch(e) {
-    console.error("Profile load error:", e);
+    console.error("Dashboard Load Error:", e);
   }
 }
 
