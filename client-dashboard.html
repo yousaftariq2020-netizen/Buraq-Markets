@@ -310,11 +310,15 @@ const menuToggle = document.getElementById('menuToggle');
 const sidebar = document.getElementById('sidebar');
 const mainSection = document.getElementById('mainSection');
 
-// Restore sidebar state from last time (desktop only) so it doesn't
-// reset to "open" on every refresh.
-if (window.innerWidth >= 1024 && localStorage.getItem('sidebarCollapsed') === 'true') {
-  sidebar.classList.add('collapsed');
-  mainSection.classList.add('expanded');
+// Sidebar starts COLLAPSED by default on desktop. It only opens when the
+// user clicks the hamburger, and stays exactly as they left it after that
+// (so it never auto-opens by itself on refresh).
+if (window.innerWidth >= 1024) {
+  const collapsedPref = localStorage.getItem('sidebarCollapsed');
+  if (collapsedPref === null || collapsedPref === 'true') {
+    sidebar.classList.add('collapsed');
+    mainSection.classList.add('expanded');
+  }
 }
 
 if (menuToggle) {
