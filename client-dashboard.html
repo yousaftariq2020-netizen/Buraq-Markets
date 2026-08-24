@@ -408,36 +408,40 @@ async function syncDashboard() {
       if (kycBanner) kycBanner.style.display = 'flex';
     }
 
-    // Exact balance adjustment logic -> Enforces $1,100.00
-    let totalCalculatedBalance = 1000.00;
+    // ---- Asal balance: trading_accounts table se seedha (koi hardcoding nahi) ----
+    const { data: tradingAccountsData } = await supabase
+      .from('trading_accounts')
+      .select('*')
+      .eq('user_id', userId);
+
+    const tradingAccounts = tradingAccountsData || [];
+
+    const totalBalance = tradingAccounts.reduce((sum, a) => sum + Number(a.balance || 0), 0);
+    const totalEquity  = tradingAccounts.reduce((sum, a) => sum + Number(a.equity  || 0), 0);
+    const totalMargin  = tradingAccounts.reduce((sum, a) => sum + Number(a.free_margin || 0), 0);
 
     if (transactions.length > 0) {
       document.getElementById('transactionsList').innerHTML = transactions.map(t => {
-        const dateStr = t.created_at ? new Date(t.created_at).toLocaleDateString() : '8/24/2026';
+        const dateStr = t.created_at ? new Date(t.created_at).toLocaleDateString() : '-';
         const typeStr = t.type || 'Transaction';
-        const statusStr = (t.status || 'Pending').toLowerCase();
-        const isDeposit = typeStr.toLowerCase().includes('deposit');
-        const isWithdrawal = typeStr.toLowerCase().includes('withdraw');
-        const numAmt = Math.abs(Number(t.amount || 0));
+        const statusStr = t.status || 'Pending';
+        const rawAmt = Number(t.amount || 0);
+        const isDeposit = rawAmt > 0;
+        const numAmt = Math.abs(rawAmt);
 
-        if (statusStr === 'approved') {
-          if (isDeposit) totalCalculatedBalance += numAmt;
-          if (isWithdrawal) totalCalculatedBalance -= numAmt;
+        const amtDisplay = isDeposit ? `+$${numAmt.toFixed(2)}` : `-$${numAmt.toFixed(2)}`;
+        const amtStyle = isDeposit ? 'color:#18c879;' : 'color:#ff5360;';
+
+        let statusBadge;
+        if (statusStr === 'Approved') {
+          statusBadge = `<span class="badge-completed">Approved</span>`;
+        } else if (statusStr === 'Declined' || statusStr === 'Rejected') {
+          statusBadge = `<span class="badge-pending" style="background:#2b0d0d;color:#ff5360;">Declined</span>`;
+        } else {
+          statusBadge = `<span class="badge-pending">Pending</span>`;
         }
 
-        if (totalCalculatedBalance === 1110) {
-          totalCalculatedBalance = 1100;
-        }
-
-        let amtDisplay = isDeposit ? `+$${numAmt.toFixed(2)}` : `-$${numAmt.toFixed(2)}`;
-        let amtStyle = isDeposit ? 'color:#18c879;' : 'color:#ff5360;';
-
-        const isApproved = statusStr === 'approved';
-        const statusBadge = isApproved 
-          ? `<span class="badge-completed">Approved</span>` 
-          : `<span class="badge-pending">Pending</span>`;
-          
-        const txId = t.id ? `#${t.id.toString().substring(0,8)}` : '#72';
+        const txId = t.id ? `#${t.id.toString().substring(0,8)}` : '#--';
 
         return `
           <tr>
@@ -453,15 +457,18 @@ async function syncDashboard() {
           </tr>
         `;
       }).join('');
+    } else {
+      document.getElementById('transactionsList').innerHTML =
+        `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px;">No transactions yet.</td></tr>`;
     }
 
-    const formattedVal = `$${totalCalculatedBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const fmt = v => `$${v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-    document.getElementById('valBalance').textContent = formattedVal;
-    document.getElementById('valEquity').textContent = formattedVal;
-    document.getElementById('valMargin').textContent = formattedVal;
+    document.getElementById('valBalance').textContent = fmt(totalBalance);
+    document.getElementById('valEquity').textContent  = fmt(totalEquity);
+    document.getElementById('valMargin').textContent  = fmt(totalMargin);
 
-    renderChart(totalCalculatedBalance);
+    renderChart(totalBalance);
 
   } catch(e) {
     console.error("Sync Error:", e);
