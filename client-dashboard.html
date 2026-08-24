@@ -51,7 +51,10 @@
 .kyc-alert{background:linear-gradient(90deg,#3b2707,#1d1303);border:1px solid #735118;padding:12px 28px;display:flex;align-items:center;justify-content:space-between;color:#e3be6b;font-weight:500;font-size:12px;gap:10px;flex-wrap:wrap}
 .kyc-alert button{background:var(--gold);color:#000;border:0;padding:6px 14px;border-radius:6px;font-weight:700;cursor:pointer}
 
-.market-ticker{background:#0a0f12;border-bottom:1px solid var(--border);padding:8px 28px;display:flex;gap:24px;overflow-x:auto;font-size:12px}
+.market-ticker{background:#0a0f12;border-bottom:1px solid var(--border);padding:8px 0;overflow:hidden;font-size:12px;position:relative}
+.ticker-track{display:flex;gap:24px;width:max-content;animation:ticker-scroll 40s linear infinite;padding-left:100%}
+.market-ticker:hover .ticker-track{animation-play-state:paused}
+@keyframes ticker-scroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
 .ticker-item{display:flex;align-items:center;gap:8px;white-space:nowrap}
 .ticker-sym{font-weight:700;color:#fff}
 .ticker-price{color:#d7dddd;transition:color .3s}
@@ -162,10 +165,17 @@
 </div>
 
 <div class="market-ticker" id="marketTicker">
-  <div class="ticker-item"><span class="ticker-sym">XAU/USD (Gold)</span> <span class="ticker-price" id="priceXAU">Loading…</span> <span id="changeXAU"></span></div>
-  <div class="ticker-item"><span class="ticker-sym">EUR/USD</span> <span class="ticker-price" id="priceEURUSD">Loading…</span> <span id="changeEURUSD"></span></div>
-  <div class="ticker-item"><span class="ticker-sym">BTC/USD</span> <span class="ticker-price" id="priceBTCUSD">Loading…</span> <span id="changeBTCUSD"></span></div>
-  <div class="ticker-item"><span class="ticker-sym">GBP/USD</span> <span class="ticker-price" id="priceGBPUSD">Loading…</span> <span id="changeGBPUSD"></span></div>
+  <div class="ticker-track" id="tickerTrack">
+    <div class="ticker-item"><span class="ticker-sym">XAU/USD (Gold)</span> <span class="ticker-price" data-ticker-id="XAU">Loading…</span> <span data-change-id="XAU"></span></div>
+    <div class="ticker-item"><span class="ticker-sym">EUR/USD</span> <span class="ticker-price" data-ticker-id="EURUSD">Loading…</span> <span data-change-id="EURUSD"></span></div>
+    <div class="ticker-item"><span class="ticker-sym">BTC/USD</span> <span class="ticker-price" data-ticker-id="BTCUSD">Loading…</span> <span data-change-id="BTCUSD"></span></div>
+    <div class="ticker-item"><span class="ticker-sym">GBP/USD</span> <span class="ticker-price" data-ticker-id="GBPUSD">Loading…</span> <span data-change-id="GBPUSD"></span></div>
+    <!-- duplicated set for a seamless infinite loop -->
+    <div class="ticker-item" aria-hidden="true"><span class="ticker-sym">XAU/USD (Gold)</span> <span class="ticker-price" data-ticker-id="XAU">Loading…</span> <span data-change-id="XAU"></span></div>
+    <div class="ticker-item" aria-hidden="true"><span class="ticker-sym">EUR/USD</span> <span class="ticker-price" data-ticker-id="EURUSD">Loading…</span> <span data-change-id="EURUSD"></span></div>
+    <div class="ticker-item" aria-hidden="true"><span class="ticker-sym">BTC/USD</span> <span class="ticker-price" data-ticker-id="BTCUSD">Loading…</span> <span data-change-id="BTCUSD"></span></div>
+    <div class="ticker-item" aria-hidden="true"><span class="ticker-sym">GBP/USD</span> <span class="ticker-price" data-ticker-id="GBPUSD">Loading…</span> <span data-change-id="GBPUSD"></span></div>
+  </div>
 </div>
 
 <main class="content">
@@ -369,13 +379,18 @@ document.getElementById('dropdownLogout')?.addEventListener('click', handleLogou
 let lastGoldPrice = null;
 
 function setTickerValue(key, priceText, changePct) {
-  const priceEl = document.getElementById('price' + key);
-  const changeEl = document.getElementById('change' + key);
-  if (priceEl) priceEl.textContent = priceText;
-  if (changeEl && changePct !== null && !Number.isNaN(changePct)) {
+  // Two copies of each item exist in the DOM (for the seamless scroll
+  // loop), so update every match, not just the first.
+  document.querySelectorAll(`[data-ticker-id="${key}"]`).forEach(el => {
+    el.textContent = priceText;
+  });
+  if (changePct !== null && !Number.isNaN(changePct)) {
     const sign = changePct >= 0 ? '+' : '';
-    changeEl.textContent = `${sign}${changePct.toFixed(2)}%`;
-    changeEl.className = changePct >= 0 ? 'ticker-up' : 'ticker-down';
+    const changeClass = changePct >= 0 ? 'ticker-up' : 'ticker-down';
+    document.querySelectorAll(`[data-change-id="${key}"]`).forEach(el => {
+      el.textContent = `${sign}${changePct.toFixed(2)}%`;
+      el.className = changeClass;
+    });
   }
 }
 
