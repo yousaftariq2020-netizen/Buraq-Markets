@@ -52,7 +52,7 @@
 .kyc-alert button{background:var(--gold);color:#000;border:0;padding:6px 14px;border-radius:6px;font-weight:700;cursor:pointer}
 
 .market-ticker{background:#0a0f12;border-bottom:1px solid var(--border);padding:8px 0;overflow:hidden;font-size:12px;position:relative}
-.ticker-track{display:flex;gap:24px;width:max-content;animation:ticker-scroll 40s linear infinite;padding-left:100%}
+.ticker-track{display:flex;gap:22px;width:max-content;animation:ticker-scroll 65s linear infinite;will-change:transform}
 .market-ticker:hover .ticker-track{animation-play-state:paused}
 @keyframes ticker-scroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
 .ticker-item{display:flex;align-items:center;gap:8px;white-space:nowrap}
@@ -167,14 +167,22 @@
 <div class="market-ticker" id="marketTicker">
   <div class="ticker-track" id="tickerTrack">
     <div class="ticker-item"><span class="ticker-sym">XAU/USD (Gold)</span> <span class="ticker-price" data-ticker-id="XAU">Loading…</span> <span data-change-id="XAU"></span></div>
+    <div class="ticker-item"><span class="ticker-sym">XAG/USD (Silver)</span> <span class="ticker-price" data-ticker-id="XAG">Loading…</span> <span data-change-id="XAG"></span></div>
+    <div class="ticker-item"><span class="ticker-sym">OIL (WTI)</span> <span class="ticker-price" data-ticker-id="OIL">Loading…</span> <span data-change-id="OIL"></span></div>
     <div class="ticker-item"><span class="ticker-sym">EUR/USD</span> <span class="ticker-price" data-ticker-id="EURUSD">Loading…</span> <span data-change-id="EURUSD"></span></div>
-    <div class="ticker-item"><span class="ticker-sym">BTC/USD</span> <span class="ticker-price" data-ticker-id="BTCUSD">Loading…</span> <span data-change-id="BTCUSD"></span></div>
     <div class="ticker-item"><span class="ticker-sym">GBP/USD</span> <span class="ticker-price" data-ticker-id="GBPUSD">Loading…</span> <span data-change-id="GBPUSD"></span></div>
+    <div class="ticker-item"><span class="ticker-sym">BTC/USD</span> <span class="ticker-price" data-ticker-id="BTCUSD">Loading…</span> <span data-change-id="BTCUSD"></span></div>
+    <div class="ticker-item"><span class="ticker-sym">US30</span> <span class="ticker-price" data-ticker-id="US30">Loading…</span> <span data-change-id="US30"></span></div>
+    <div class="ticker-item"><span class="ticker-sym">US100</span> <span class="ticker-price" data-ticker-id="US100">Loading…</span> <span data-change-id="US100"></span></div>
     <!-- duplicated set for a seamless infinite loop -->
     <div class="ticker-item" aria-hidden="true"><span class="ticker-sym">XAU/USD (Gold)</span> <span class="ticker-price" data-ticker-id="XAU">Loading…</span> <span data-change-id="XAU"></span></div>
+    <div class="ticker-item" aria-hidden="true"><span class="ticker-sym">XAG/USD (Silver)</span> <span class="ticker-price" data-ticker-id="XAG">Loading…</span> <span data-change-id="XAG"></span></div>
+    <div class="ticker-item" aria-hidden="true"><span class="ticker-sym">OIL (WTI)</span> <span class="ticker-price" data-ticker-id="OIL">Loading…</span> <span data-change-id="OIL"></span></div>
     <div class="ticker-item" aria-hidden="true"><span class="ticker-sym">EUR/USD</span> <span class="ticker-price" data-ticker-id="EURUSD">Loading…</span> <span data-change-id="EURUSD"></span></div>
-    <div class="ticker-item" aria-hidden="true"><span class="ticker-sym">BTC/USD</span> <span class="ticker-price" data-ticker-id="BTCUSD">Loading…</span> <span data-change-id="BTCUSD"></span></div>
     <div class="ticker-item" aria-hidden="true"><span class="ticker-sym">GBP/USD</span> <span class="ticker-price" data-ticker-id="GBPUSD">Loading…</span> <span data-change-id="GBPUSD"></span></div>
+    <div class="ticker-item" aria-hidden="true"><span class="ticker-sym">BTC/USD</span> <span class="ticker-price" data-ticker-id="BTCUSD">Loading…</span> <span data-change-id="BTCUSD"></span></div>
+    <div class="ticker-item" aria-hidden="true"><span class="ticker-sym">US30</span> <span class="ticker-price" data-ticker-id="US30">Loading…</span> <span data-change-id="US30"></span></div>
+    <div class="ticker-item" aria-hidden="true"><span class="ticker-sym">US100</span> <span class="ticker-price" data-ticker-id="US100">Loading…</span> <span data-change-id="US100"></span></div>
   </div>
 </div>
 
@@ -370,13 +378,17 @@ document.getElementById('sideLogoutBtn')?.addEventListener('click', handleLogout
 document.getElementById('dropdownLogout')?.addEventListener('click', handleLogout);
 
 // ===================== LIVE MARKET TICKER =====================
-// BTC/USD -> CoinGecko (free, no key, includes real 24h change)
-// EUR/USD, GBP/USD -> Frankfurter.app (ECB rates, free, no key)
-// XAU/USD (Gold) -> Gold-API.com (free, no key, live spot price)
+// BTC/USD              -> CoinGecko (free, no key, includes real 24h change)
+// EUR/USD, GBP/USD      -> Frankfurter.app (ECB rates, free, no key)
+// XAU/USD, XAG/USD       -> Gold-API.com (free, no key, live spot price)
+// US30, US100, OIL(WTI)  -> TwelveData (requires the API key set below).
+//                           Free-tier TwelveData accounts are rate-limited,
+//                           so this group refreshes every 60s instead of 30s.
 // Ticker refreshes every 30 seconds. Any single feed failing never
 // breaks the others — each fetch is wrapped in its own try/catch.
 
 let lastGoldPrice = null;
+let lastSilverPrice = null;
 
 function setTickerValue(key, priceText, changePct) {
   // Two copies of each item exist in the DOM (for the seamless scroll
@@ -456,14 +468,66 @@ async function updateGold() {
   }
 }
 
+async function updateSilver() {
+  try {
+    const res = await fetch('https://api.gold-api.com/price/XAG');
+    const data = await res.json();
+    const price = data.price;
+    const change = lastSilverPrice !== null ? ((price - lastSilverPrice) / lastSilverPrice) * 100 : null;
+    lastSilverPrice = price;
+    setTickerValue('XAG', price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), change);
+  } catch (e) {
+    console.error('XAG/USD price fetch failed:', e);
+  }
+}
+
+// US30, US100 and Oil — via TwelveData (needs an API key; free plan is
+// rate-limited, so this group refreshes on its own slower 60s interval
+// below instead of every 30s like the other feeds).
+const TWELVEDATA_API_KEY = 'cfdf25e332cd4e35ac585d3d6739a79a';
+
+async function getTwelveDataQuote(symbol) {
+  const res = await fetch(`https://api.twelvedata.com/quote?symbol=${encodeURIComponent(symbol)}&apikey=${TWELVEDATA_API_KEY}`);
+  const data = await res.json();
+  if (data.status === 'error' || data.code) {
+    throw new Error(data.message || 'TwelveData error');
+  }
+  return { price: parseFloat(data.close), change: parseFloat(data.percent_change) };
+}
+
+async function updateIndicesAndOil() {
+  try {
+    const dow = await getTwelveDataQuote('DJI'); // US30 (Dow Jones)
+    setTickerValue('US30', dow.price.toLocaleString('en-US', { maximumFractionDigits: 0 }), dow.change);
+  } catch (e) {
+    console.error('US30 fetch failed:', e);
+  }
+  try {
+    const ndx = await getTwelveDataQuote('NDX'); // US100 (Nasdaq 100)
+    setTickerValue('US100', ndx.price.toLocaleString('en-US', { maximumFractionDigits: 0 }), ndx.change);
+  } catch (e) {
+    console.error('US100 fetch failed:', e);
+  }
+  try {
+    const oil = await getTwelveDataQuote('WTI/USD'); // Crude Oil WTI Spot
+    setTickerValue('OIL', oil.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), oil.change);
+  } catch (e) {
+    console.error('OIL fetch failed:', e);
+  }
+}
+
 function updateTicker() {
   updateBTC();
   updateForex();
   updateGold();
+  updateSilver();
 }
 
 updateTicker();
 setInterval(updateTicker, 30000);
+
+updateIndicesAndOil();
+setInterval(updateIndicesAndOil, 60000);
 // ===================== END LIVE MARKET TICKER =====================
 
 let equityChart;
