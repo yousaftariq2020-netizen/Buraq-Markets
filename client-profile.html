@@ -56,6 +56,8 @@ main{padding:35px 0 60px}
 .note{text-align:center;font-size:12px;margin-top:14px;display:none}
 .errorbox{padding:14px 16px;border:1px solid #5b2929;background:#1b0c0c;border-radius:9px;color:#ffb0b0;margin-bottom:18px;font-size:12px}
 footer{text-align:center;border-top:1px solid #242329;padding:18px;color:#777;font-size:10px;margin-top:20px}
+.dash-return{display:block;text-align:center;margin-top:18px;padding:14px;border:1px solid #34333c;border-radius:8px;color:#f4cf72;font-size:13px;font-weight:600}
+.dash-return:hover{border-color:#a37a31;background:#0b0b10}
 @media(max-width:600px){.row2{grid-template-columns:1fr}}
 </style>
 </head>
@@ -76,7 +78,7 @@ footer{text-align:center;border-top:1px solid #242329;padding:18px;color:#777;fo
       <div class="eyebrow">ACCOUNT SETTINGS</div>
       <h1>My Profile</h1>
     </div>
-    <div class="desc">Review your account details and verification status. Your name is set once during signup and can only be changed by contacting support.</div>
+    <div class="desc">Review your account details and verification status. Your name, email, and phone number are set during signup and can only be changed by contacting support.</div>
 
     <div id="loadError" class="errorbox" style="display:none"></div>
 
@@ -120,40 +122,33 @@ footer{text-align:center;border-top:1px solid #242329;padding:18px;color:#777;fo
       <div class="row2">
         <div class="field">
           <label>Email Address</label>
-          <input type="email" id="email" required>
+          <input type="email" id="email" disabled>
+          <div class="lockhint">🔒 Email cannot be changed here. Contact support if this needs correcting.</div>
         </div>
         <div class="field">
           <label>Phone Number</label>
-          <input type="tel" id="phone" required>
+          <input type="tel" id="phone" disabled>
+          <div class="lockhint">🔒 Phone cannot be changed here. Contact support if this needs correcting.</div>
         </div>
       </div>
 
-      <div class="row2">
-        <div class="field">
-          <label>Country</label>
-          <select id="country" required>
-            <option value="">Select country</option>
-            <option>Pakistan</option>
-            <option>United Arab Emirates</option>
-            <option>Saudi Arabia</option>
-            <option>United Kingdom</option>
-            <option>Other</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Preferred Platform</label>
-          <select id="platform" required>
-            <option value="">Select platform</option>
-            <option>MT4</option>
-            <option>MT5</option>
-            <option>WebTrader</option>
-          </select>
-        </div>
+      <div class="field">
+        <label>Country</label>
+        <select id="country" required>
+          <option value="">Select country</option>
+          <option>Pakistan</option>
+          <option>United Arab Emirates</option>
+          <option>Saudi Arabia</option>
+          <option>United Kingdom</option>
+          <option>Other</option>
+        </select>
       </div>
 
       <button type="submit" class="submit" id="saveBtn">Save Changes</button>
       <div id="formStatus" class="note"></div>
     </form>
+
+    <a class="dash-return" href="client-dashboard.html">← Return to Dashboard</a>
   </div>
 </main>
 
@@ -170,7 +165,6 @@ const avatarInput = document.getElementById('avatarInput');
 const avatarCircle = document.getElementById('avatarCircle');
 
 let currentUser = null;
-let originalEmail = '';
 
 function kycBadge(kycStatus){
   const s = (kycStatus || 'Unverified').toLowerCase();
@@ -205,9 +199,6 @@ async function init(){
   document.getElementById('email').value = user.email || '';
   document.getElementById('phone').value = p.phone || '';
   document.getElementById('country').value = p.country || '';
-  document.getElementById('platform').value = p.preferred_platform || '';
-
-  originalEmail = user.email || '';
 
   document.getElementById('statClientId').textContent = p.client_id || ('BM-' + user.id.substring(0,8).toUpperCase());
   document.getElementById('statKyc').innerHTML = kycBadge(p.kyc_status);
@@ -262,6 +253,8 @@ avatarInput.addEventListener('change', async (e) => {
   status.style.color = '#8ee0a5';
 });
 
+// Name, email, and phone are locked and never sent in this update —
+// the only editable field left is Country.
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   if(!currentUser) return;
@@ -270,20 +263,12 @@ form.addEventListener('submit', async (e) => {
   saveBtn.textContent = 'Saving…';
   status.style.display = 'none';
 
-  const newEmail = document.getElementById('email').value.trim();
-  const newPhone = document.getElementById('phone').value.trim();
   const newCountry = document.getElementById('country').value;
-  const newPlatform = document.getElementById('platform').value;
 
-  // Name is intentionally never sent — the input stays disabled so its
-  // value can't change, and full_name is left out of this update payload.
   const { error: profileErr } = await supabase
     .from('profiles')
     .update({
-      phone: newPhone,
-      country: newCountry,
-      preferred_platform: newPlatform,
-      email: newEmail
+      country: newCountry
     })
     .eq('id', currentUser.id);
 
@@ -296,24 +281,7 @@ form.addEventListener('submit', async (e) => {
     return;
   }
 
-  // If the email changed, also update Supabase Auth — this sends a
-  // confirmation link to the new address before the login email actually
-  // switches over.
-  if(newEmail !== originalEmail){
-    const { error: authErr } = await supabase.auth.updateUser({ email: newEmail });
-    if(authErr){
-      status.textContent = 'Details saved, but email change failed: ' + authErr.message;
-      status.style.color = '#ff8b8b';
-      status.style.display = 'block';
-      saveBtn.disabled = false;
-      saveBtn.textContent = 'Save Changes';
-      return;
-    }
-    status.textContent = 'Saved! Check your new email inbox to confirm the email change.';
-  } else {
-    status.textContent = 'Profile updated successfully!';
-  }
-
+  status.textContent = 'Profile updated successfully!';
   status.style.color = '#8ee0a5';
   status.style.display = 'block';
   saveBtn.disabled = false;
