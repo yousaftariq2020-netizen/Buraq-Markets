@@ -53,11 +53,11 @@ footer{text-align:center;border-top:1px solid #242329;padding:18px;color:#777;fo
 <header>
   <div class="headwrap">
     <div class="nav">
-      <a class="brand" href="index.html">BURAQ MARKETS</a>
+      <a class="brand" href="client-dashboard.html">BURAQ MARKETS</a>
       <nav class="links">
-        <a href="index.html">Dashboard</a>
-        <a href="index.html">Accounts</a>
-        <a href="index.html">Transactions</a>
+        <a href="client-dashboard.html">Dashboard</a>
+        <a href="client-dashboard.html">Accounts</a>
+        <a href="client-dashboard.html">Transactions</a>
       </nav>
       <button class="logout" id="logout">Logout</button>
     </div>
@@ -66,7 +66,7 @@ footer{text-align:center;border-top:1px solid #242329;padding:18px;color:#777;fo
 
 <main>
   <div class="wrap">
-    <a class="back" href="index.html">← Back to Dashboard</a>
+    <a class="back" href="client-dashboard.html">← Back to Dashboard</a>
     <div class="pagehead">
       <div class="eyebrow">FUND YOUR ACCOUNT</div>
       <h1>Make a Deposit</h1>
@@ -111,7 +111,7 @@ footer{text-align:center;border-top:1px solid #242329;padding:18px;color:#777;fo
       </div>
 
       <div class="field">
-        <label>Deposit Slip / Payment Screenshot (optional but recommended)</label>
+        <label>Deposit Slip / Payment Screenshot (required)</label>
         <label class="filefield" id="slipLabel">
           <input type="file" id="slip" accept="image/*,.pdf">
           <div>Tap to upload payment slip / screenshot</div>
@@ -161,6 +161,7 @@ function genSlipPath(userId, filename){
 
 document.getElementById('slip').addEventListener('change', e => {
   document.getElementById('slipName').textContent = e.target.files[0]?.name || '';
+  document.getElementById('slipLabel').style.borderColor = e.target.files[0] ? '#34333c' : '#34333c';
 });
 
 async function init(){
@@ -199,14 +200,30 @@ form.addEventListener('submit', async (e) => {
   const reference = document.getElementById('reference').value.trim() || genReference();
   const slipFile = document.getElementById('slip').files[0];
 
+  // Deposit slip is mandatory — block submission if none was chosen.
+  if(!slipFile){
+    status.textContent = 'Please attach your deposit slip / payment screenshot before submitting.';
+    status.style.color = '#ff8b8b';
+    status.style.display = 'block';
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Submit Deposit Request';
+    document.getElementById('slipLabel').style.borderColor = '#c0392b';
+    return;
+  }
+
   let slipPath = null;
-  if(slipFile){
-    try {
-      slipPath = genSlipPath(currentUser.id, slipFile.name);
-      await supabase.storage.from('deposit-proofs').upload(slipPath, slipFile);
-    } catch(e) {
-      console.warn('Storage bucket upload optional fallback:', e.message);
-    }
+  try {
+    slipPath = genSlipPath(currentUser.id, slipFile.name);
+    await supabase.storage.from('deposit-proofs').upload(slipPath, slipFile);
+  } catch(e) {
+    // Upload failing is no longer treated as optional — without a stored
+    // slip there'd be nothing for admin to review, so stop here.
+    status.textContent = 'Failed to upload deposit slip: ' + e.message + '. Please try again.';
+    status.style.color = '#ff8b8b';
+    status.style.display = 'block';
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Submit Deposit Request';
+    return;
   }
 
   // The transactions table has no 'account_number' column — the correct FK
@@ -217,7 +234,8 @@ form.addEventListener('submit', async (e) => {
     amount: amount,
     method: methodLabel,
     reference: reference,
-    status: 'Pending'
+    status: 'Pending',
+    slip_path: slipPath
   };
 
   if(walletAccount?.id) {
@@ -242,7 +260,7 @@ form.addEventListener('submit', async (e) => {
 
     form.reset();
     setTimeout(() => { 
-      location.href = 'index.html'; 
+      location.href = 'client-dashboard.html'; 
     }, 1200);
   }
   status.style.display = 'block';
