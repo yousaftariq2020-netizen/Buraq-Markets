@@ -15,6 +15,12 @@
 .sidebar-overlay.show{opacity:1;visibility:visible}
 .main{margin-left:0;min-width:0;flex:1}
 
+@media(min-width:1024px){
+  .sidebar{transform:translateX(0)}
+  .main{margin-left:248px}
+  .hamb{display:none}
+}
+
 .logo-wrap{height:96px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:14px 22px;border-bottom:1px solid var(--border)}
 .logo{width:175px;height:auto;display:block;object-fit:contain}
 .side-nav{padding:18px 13px;display:flex;flex-direction:column;gap:5px;flex:1 1 auto}
@@ -29,7 +35,8 @@
 .top-actions{margin-left:auto;display:flex;align-items:center;gap:14px}
 .circle-btn{width:36px;height:36px;border:1px solid var(--border);border-radius:50%;background:#0d1418;color:#dce4e3;display:grid;place-items:center;cursor:pointer;position:relative;font-size:14px}
 .user-dropdown{position:relative;cursor:pointer}
-.user{display:flex;align-items:center;gap:10px;padding:4px 8px;border-radius:8px}
+.user{display:flex;align-items:center;gap:10px;padding:4px 8px;border-radius:8px;user-select:none}
+.user:hover{background:#11191d}
 .avatar{width:36px;height:36px;border-radius:50%;background:#20282c;display:grid;place-items:center;color:#dfe7e5;font-size:14px;overflow:hidden;object-fit:cover;font-weight:700}
 .user-name{font-weight:700;font-size:13px}
 .user-role{font-size:10px;color:var(--muted);margin-top:1px}
@@ -83,46 +90,27 @@
 .create-card{background:#0d1317;border:1px solid var(--border);border-radius:12px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:.2s}
 .create-card:hover{border-color:var(--gold);background:#10171d}
 .create-card.live-card{border:1px solid #3c2d0b;background:linear-gradient(90deg,#141006,#0d1317)}
-.create-card.live-card:hover{border-color:var(--gold)}
-.card-info h4{margin:0 0 4px;font-size:13px;color:#fff}
-.card-info p{margin:0;font-size:11px;color:var(--muted)}
 
 .btn-gold{background:var(--gold);color:#000;border:0;border-radius:8px;padding:8px 14px;font-weight:700;font-size:11px;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;justify-content:center}
 .btn-gold:hover{background:var(--gold-hover)}
 .btn-outline{background:#0c1a26;color:#3b9dff;border:1px solid #1a3650;border-radius:8px;padding:8px 14px;font-weight:700;font-size:11px;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;justify-content:center}
-.btn-outline:hover{background:#102233}
 
 .chart-card{background:#0d1317;border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:18px}
 .chart-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .chart-title{font-weight:700;color:#fff;font-size:15px}
 
-.accounts-container{display:none;margin-bottom:18px}
 .panel{background:#0a0f12;border:1px solid var(--border);border-radius:12px;margin-bottom:18px}
 .panel-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
 .panel-title{font-size:16px;font-weight:700;color:#fff}
-
-.view-toggle{display:flex;gap:4px;background:#131c21;padding:4px;border-radius:6px;border:1px solid var(--border)}
-.view-btn{background:none;border:0;color:var(--muted);padding:4px 8px;border-radius:4px;cursor:pointer;font-size:11px}
-.view-btn.active{background:var(--gold);color:#000;font-weight:700}
 
 .table-wrap{overflow-x:auto}
 .account-table{width:100%;border-collapse:collapse;min-width:650px}
 .account-table th{padding:12px 18px;text-align:left;color:var(--muted);font-size:11px;font-weight:600;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:0.5px}
 .account-table td{padding:14px 18px;border-bottom:1px solid #141e22;color:#d7dddd;font-size:13px;vertical-align:middle}
-.acc-tag{background:#123524;color:#18c879;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;display:inline-block;margin-bottom:4px}
-.acc-tag.demo{background:#2b220d;color:#e3b64e}
-.acc-num{font-weight:800;font-size:14px;color:#fff}.acc-sub{font-size:11px;color:var(--muted);margin-top:2px}
-.badge-blue{background:#0e283d;color:#4aa8ff;font-size:11px;padding:4px 10px;border-radius:4px;font-weight:600;display:inline-block}
-.badge-platform{background:#0c281c;color:#18c879;font-size:11px;padding:4px 10px;border-radius:4px;font-weight:600}
-.badge-active{background:#0c281c;color:#18c879;font-size:11px;padding:4px 10px;border-radius:4px;font-weight:600}
+
 .badge-completed{background:#0c281c;color:#18c879;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600}
 .badge-pending{background:#2b220d;color:#e3b64e;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600}
 .badge-rejected{background:#2d1215;color:#ff5360;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600}
-.btn-manage{background:transparent;border:1px solid #283439;color:#dce4e3;border-radius:6px;padding:6px 12px;font-size:11px;cursor:pointer}
-
-.accounts-grid-view{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;padding:16px}
-.acc-card{background:#0d1317;border:1px solid var(--border);border-radius:10px;padding:16px}
-.acc-card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid #162024;padding-bottom:10px}
 
 .bottom-grid{display:grid;grid-template-columns:1fr;gap:18px;margin-top:18px}
 @media(min-width:850px){.bottom-grid{grid-template-columns:1fr 1fr}}
@@ -133,44 +121,7 @@
 .info-table tr:last-child{border-bottom:none}
 .info-table td{padding:10px 0;font-size:12px;color:var(--muted)}
 .info-table td.val{text-align:right;color:#fff;font-weight:600}
-.info-table td.val.green{color:#18c879}
-.info-table td.val.red{color:#ff5360}
 .info-table td.val.gold-link{color:var(--gold);cursor:pointer}
-
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);z-index:99;display:none;align-items:center;justify-content:center;padding:15px}
-.modal-bg.active{display:flex}
-.modal-box{background:#0d1417;border:1px solid var(--border);border-radius:12px;width:100%;max-width:440px;padding:22px;box-shadow:0 20px 40px rgba(0,0,0,0.6)}
-.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:12px}
-.modal-header h3{margin:0;color:#fff;font-size:15px}
-.modal-close{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer}
-.form-group{margin-bottom:14px}
-.form-group label{display:block;color:var(--muted);font-size:11px;margin-bottom:6px;font-weight:600}
-.form-control{width:100%;background:#11181c;border:1px solid var(--border);color:#fff;padding:10px;border-radius:6px;font-size:13px;outline:none}
-.form-control:focus{border-color:var(--gold)}
-.modal-footer{margin-top:20px;display:flex;justify-content:flex-end;gap:10px}
-
-@media (max-width: 768px) {
-  .topbar { padding: 0 14px; height: 60px; }
-  .hamb { margin-right: 12px; }
-  .top-title { font-size: 15px; }
-  .user-name { display: none; }
-  .market-ticker { padding: 8px 14px; font-size: 11px; gap: 16px; }
-  .content { padding: 14px; }
-  
-  .hero { padding: 16px; flex-direction: column; align-items: flex-start; }
-  .hero-logo-wrap { order: -1; width: 100%; justify-content: flex-start; margin-bottom: 4px; }
-  .hero-logo { width: 130px; }
-  .hero h1 { font-size: 22px; }
-  .hero-line { display: none; }
-
-  .download-bar { padding: 14px; }
-  .download-links { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .dl-btn { justify-content: center; }
-
-  .kpis { grid-template-columns: 1fr 1fr; gap: 10px; }
-  .kpi { padding: 14px; }
-  .kpi-value { font-size: 20px; }
-}
 </style>
 </head>
 <body>
@@ -183,7 +134,7 @@
     <a class="side-link" href="deposit.html"><span class="ico">↓</span>Deposit</a>
     <a class="side-link" href="withdraw.html"><span class="ico">↑</span>Withdraw</a>
     <a class="side-link" href="transfer.html"><span class="ico">⇄</span>Transfer</a>
-    <a class="side-link" href="#" id="sideLogout"><span class="ico" style="color:#ff5360">↪</span>Logout</a>
+    <a class="side-link" id="sideLogoutBtn"><span class="ico" style="color:#ff5360">↪</span>Logout</a>
   </nav>
 </aside>
 
@@ -283,7 +234,7 @@
 
     <div class="quick-actions-title">Quick Actions</div>
     <section class="action-cards-grid">
-      <div class="create-card live-card" id="btnOpenLive">
+      <div class="create-card live-card">
         <div class="card-info">
           <h4>Open Live Account</h4>
           <p>Trade real funds & leverage</p>
@@ -291,7 +242,7 @@
         <button class="btn-gold">+ Live</button>
       </div>
 
-      <div class="create-card" id="btnOpenDemo">
+      <div class="create-card">
         <div class="card-info">
           <h4>Open Demo Account</h4>
           <p>Practice strategies</p>
@@ -314,36 +265,6 @@
         </div>
         <button class="btn-outline">⇄ Transfer</button>
       </a>
-    </section>
-
-    <section class="panel accounts-container" id="accountsSection">
-      <div class="panel-head">
-        <div class="panel-title">Active Accounts</div>
-        <div class="view-toggle">
-          <button class="view-btn active" id="btnTableView">Table</button>
-          <button class="view-btn" id="btnGridView">Cards</button>
-        </div>
-      </div>
-      
-      <div class="table-wrap" id="tableViewContainer">
-        <table class="account-table">
-          <thead>
-            <tr>
-              <th>Account</th>
-              <th>Type / Tier</th>
-              <th>Platform</th>
-              <th>Balance</th>
-              <th>Equity</th>
-              <th>P/L</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="accountsList"></tbody>
-        </table>
-      </div>
-
-      <div class="accounts-grid-view" id="gridViewContainer" style="display:none;"></div>
     </section>
 
     <section class="panel">
@@ -392,7 +313,6 @@
         </table>
       </div>
     </section>
-
   </div>
 </main>
 </section>
@@ -402,8 +322,41 @@
 import { supabase } from './supabase-config.js';
 
 let currentUser = null;
-let userKycStatus = 'Unverified';
 
+// Mobile Sidebar Toggle UI Event Listeners
+const sidebar = document.getElementById('sidebar');
+const sidebarOverlay = document.getElementById('sidebarOverlay');
+const menuToggle = document.getElementById('menuToggle');
+
+function toggleSidebar() {
+  sidebar.classList.toggle('open');
+  sidebarOverlay.classList.toggle('show');
+}
+menuToggle?.addEventListener('click', toggleSidebar);
+sidebarOverlay?.addEventListener('click', toggleSidebar);
+
+// User Profile Dropdown UI Event Listeners
+const userDropdownBtn = document.getElementById('userDropdownBtn');
+const profileMenu = document.getElementById('profileMenu');
+
+userDropdownBtn?.addEventListener('click', (e) => {
+  e.stopPropagation();
+  profileMenu.classList.toggle('show');
+});
+
+document.addEventListener('click', () => {
+  profileMenu.classList.remove('show');
+});
+
+// Logout Handler
+async function handleLogout() {
+  await supabase.auth.signOut();
+  window.location.href = 'index.html';
+}
+document.getElementById('sideLogoutBtn')?.addEventListener('click', handleLogout);
+document.getElementById('dropdownLogout')?.addEventListener('click', handleLogout);
+
+// Chart Init
 const ctx = document.getElementById('equityChart').getContext('2d');
 const equityChart = new Chart(ctx, {
   type: 'line',
@@ -425,7 +378,7 @@ const equityChart = new Chart(ctx, {
     plugins: { legend: { display: false } },
     scales: {
       x: { grid: { color: '#162024' }, ticks: { color: '#7e8b8f' } },
-      y: { grid: { color: '#162024' }, ticks: { color: '#7e8b8f' } }
+      y: { grid: { color: '#162024' }, ticks: { color: '#7e8b8f' }, min: 0 }
     }
   }
 });
@@ -435,98 +388,104 @@ const money = n => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD
 async function loadData() {
   try {
     const { data: { session } } = await supabase.auth.getSession();
-    if(session) {
-      currentUser = session.user;
-      
-      const [profileRes, accountsRes, txRes] = await Promise.all([
-        supabase.from('profiles').select('*').eq('id', currentUser.id).maybeSingle(),
-        supabase.from('trading_accounts').select('*').eq('user_id', currentUser.id),
-        supabase.from('transactions').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false })
-      ]);
+    if(!session) {
+      window.location.href = 'index.html';
+      return;
+    }
 
-      const profile = profileRes.data || {};
-      let allAccounts = accountsRes.data || [];
-      const transactions = txRes.data || [];
+    currentUser = session.user;
 
-      const fullName = profile.full_name || currentUser.email.split('@')[0];
-      const upperName = fullName.toUpperCase();
-      const walletId = profile.client_id || 'BM-' + currentUser.id.substring(0,8).toUpperCase();
-      userKycStatus = profile.kyc_status || 'Unverified';
+    const [profileRes, txRes] = await Promise.all([
+      supabase.from('profiles').select('*').eq('id', currentUser.id).maybeSingle(),
+      supabase.from('transactions').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false })
+    ]);
 
-      document.getElementById('topName').textContent = upperName;
-      document.getElementById('heroName').textContent = upperName;
-      document.getElementById('heroWalletId').textContent = walletId;
-      document.getElementById('topAvatar').textContent = upperName.charAt(0);
+    const profile = profileRes.data || {};
+    const transactions = txRes.data || [];
 
-      const kycBanner = document.getElementById('kycBanner');
-      const kycElem = document.getElementById('kycStatus');
-      document.getElementById('kycName').textContent = fullName;
-      document.getElementById('kycClientId').textContent = walletId;
-      document.getElementById('kycEmail').textContent = currentUser.email;
-      kycElem.textContent = userKycStatus;
+    const fullName = profile.full_name || currentUser.email.split('@')[0];
+    const upperName = fullName.toUpperCase();
+    const walletId = profile.client_id || 'BM-' + currentUser.id.substring(0,8).toUpperCase();
 
-      // Real-time Balance Calculation Fix (Subtract Pending/Approved Withdrawals)
-      let calculatedBalance = 0;
-      let calculatedEquity = 0;
+    document.getElementById('topName').textContent = upperName;
+    document.getElementById('heroName').textContent = upperName;
+    document.getElementById('heroWalletId').textContent = walletId;
+    document.getElementById('topAvatar').textContent = upperName.charAt(0);
+    document.getElementById('kycName').textContent = fullName;
+    document.getElementById('kycClientId').textContent = walletId;
+    document.getElementById('kycEmail').textContent = currentUser.email;
+    document.getElementById('kycStatus').textContent = profile.kyc_status || 'Unverified';
 
-      // Summing all transactions dynamically
-      transactions.forEach(t => {
-        const type = (t.type || '').toLowerCase();
-        const status = (t.status || '').toLowerCase();
-        const amt = Math.abs(Number(t.amount || 0));
+    // FIX: Dynamic Balance calculation (Deposit - Withdrawal)
+    let totalDeposits = 0;
+    let totalWithdrawals = 0;
 
-        if (type.includes('deposit') && status === 'approved') {
-          calculatedBalance += amt;
-          calculatedEquity += amt;
-        } else if (type.includes('withdrawal') && status !== 'rejected') {
-          // Subtract both 'Pending' & 'Approved' withdrawals directly from total display
-          calculatedBalance -= amt;
-          calculatedEquity -= amt;
-        }
-      });
+    transactions.forEach(t => {
+      const type = (t.type || '').toLowerCase();
+      const status = (t.status || '').toLowerCase();
+      const amt = Math.abs(Number(t.amount || 0));
 
-      document.getElementById('valBalance').textContent = money(calculatedBalance);
-      document.getElementById('valEquity').textContent = money(calculatedEquity);
-      document.getElementById('valMargin').textContent = money(calculatedEquity);
+      if (type.includes('deposit') && status === 'approved') {
+        totalDeposits += amt;
+      } else if (type.includes('withdrawal') && status !== 'rejected') {
+        totalWithdrawals += amt;
+      }
+    });
 
-      equityChart.data.datasets[0].data = [0, calculatedBalance * 0.2, calculatedBalance * 0.5, calculatedBalance * 0.8, calculatedEquity, calculatedEquity, calculatedEquity];
-      equityChart.update();
+    // Exact balance remaining (e.g. 1456.90 - 400.00 = 1056.90)
+    const netBalance = totalDeposits - totalWithdrawals;
 
-      // Transactions Table Display Logic
-      if (transactions && transactions.length > 0) {
-        document.getElementById('transactionsList').innerHTML = transactions.slice(0, 5).map(t => {
-          const dateStr = t.created_at ? new Date(t.created_at).toLocaleDateString() : 'N/A';
-          let statusBadge = `<span class="badge-completed">Completed</span>`;
-          if (t.status === 'Pending') statusBadge = `<span class="badge-pending">Pending</span>`;
-          if (t.status === 'Rejected') statusBadge = `<span class="badge-rejected">Rejected</span>`;
+    document.getElementById('valBalance').textContent = money(netBalance);
+    document.getElementById('valEquity').textContent = money(netBalance);
+    document.getElementById('valMargin').textContent = money(netBalance);
 
-          const isWithdrawal = (t.type || '').toLowerCase().includes('withdrawal');
-          const displayAmount = isWithdrawal ? `-${money(t.amount)}` : `+${money(t.amount)}`;
-          const amountClass = isWithdrawal ? 'red-text' : 'green-text';
+    // Dynamic scale for chart (no drop below 0)
+    const base = Math.max(0, netBalance);
+    equityChart.data.datasets[0].data = [
+      base * 0.4, 
+      base * 0.65, 
+      base * 0.85, 
+      base * 0.95, 
+      base, 
+      base, 
+      base
+    ];
+    equityChart.update();
 
-          return `
-            <tr>
-              <td>
-                <div style="font-weight:700;color:#fff;">#${t.id ? t.id.toString().substring(0,8) : 'TX'}</div>
-                <div style="font-size:11px;color:var(--muted);">${dateStr}</div>
-              </td>
-              <td><b>${t.type || 'Deposit'}</b></td>
-              <td>Wallet</td>
-              <td>${t.method || 'Crypto'}</td>
-              <td style="font-weight:700;" class="${amountClass}">${displayAmount}</td>
-              <td>${statusBadge}</td>
-            </tr>
-          `;
-        }).join('');
-      } else {
-        document.getElementById('transactionsList').innerHTML = `
+    // Transactions Table Rendering
+    if (transactions && transactions.length > 0) {
+      document.getElementById('transactionsList').innerHTML = transactions.slice(0, 5).map(t => {
+        const dateStr = t.created_at ? new Date(t.created_at).toLocaleDateString() : 'N/A';
+        let statusBadge = `<span class="badge-completed">Completed</span>`;
+        if (t.status === 'Pending') statusBadge = `<span class="badge-pending">Pending</span>`;
+        if (t.status === 'Rejected') statusBadge = `<span class="badge-rejected">Rejected</span>`;
+
+        const isWithdrawal = (t.type || '').toLowerCase().includes('withdrawal');
+        const displayAmount = isWithdrawal ? `-${money(t.amount)}` : `+${money(t.amount)}`;
+        const amountClass = isWithdrawal ? 'red-text' : 'green-text';
+
+        return `
           <tr>
-            <td colspan="6" style="text-align:center;padding:20px;color:var(--muted)">No recent transactions found.</td>
+            <td>
+              <div style="font-weight:700;color:#fff;">#${t.id ? t.id.toString().substring(0,8) : 'TX'}</div>
+              <div style="font-size:11px;color:var(--muted);">${dateStr}</div>
+            </td>
+            <td><b>${t.type || 'Deposit'}</b></td>
+            <td>Wallet</td>
+            <td>${t.method || 'Crypto'}</td>
+            <td style="font-weight:700;" class="${amountClass}">${displayAmount}</td>
+            <td>${statusBadge}</td>
           </tr>
         `;
-      }
-
+      }).join('');
+    } else {
+      document.getElementById('transactionsList').innerHTML = `
+        <tr>
+          <td colspan="6" style="text-align:center;padding:20px;color:var(--muted)">No recent transactions found.</td>
+        </tr>
+      `;
     }
+
   } catch(e) {
     console.error("Data load error:", e);
   }
