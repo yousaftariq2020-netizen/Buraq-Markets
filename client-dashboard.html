@@ -54,7 +54,7 @@
 .market-ticker{background:#0a0f12;border-bottom:1px solid var(--border);padding:8px 28px;display:flex;gap:24px;overflow-x:auto;font-size:12px}
 .ticker-item{display:flex;align-items:center;gap:8px;white-space:nowrap}
 .ticker-sym{font-weight:700;color:#fff}
-.ticker-price{color:#d7dddd}
+.ticker-price{color:#d7dddd;transition:color .3s}
 .ticker-up{color:var(--green);font-weight:600}
 .ticker-down{color:var(--red);font-weight:600}
 
@@ -161,11 +161,11 @@
   <button onclick="alert('Redirecting to KYC Page...')">Verify Identity</button>
 </div>
 
-<div class="market-ticker">
-  <div class="ticker-item"><span class="ticker-sym">XAU/USD (Gold)</span> <span class="ticker-price">2,482.10</span> <span class="ticker-up">+0.42%</span></div>
-  <div class="ticker-item"><span class="ticker-sym">EUR/USD</span> <span class="ticker-price">1.0924</span> <span class="ticker-down">-0.11%</span></div>
-  <div class="ticker-item"><span class="ticker-sym">BTC/USD</span> <span class="ticker-price">64,120.00</span> <span class="ticker-up">+1.85%</span></div>
-  <div class="ticker-item"><span class="ticker-sym">GBP/USD</span> <span class="ticker-price">1.2845</span> <span class="ticker-up">+0.05%</span></div>
+<div class="market-ticker" id="marketTicker">
+  <div class="ticker-item"><span class="ticker-sym">XAU/USD (Gold)</span> <span class="ticker-price" id="priceXAU">Loading…</span> <span id="changeXAU"></span></div>
+  <div class="ticker-item"><span class="ticker-sym">EUR/USD</span> <span class="ticker-price" id="priceEURUSD">Loading…</span> <span id="changeEURUSD"></span></div>
+  <div class="ticker-item"><span class="ticker-sym">BTC/USD</span> <span class="ticker-price" id="priceBTCUSD">Loading…</span> <span id="changeBTCUSD"></span></div>
+  <div class="ticker-item"><span class="ticker-sym">GBP/USD</span> <span class="ticker-price" id="priceGBPUSD">Loading…</span> <span id="changeGBPUSD"></span></div>
 </div>
 
 <main class="content">
@@ -358,6 +358,98 @@ async function handleLogout() {
 }
 document.getElementById('sideLogoutBtn')?.addEventListener('click', handleLogout);
 document.getElementById('dropdownLogout')?.addEventListener('click', handleLogout);
+
+// ===================== LIVE MARKET TICKER =====================
+// BTC/USD -> CoinGecko (free, no key, includes real 24h change)
+// EUR/USD, GBP/USD -> Frankfurter.app (ECB rates, free, no key)
+// XAU/USD (Gold) -> Gold-API.com (free, no key, live spot price)
+// Ticker refreshes every 30 seconds. Any single feed failing never
+// breaks the others — each fetch is wrapped in its own try/catch.
+
+let lastGoldPrice = null;
+
+function setTickerValue(key, priceText, changePct) {
+  const priceEl = document.getElementById('price' + key);
+  const changeEl = document.getElementById('change' + key);
+  if (priceEl) priceEl.textContent = priceText;
+  if (changeEl && changePct !== null && !Number.isNaN(changePct)) {
+    const sign = changePct >= 0 ? '+' : '';
+    changeEl.textContent = `${sign}${changePct.toFixed(2)}%`;
+    changeEl.className = changePct >= 0 ? 'ticker-up' : 'ticker-down';
+  }
+}
+
+async function updateBTC() {
+  try {
+    const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true');
+    const data = await res.json();
+    const price = data.bitcoin.usd;
+    const change = data.bitcoin.usd_24h_change;
+    setTickerValue('BTCUSD', price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), change);
+  } catch (e) {
+    console.error('BTC/USD price fetch failed:', e);
+  }
+}
+
+async function getFrankfurterQuote(fromCurrency) {
+  const todayRes = await fetch(`https://api.frankfurter.app/latest?from=${fromCurrency}&to=USD`);
+  const todayData = await todayRes.json();
+  const priceToday = todayData.rates.USD;
+
+  let change = null;
+  try {
+    const yestDate = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const yestRes = await fetch(`https://api.frankfurter.app/${yestDate}?from=${fromCurrency}&to=USD`);
+    const yestData = await yestRes.json();
+    const priceYesterday = yestData.rates.USD;
+    change = ((priceToday - priceYesterday) / priceYesterday) * 100;
+  } catch (e) {
+    // historical rate unavailable (e.g. weekend) — skip the % change, still show price
+  }
+
+  return { price: priceToday, change };
+}
+
+async function updateForex() {
+  try {
+    const eur = await getFrankfurterQuote('EUR');
+    setTickerValue('EURUSD', eur.price.toFixed(4), eur.change);
+  } catch (e) {
+    console.error('EUR/USD price fetch failed:', e);
+  }
+
+  try {
+    const gbp = await getFrankfurterQuote('GBP');
+    setTickerValue('GBPUSD', gbp.price.toFixed(4), gbp.change);
+  } catch (e) {
+    console.error('GBP/USD price fetch failed:', e);
+  }
+}
+
+async function updateGold() {
+  try {
+    const res = await fetch('https://api.gold-api.com/price/XAU');
+    const data = await res.json();
+    const price = data.price;
+    // This free feed doesn't include a 24h change figure, so the % shown
+    // here reflects movement since the page's last refresh, not a full day.
+    const change = lastGoldPrice !== null ? ((price - lastGoldPrice) / lastGoldPrice) * 100 : null;
+    lastGoldPrice = price;
+    setTickerValue('XAU', price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), change);
+  } catch (e) {
+    console.error('XAU/USD price fetch failed:', e);
+  }
+}
+
+function updateTicker() {
+  updateBTC();
+  updateForex();
+  updateGold();
+}
+
+updateTicker();
+setInterval(updateTicker, 30000);
+// ===================== END LIVE MARKET TICKER =====================
 
 let equityChart;
 function renderChart(balValue) {
