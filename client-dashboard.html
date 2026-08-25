@@ -2368,11 +2368,16 @@ function populateAccountSettingsDropdowns() {
   passSel.innerHTML = opts;
 
   if (demoSel) {
-    demoSel.innerHTML = tradeableAccs.map(a => `
-      <option value="${a.id}">
-        ${a.account_name || 'MT5 Account'} (#${a.account_number || a.id}) · Current: $${Number(a.balance || 0).toFixed(2)}
-      </option>
-    `).join('');
+    const demoOnlyAccs = tradeableAccs.filter(a => (a.account_mode || '').toLowerCase() === 'demo');
+    if (demoOnlyAccs.length === 0) {
+      demoSel.innerHTML = '<option value="">No Demo Accounts Available</option>';
+    } else {
+      demoSel.innerHTML = demoOnlyAccs.map(a => `
+        <option value="${a.id}">
+          ${a.account_name || 'MT5 Account'} (#${a.account_number || a.id}) · Current: $${Number(a.balance || 0).toFixed(2)}
+        </option>
+      `).join('');
+    }
   }
 }
 
@@ -2503,6 +2508,14 @@ if (formResetDemoBalance) {
 
     try {
       if (accId) {
+        const targetAcc = (userAccountsCache || []).find(a => String(a.id) === String(accId));
+        if (!targetAcc || (targetAcc.account_mode || '').toLowerCase() !== 'demo') {
+          notice.style.background = '#2a1414';
+          notice.style.border = '1px solid #e0544a';
+          notice.style.color = '#e0544a';
+          notice.textContent = '✗ This action is only allowed on Demo accounts.';
+          return;
+        }
         await supabase.from('trading_accounts').update({
           balance: newAmt,
           equity: newAmt,
