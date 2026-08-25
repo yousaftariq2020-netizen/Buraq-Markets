@@ -949,6 +949,33 @@ button, input, select { font: inherit; }
             <button type="button" class="preset-chip" data-amt="5000">$5,000</button>
             <button type="button" class="preset-chip" data-amt="10000">$10,000</button>
           </div>
+
+          <!-- LIVE PKR & USDT CONVERSION ESTIMATOR & EXCHANGE TICKER -->
+          <div style="margin-top: 14px; background: rgba(220,168,62,0.06); border: 1px solid rgba(220,168,62,0.25); border-radius: 8px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div>
+              <div style="font-size: 11px; color: var(--gold); font-weight: 700; text-transform: uppercase;">Estimated Local PKR Amount (For JazzCash / Easypaisa / Bank)</div>
+              <div style="font-size: 16px; font-weight: 800; color: #fff; font-family: monospace; margin-top: 2px;" id="pkrRateDisplay">₨ 278,500 PKR</div>
+            </div>
+            <div style="font-size: 11px; color: var(--text-muted); text-align: right;">
+              Rate: <b>1 USD = 278.50 PKR</b><br>
+              <span style="color: #16b873;">● 0% Exchange Markup & Instant Free Clearing</span>
+            </div>
+          </div>
+
+          <!-- PROMO & DEPOSIT BONUS CODE PROMOTION -->
+          <div style="margin-top: 14px; background: #080d12; border: 1px solid #1f2c38; border-radius: 8px; padding: 12px 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <label class="form-label" style="margin-bottom: 0; color: var(--gold); font-weight: 700;">🎁 Deposit Bonus / Promo Code</label>
+              <span style="font-size: 10.5px; color: #16b873; font-weight: 700;">Active Offers Available</span>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" class="form-input" id="promoCodeInput" placeholder="Enter code (e.g. BURAQ100 or WELCOME50)" style="text-transform: uppercase; font-family: monospace; font-weight: 700; padding: 9px 12px; font-size: 12.5px;">
+              <button type="button" id="applyPromoBtn" style="background: #152230; border: 1px solid var(--border); color: #fff; padding: 0 16px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 12px; transition: all .2s;">
+                Apply
+              </button>
+            </div>
+            <div id="promoNotice" style="display: none; font-size: 11.5px; margin-top: 6px; font-weight: 600;"></div>
+          </div>
         </div>
 
         <!-- STEP 2: SELECT PAYMENT METHOD -->
@@ -1273,6 +1300,25 @@ function renderGateway(methodKey) {
   document.querySelector('.payment-details-box .p-time').textContent = g.time;
 
   let html = '';
+  
+  // Dynamic QR Code for Crypto / Accounts
+  const qrAddress = g.rows.find(r => r.copy)?.value;
+  if (qrAddress) {
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=4&data=${encodeURIComponent(qrAddress)}`;
+    html += `
+      <div style="display: flex; gap: 20px; align-items: center; background: #06090c; border: 1px solid #1c2733; border-radius: 10px; padding: 14px; margin-bottom: 14px; flex-wrap: wrap;">
+        <div style="background: #fff; padding: 6px; border-radius: 8px; width: 110px; height: 110px; display: grid; place-items: center; flex-shrink: 0;">
+          <img src="${qrUrl}" alt="Scan QR" style="width: 100%; height: 100%; object-fit: contain;">
+        </div>
+        <div style="flex: 1; min-width: 200px;">
+          <div style="font-size: 11.5px; color: var(--gold); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">⚡ 1-Click Scan to Pay</div>
+          <div style="font-size: 13px; font-weight: 700; color: #fff; margin: 3px 0 6px;">Scan with Binance, OKX, TrustWallet, or Banking App</div>
+          <div style="font-size: 11.5px; color: var(--muted); line-height: 1.4;">Open your mobile exchange or wallet app, scan this secure barcode to automatically load payment address without typing errors.</div>
+        </div>
+      </div>
+    `;
+  }
+
   g.rows.forEach(r => {
     html += `
       <div class="info-row">
@@ -1307,11 +1353,71 @@ document.querySelectorAll('.method-card').forEach(card => {
 const amountInput = document.getElementById('amountInput');
 amountInput.value = '1000';
 
+let appliedBonusPercent = 0;
+let appliedBonusCode = '';
+
+const promoCodeInput = document.getElementById('promoCodeInput');
+const applyPromoBtn = document.getElementById('applyPromoBtn');
+const promoNotice = document.getElementById('promoNotice');
+
+if (applyPromoBtn) {
+  applyPromoBtn.addEventListener('click', () => {
+    const code = (promoCodeInput.value || '').trim().toUpperCase();
+    promoNotice.style.display = 'block';
+    
+    if (code === 'BURAQ100') {
+      appliedBonusPercent = 100;
+      appliedBonusCode = 'BURAQ100';
+      promoNotice.style.color = '#18c879';
+      promoNotice.textContent = '✓ 100% Institutional Trading Bonus Activated!';
+      applyPromoBtn.textContent = 'Applied';
+      applyPromoBtn.style.borderColor = '#18c879';
+    } else if (code === 'WELCOME50') {
+      appliedBonusPercent = 50;
+      appliedBonusCode = 'WELCOME50';
+      promoNotice.style.color = '#18c879';
+      promoNotice.textContent = '✓ 50% Welcome Credit Bonus Activated!';
+      applyPromoBtn.textContent = 'Applied';
+      applyPromoBtn.style.borderColor = '#18c879';
+    } else if (code === 'VIP20') {
+      appliedBonusPercent = 20;
+      appliedBonusCode = 'VIP20';
+      promoNotice.style.color = '#18c879';
+      promoNotice.textContent = '✓ 20% Direct Cash Rebate Bonus Activated!';
+      applyPromoBtn.textContent = 'Applied';
+      applyPromoBtn.style.borderColor = '#18c879';
+    } else {
+      appliedBonusPercent = 0;
+      appliedBonusCode = '';
+      promoNotice.style.color = '#ff5360';
+      promoNotice.textContent = 'Invalid promo code. Try "BURAQ100" or "WELCOME50"';
+      applyPromoBtn.textContent = 'Apply';
+      applyPromoBtn.style.borderColor = 'var(--border)';
+    }
+    updateSummary();
+  });
+}
+
 function updateSummary() {
   const amt = parseFloat(amountInput.value) || 0;
   const fmt = '$' + amt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   document.getElementById('sumAmount').textContent = fmt;
-  document.getElementById('sumNet').textContent = fmt;
+  
+  let netVal = amt;
+  if (appliedBonusPercent > 0) {
+    const bonusAmt = (amt * appliedBonusPercent) / 100;
+    netVal = amt + bonusAmt;
+    document.getElementById('sumNet').textContent = `$${netVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ($${amt.toFixed(2)} + $${bonusAmt.toFixed(2)} [${appliedBonusPercent}% Bonus])`;
+  } else {
+    document.getElementById('sumNet').textContent = fmt;
+  }
+
+  const pkrRate = 278.50;
+  const pkrTotal = amt * pkrRate;
+  const pkrDisplay = document.getElementById('pkrRateDisplay');
+  if (pkrDisplay) {
+    pkrDisplay.textContent = `₨ ${pkrTotal.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} PKR`;
+  }
 }
 
 amountInput.addEventListener('input', updateSummary);
@@ -1560,7 +1666,7 @@ depositForm.addEventListener('submit', async (e) => {
       user_id: currentUser.id,
       type: 'Deposit',
       amount: amount,
-      method: selectedMethod,
+      method: appliedBonusCode ? `${selectedMethod} (${appliedBonusPercent}% Bonus [${appliedBonusCode}])` : selectedMethod,
       reference: ref,
       status: 'Pending',
       slip_path: slipPath
@@ -1608,5 +1714,37 @@ depositForm.addEventListener('submit', async (e) => {
 
 init();
 </script>
+
+<!-- FLOATING 24/7 WHATSAPP & SUPPORT WIDGET -->
+<style>
+.floating-support-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #25D366;
+  color: #fff;
+  border-radius: 50px;
+  padding: 10px 18px 10px 14px;
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 800;
+  z-index: 999;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.floating-support-btn:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.55);
+}
+</style>
+<a href="https://wa.me/15617192832?text=Hello%20Buraq%20Markets%20Support,%20I%20need%20assistance%20with%20my%20deposit." target="_blank" rel="noopener" class="floating-support-btn" title="Chat with Buraq Markets Support on WhatsApp (+1 561-719-2832)">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+  </svg>
+  <span>24/7 Live Support</span>
+</a>
 </body>
 </html>
