@@ -1604,17 +1604,21 @@ async function init() {
   accountSelect.innerHTML = '';
   
   // Default wallet option
+  const walletRow = currentAccounts.find(a => a.is_wallet) || currentAccounts.find(a => a.account_name === 'Main Wallet' || a.account_number === 'WALLET');
+  const walletBalance = Number(walletRow?.balance || 0);
   const walletOpt = document.createElement('option');
   walletOpt.value = 'wallet';
-  walletOpt.textContent = `Client Master Wallet (Available USD)`;
+  walletOpt.textContent = `Client Master Wallet ($${walletBalance.toFixed(2)})`;
   accountSelect.appendChild(walletOpt);
 
-  currentAccounts.forEach(acc => {
-    const opt = document.createElement('option');
-    opt.value = acc.id;
-    opt.textContent = `MT5 Account #${acc.account_number} — ${acc.account_name || 'Trading Account'} ($${Number(acc.balance||0).toFixed(2)})`;
-    accountSelect.appendChild(opt);
-  });
+  currentAccounts
+    .filter(acc => !acc.is_wallet && acc.account_name !== 'Main Wallet' && acc.account_number !== 'WALLET')
+    .forEach(acc => {
+      const opt = document.createElement('option');
+      opt.value = acc.id;
+      opt.textContent = `MT5 Account #${acc.account_number} — ${acc.account_name || 'Trading Account'} ($${Number(acc.balance||0).toFixed(2)})`;
+      accountSelect.appendChild(opt);
+    });
 
   renderGateway(selectedMethod);
   updateSummary();
