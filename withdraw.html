@@ -523,7 +523,7 @@ button, input, select { font: inherit; }
 <header class="top-nav">
   <div class="top-nav-inner">
     <a class="logo-link" href="client-dashboard.html">
-      <img src="buraq-logo.png" alt="Buraq Markets" class="logo-img">
+      <img src="/buraq-logo.png" alt="Buraq Markets" class="logo-img">
     </a>
     <div class="nav-actions">
       <a href="client-dashboard.html" class="btn-back">
@@ -955,7 +955,7 @@ async function init() {
     }
   }
 
-  // 2. Financial reconciliation: Approved Deposits minus Approved Withdrawals minus Pending Withdrawals
+  // 2. Financial reconciliation: only backfill if DB balance is empty/zero but ledger shows funds
   const approvedDepositSum = transactions
     .filter(t => (t.type || '').toLowerCase().includes('deposit') && (t.status || '').toLowerCase() === 'approved')
     .reduce((sum, t) => sum + Math.abs(Number(t.amount || 0)), 0);
@@ -971,7 +971,7 @@ async function init() {
   const netAvailableFunds = Math.max(0, approvedDepositSum - approvedWithdrawSum - pendingWithdrawSum);
   const totalDbBalance = accList.reduce((sum, a) => sum + Number(a.balance || 0), 0);
 
-  if (approvedDepositSum > 0 && (totalDbBalance === 0 || totalDbBalance > netAvailableFunds || totalDbBalance < (approvedDepositSum - approvedWithdrawSum - pendingWithdrawSum))) {
+  if (totalDbBalance === 0 && netAvailableFunds > 0) {
     const mainAcc = accList.find(a => a.is_wallet) || accList[0];
     if (mainAcc) {
       mainAcc.balance = netAvailableFunds;
