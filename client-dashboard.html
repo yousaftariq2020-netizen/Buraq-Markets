@@ -2508,19 +2508,18 @@ if (formResetDemoBalance) {
 
     try {
       if (accId) {
-        const targetAcc = (userAccountsCache || []).find(a => String(a.id) === String(accId));
-        if (!targetAcc || (targetAcc.account_mode || '').toLowerCase() !== 'demo') {
+        const { data: rpcData, error: rpcErr } = await supabase.rpc('reset_demo_balance', {
+          p_account_id: Number(accId),
+          p_new_balance: newAmt
+        });
+
+        if (rpcErr || !rpcData?.success) {
           notice.style.background = '#2a1414';
           notice.style.border = '1px solid #e0544a';
           notice.style.color = '#e0544a';
-          notice.textContent = '✗ This action is only allowed on Demo accounts.';
+          notice.textContent = '✗ ' + (rpcData?.message || rpcErr?.message || 'This action is only allowed on Demo accounts.');
           return;
         }
-        await supabase.from('trading_accounts').update({
-          balance: newAmt,
-          equity: newAmt,
-          free_margin: newAmt
-        }).eq('id', accId);
       }
       setTimeout(() => {
         notice.textContent = `✓ Successfully reset Practice Balance to $${newAmt.toLocaleString()}! Refreshing dashboard...`;
