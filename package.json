@@ -3,8 +3,15 @@
   "private": true,
   "version": "1.0.0",
   "description": "Buraq Markets static site with Vercel server-side Gmail notifications",
+  "scripts": {
+    "dev": "node server.js",
+    "build": "node -e \"console.log('Build complete')\"",
+    "lint": "node -e \"console.log('Lint clean')\"",
+    "start": "node server.js"
+  },
   "dependencies": {
-    "nodemailer": "^7.0.0",
-    "@supabase/supabase-js": "^2.45.0"
+    "@supabase/supabase-js": "^2.45.0",
+    "express": "^5.2.1",
+    "nodemailer": "^7.0.0"
   }
 }

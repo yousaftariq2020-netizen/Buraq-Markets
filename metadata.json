@@ -1,0 +1,6 @@
+{
+  "name": "Buraq Markets",
+  "description": "Trading platform portal featuring real-time market data, client dashboard, identity verification, fund transfers, and email notifications.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
