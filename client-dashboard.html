@@ -30,18 +30,6 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
-
-/* FIX: prevent the whole page from scrolling horizontally.
-   Previously, swiping the wide .account-table on mobile caused the
-   touch-scroll gesture to "leak" into the body, dragging the entire
-   page (including unrelated cards like KYC) sideways. Locking
-   overflow-x here keeps only the intended inner scroll areas
-   (.table-wrap, .tools-nav-strip) scrollable. */
-html, body {
-  overflow-x: hidden;
-  max-width: 100%;
-}
-
 body {
   background: 
     radial-gradient(circle at 80% -5%, rgba(220, 168, 62, 0.08) 0%, transparent 40%),
@@ -58,7 +46,7 @@ a { text-decoration: none; color: inherit; }
 button, input, select { font: inherit; }
 
 /* Layout Structure */
-.layout { min-height: 100vh; display: flex; position: relative; overflow-x: hidden; max-width: 100%; }
+.layout { min-height: 100vh; display: flex; position: relative; }
 
 /* Sidebar Overlay Backdrop */
 .sidebar-overlay {
@@ -109,8 +97,6 @@ button, input, select { font: inherit; }
   display: flex;
   flex-direction: column;
   width: 100%;
-  overflow-x: hidden;
-  max-width: 100%;
 }
 
 .logo-wrap {
@@ -1357,8 +1343,6 @@ button, input, select { font: inherit; }
   overflow-x: auto;
   overflow-y: auto;
   max-height: 400px;
-  max-width: 100%;
-  -webkit-overflow-scrolling: touch;
 }
 
 .account-table {
