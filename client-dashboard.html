@@ -2905,7 +2905,11 @@ async function syncDashboard() {
     let totalBalance = tradingAccounts.reduce((sum, a) => sum + Number(a.balance || 0), 0);
     let totalEquity = tradingAccounts.reduce((sum, a) => sum + Number(a.equity ?? a.balance ?? 0), 0);
     let totalUsedMargin = tradingAccounts.reduce((sum, a) => sum + Number(a.used_margin || 0), 0);
-    let totalMargin = tradingAccounts.reduce((sum, a) => sum + Number(a.free_margin ?? a.equity ?? a.balance ?? 0), 0);
+
+    // IMPORTANT: Free Margin must be calculated, not read directly from DB.
+    // Formula: Free Margin = Equity - Used Margin.
+    // This prevents stale/incorrect free_margin values (such as the old $50 difference).
+    let totalMargin = Math.max(0, totalEquity - totalUsedMargin);
 
     // Check if account list has 0 balance but has approved deposits
     const approvedDepositSum = transactions
@@ -2925,13 +2929,16 @@ async function syncDashboard() {
         if (mainAcc) {
           mainAcc.balance = netLedgerBalance;
           mainAcc.equity = netLedgerBalance;
+          mainAcc.used_margin = 0;
           mainAcc.free_margin = netLedgerBalance;
           totalBalance = netLedgerBalance;
           totalEquity = netLedgerBalance;
+          totalUsedMargin = 0;
           totalMargin = netLedgerBalance;
           await supabase.from('trading_accounts').update({
             balance: netLedgerBalance,
             equity: netLedgerBalance,
+            used_margin: 0,
             free_margin: netLedgerBalance
           }).eq('id', mainAcc.id);
         }
@@ -2939,6 +2946,9 @@ async function syncDashboard() {
         console.warn('Balance sync note:', syncErr);
       }
     }
+
+    // Final safety check: Free Margin can never exceed Equity and can never be negative.
+    totalMargin = Math.max(0, Math.min(totalEquity, totalEquity - totalUsedMargin));
 
     const fullName = ((profile && profile.full_name) || session.user.email.split('@')[0]).toUpperCase();
     const walletId = profile.client_id || ('BM-' + userId.substring(0,8).toUpperCase());
