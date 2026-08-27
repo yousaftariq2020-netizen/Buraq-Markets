@@ -1,21 +1,297 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Buraq Markets — Application Submitted</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% 10%,#1b1509 0,#090909 35%,#050505 75%);color:#f5f3ef;font-family:Inter,Arial,sans-serif;display:flex;align-items:center;justify-content:center;padding:24px}.card{width:min(650px,100%);background:linear-gradient(145deg,#15151b,#0d0d11);border:1px solid #5a4524;border-radius:18px;padding:42px;box-shadow:0 30px 100px #000;text-align:center}.brand{font:600 25px Cinzel,Georgia,serif;color:#f4cf72;margin-bottom:25px}.icon{width:76px;height:76px;margin:0 auto 22px;border-radius:50%;border:2px solid #d9a94a;display:grid;place-items:center;color:#f4cf72;font-size:38px}.eyebrow{color:#f4cf72;font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase}h1{font:600 34px Cinzel,Georgia,serif;margin:10px 0 12px}p{color:#aaa7a2;font-size:13px;line-height:1.7}.ref{margin:25px auto;padding:17px;border:1px solid #34333a;border-radius:10px;background:#09090c}.ref small{display:block;color:#888;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}.ref strong{font-size:18px;color:#f4cf72;letter-spacing:2px}.steps{display:grid;gap:10px;text-align:left;margin:24px 0}.step{display:flex;gap:12px;align-items:flex-start;border:1px solid #29282e;border-radius:9px;padding:12px}.num{width:25px;height:25px;flex:0 0 25px;border-radius:50%;background:#d9a94a;color:#171108;font-weight:800;display:grid;place-items:center;font-size:11px}.step b{font-size:12px}.step span{display:block;color:#888;font-size:10px;margin-top:3px}.buttons{display:flex;gap:10px;margin-top:25px}.btn{flex:1;padding:13px;border-radius:7px;text-decoration:none;font-weight:800;font-size:12px}.primary{background:linear-gradient(#f4cc6c,#dca83c);color:#171108}.secondary{border:1px solid #806226;color:#f4cf72}.note{font-size:9px;color:#666;margin-top:20px}@media(max-width:600px){.card{padding:28px 20px}h1{font-size:28px}.buttons{flex-direction:column}}
-</style></head>
-<body><div class="card">
-<div class="brand">BURAQ MARKETS</div><div class="icon">✓</div><div class="eyebrow">Application Received</div><h1>Account Application Submitted</h1><p>Thank you for choosing Buraq Markets. Your account application has been received successfully.</p>
-<div class="ref"><small>Application Reference</small><strong>BM-2026-NEW</strong></div>
-<div class="steps">
-<div class="step"><div class="num">1</div><div><b>Application Review</b><span>Our team will review the information you submitted.</span></div></div>
-<div class="step"><div class="num">2</div><div><b>Identity Verification</b><span>Complete the required verification/KYC process when requested.</span></div></div>
-<div class="step"><div class="num">3</div><div><b>Account Activation</b><span>After approval, your trading account details will be provided.</span></div></div>
-</div>
-<div class="buttons"><a class="btn primary" href="index.html">Back to Home</a><a class="btn secondary" href="client-login.html">Client Login</a></div>
-<div class="note">Front-end demonstration page. Connect this flow to your real application and KYC backend before live use.</div>
-</div></body></html>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Application Submitted — Buraq Markets</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #06080b;
+      --panel-card: linear-gradient(165deg, #131922 0%, #0c1015 100%);
+      --border: #222c38;
+      --border-gold: rgba(220, 168, 62, 0.4);
+      --text: #f0f4f8;
+      --muted: #8b99a8;
+      --gold: #dca83e;
+      --gold-light: #f7d274;
+      --gold-gradient: linear-gradient(135deg, #f7d274 0%, #dca83e 50%, #b38222 100%);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: 
+        radial-gradient(circle at 50% 15%, rgba(220, 168, 62, 0.14) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(13, 25, 38, 0.5) 0%, transparent 50%),
+        var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 20px;
+    }
+
+    .success-card {
+      width: min(640px, 100%);
+      background: var(--panel-card);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 44px 38px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), 0 0 1px 1px rgba(255, 255, 255, 0.05);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .success-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--gold-gradient);
+    }
+
+    .logo-img {
+      height: 44px;
+      width: auto;
+      margin: 0 auto 28px;
+      display: block;
+    }
+
+    .icon-badge {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      background: rgba(220, 168, 62, 0.1);
+      border: 2px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gold-light);
+      box-shadow: 0 0 30px rgba(220, 168, 62, 0.25);
+    }
+
+    .eyebrow {
+      color: var(--gold);
+      font-size: 11.5px;
+      font-weight: 800;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 30px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 12px;
+    }
+
+    p.desc {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .account-ref-box {
+      padding: 16px;
+      border-radius: 10px;
+      background: #080b0e;
+      border: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+
+    .account-ref-box small {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+
+    .account-ref-box strong {
+      font-family: 'Cinzel', serif;
+      font-size: 18px;
+      color: var(--gold-light);
+      letter-spacing: 1.5px;
+    }
+
+    .steps-list {
+      display: grid;
+      gap: 12px;
+      text-align: left;
+      margin-bottom: 28px;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      background: rgba(8, 11, 14, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .step-num {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--gold-gradient);
+      color: #120e06;
+      font-weight: 800;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .step-item h5 {
+      font-size: 13px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 2px;
+    }
+
+    .step-item p {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      flex: 1;
+      height: 48px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-weight: 700;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: var(--gold-gradient);
+      color: #120e06;
+      box-shadow: 0 4px 15px rgba(220, 168, 62, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(220, 168, 62, 0.45);
+    }
+
+    .btn-secondary {
+      background: rgba(220, 168, 62, 0.08);
+      border: 1px solid var(--border-gold);
+      color: var(--gold-light);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(220, 168, 62, 0.16);
+      color: #fff;
+    }
+
+    @media (max-width: 580px) {
+      .success-card {
+        padding: 32px 20px;
+      }
+      h1 {
+        font-size: 24px;
+      }
+      .action-buttons {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="success-card">
+    <a href="index.html">
+      <img src="buraq-logo.png" alt="Buraq Markets" class="logo-img">
+    </a>
+
+    <div class="icon-badge">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+
+    <div class="eyebrow">Application Received</div>
+    <h1>Account Registered Successfully</h1>
+    <p class="desc" id="successDesc">
+      Welcome to Buraq Markets. Your trading account profile has been created and our automated matching engine is preparing your trading credentials.
+    </p>
+
+    <div class="account-ref-box">
+      <small>Registered Email</small>
+      <strong id="displayEmail">Client Portal Account</strong>
+    </div>
+
+    <div class="steps-list">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div>
+          <h5>Instant Client Dashboard Access</h5>
+          <p>Login to your portal to manage trading wallets, leverage and multi-currency balances.</p>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div>
+          <h5>Deposit & Fund Account</h5>
+          <p>Zero-fee local payment gateways (EasyPaisa, JazzCash, Bank Transfer, USDT TRC20).</p>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div>
+          <h5>Start Trading on MT5 / MT4</h5>
+          <p>Execute orders with institutional raw spreads from 0.0 pips on 500+ assets.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-buttons">
+      <a href="client-login.html" class="btn btn-primary">
+        <span>Go to Client Login</span>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+      <a href="index.html" class="btn btn-secondary">
+        ← Back to Homepage
+      </a>
+    </div>
+  </div>
+
+  <script>
+    const email = sessionStorage.getItem('buraq_signup_email');
+    if (email) {
+      document.getElementById('displayEmail').textContent = email;
+      document.getElementById('successDesc').textContent = `Welcome to Buraq Markets. We have linked your credentials to ${email}. You can now log in to access your trading portal.`;
+    }
+  </script>
+
+</body>
+</html>

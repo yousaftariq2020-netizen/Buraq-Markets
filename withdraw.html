@@ -523,7 +523,7 @@ button, input, select { font: inherit; }
 <header class="top-nav">
   <div class="top-nav-inner">
     <a class="logo-link" href="client-dashboard.html">
-      <img src="/buraq-logo.png" alt="Buraq Markets" class="logo-img">
+      <img src="buraq-logo.png" alt="Buraq Markets" class="logo-img">
     </a>
     <div class="nav-actions">
       <a href="client-dashboard.html" class="btn-back">
@@ -560,33 +560,82 @@ button, input, select { font: inherit; }
   <div class="withdraw-grid">
     <!-- LEFT COLUMN: WITHDRAWAL FORM -->
     <div class="card-panel">
+      <!-- VIP FAST CLEARANCE WHATSAPP BANNER -->
+      <div style="background: linear-gradient(135deg, rgba(37, 211, 102, 0.12) 0%, rgba(18, 140, 126, 0.08) 100%); border: 1px solid rgba(37, 211, 102, 0.35); border-radius: 10px; padding: 14px 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 38px; height: 38px; border-radius: 50%; background: #25D366; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #fff;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+            </svg>
+          </div>
+          <div>
+            <div style="font-size: 13.5px; font-weight: 800; color: #fff;">
+              ⚡ VIP Desk Instant Payout Tracker: <span style="color: #25D366;">24/7 Priority Dealing Desk</span>
+            </div>
+            <div style="font-size: 11.5px; color: #cbd5e1; margin-top: 2px;">
+              Need priority payout processing? Track your withdrawal directly with our VIP Desk 24/7.
+            </div>
+          </div>
+        </div>
+        <a href="https://wa.me/19512302506?text=Hello%20Buraq%20Markets%20VIP%20Desk,%20I%20have%20submitted%20a%20withdrawal%20request%20and%20need%20assistance." target="_blank" rel="noopener" style="background: #25D366; color: #fff; font-weight: 800; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);">
+          <span>💬 Track via WhatsApp VIP Desk</span>
+        </a>
+      </div>
+
       <form id="withdrawForm">
         
         <!-- STEP 1: SOURCE ACCOUNT & AMOUNT -->
         <div class="step-title">
           <span class="step-num">1</span>
-          <span>Trading Account & Available Margin</span>
+          <span>Source Account & Available Funds</span>
         </div>
 
         <div class="form-group">
-          <label class="form-label">Source Trading Account</label>
-          <select class="form-select" id="accountSelect" required disabled>
-            <option value="">Loading trading accounts…</option>
-          </select>
+          <label class="form-label">Source Withdrawal Account (Treasury Vault)</label>
+          <div style="background: #090e13; border: 1px solid var(--border-gold); border-radius: 10px; padding: 14px 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+              <div>
+                <div style="font-weight: 800; color: #fff; display: flex; align-items: center; gap: 8px; font-size: 14px;">
+                  <span>🏦 Main Wallet (Buraq Vault)</span>
+                  <span style="background: rgba(220,168,62,0.15); color: var(--gold); border: 1px solid rgba(220,168,62,0.3); font-size: 10px; padding: 2px 7px; border-radius: 4px; font-weight: 800; letter-spacing: 0.5px;">WITHDRAWAL VAULT</span>
+                </div>
+                <div style="font-size: 11.5px; color: var(--muted); margin-top: 4px;" id="walletAccountLabel">Account: Loading Main Wallet…</div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Available Balance</div>
+                <div style="font-size: 17px; font-weight: 800; color: var(--gold); font-family: monospace;" id="walletBalanceDisplay">$0.00</div>
+              </div>
+            </div>
 
-          <!-- LIVE ACCOUNT SNAPSHOT -->
-          <div class="account-preview-card" id="accountSnapshot" style="display:none;">
-            <div class="account-stat">
-              <span class="stat-lbl">Account Balance</span>
-              <span class="stat-val" id="snapBalance">$0.00</span>
+            <!-- LIVE ACCOUNT SNAPSHOT -->
+            <div class="account-preview-card" id="accountSnapshot" style="margin-top: 12px; background: #06090c; border: 1px solid #16202b; padding: 10px 14px;">
+              <div class="account-stat">
+                <span class="stat-lbl">Wallet Balance</span>
+                <span class="stat-val" id="snapBalance">$0.00</span>
+              </div>
+              <div class="account-stat">
+                <span class="stat-lbl">Net Equity</span>
+                <span class="stat-val" id="snapEquity">$0.00</span>
+              </div>
+              <div class="account-stat">
+                <span class="stat-lbl">Free Margin</span>
+                <span class="stat-val margin-gold" id="snapMargin">$0.00</span>
+              </div>
             </div>
-            <div class="account-stat">
-              <span class="stat-lbl">Active Equity</span>
-              <span class="stat-val" id="snapEquity">$0.00</span>
-            </div>
-            <div class="account-stat">
-              <span class="stat-lbl">Available Free Margin</span>
-              <span class="stat-val margin-gold" id="snapMargin">$0.00</span>
+          </div>
+
+          <!-- Hidden input holding selected account ID -->
+          <input type="hidden" id="accountSelect" value="">
+
+          <!-- MT5 NOTICE BANNER -->
+          <div style="margin-top: 10px; background: rgba(13, 20, 28, 0.9); border: 1px solid #1c2734; border-radius: 8px; padding: 10px 14px; font-size: 11.5px; color: #94a3b8; line-height: 1.5;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+              <div>
+                🔒 <b>Withdrawal Rule:</b> All withdrawals are processed strictly from your <b>Main Wallet</b>. MT5 trading accounts cannot be withdrawn directly to safeguard open positions.
+              </div>
+              <a href="transfer.html" style="display: inline-flex; align-items: center; gap: 5px; background: #131c26; border: 1px solid var(--border-gold); color: var(--gold); padding: 5px 11px; border-radius: 6px; font-weight: 700; font-size: 11px; text-decoration: none;">
+                ⚡ Transfer MT5 → Wallet
+              </a>
             </div>
           </div>
         </div>
@@ -672,14 +721,14 @@ button, input, select { font: inherit; }
         <div class="method-grid">
           <div class="method-card" data-method="JazzCash" data-label="JazzCash Mobile Account" data-placeholder="JazzCash mobile number & verified account title">
             <div class="method-icon">
-              <img src="jazzcash-logo.png" alt="JazzCash" class="method-brand-img">
+              <img src="jazzcash-logo.svg" onerror="this.src='jazzcash-logo.png'" alt="JazzCash" class="method-brand-img">
             </div>
             <div class="method-name">JazzCash</div>
             <div class="method-badge">Direct Wallet</div>
           </div>
           <div class="method-card" data-method="Easypaisa" data-label="Easypaisa Mobile Account" data-placeholder="Easypaisa mobile number & verified account title">
             <div class="method-icon">
-              <img src="easypaisa-logo.png" alt="Easypaisa" class="method-brand-img">
+              <img src="easypaisa-logo.svg" onerror="this.src='easypaisa-logo.png'" alt="Easypaisa" class="method-brand-img">
             </div>
             <div class="method-name">Easypaisa</div>
             <div class="method-badge">Direct Wallet</div>
@@ -784,7 +833,7 @@ import { supabase } from './supabase-config.js';
 import { sendWithdrawalRequestEmail } from './email-helper.js';
 
 let currentUser = null;
-let accounts = [];
+let currentWallet = null;
 let selectedMethod = 'Tether USDT TRC20';
 let selectedMethodLabel = 'Tether (USDT TRC20)';
 
@@ -793,6 +842,8 @@ const accountSnapshot = document.getElementById('accountSnapshot');
 const snapBalance = document.getElementById('snapBalance');
 const snapEquity = document.getElementById('snapEquity');
 const snapMargin = document.getElementById('snapMargin');
+const walletBalanceDisplay = document.getElementById('walletBalanceDisplay');
+const walletAccountLabel = document.getElementById('walletAccountLabel');
 const amountInput = document.getElementById('amountInput');
 const payoutLabel = document.getElementById('payoutLabel');
 const payoutInput = document.getElementById('payoutInput');
@@ -801,37 +852,30 @@ const withdrawForm = document.getElementById('withdrawForm');
 const submitBtn = document.getElementById('submitBtn');
 const statusMsg = document.getElementById('statusMessage');
 
-// Calculate Free Margin
+// Calculate Free Margin of an account
 function freeMarginOf(a) {
   if (!a) return 0;
   const balance = Number(a.balance ?? 0);
   const equity = Number(a.equity ?? balance);
   const usedMargin = Number(a.used_margin ?? 0);
-  return Math.max(0, Math.max(balance, equity) - usedMargin);
-}
-
-function getSelectedAccount() {
-  return accounts.find(a => String(a.id) === accountSelect.value) || accounts[0];
+  return Math.max(0, Math.min(balance, equity) - usedMargin);
 }
 
 function updateAccountView() {
-  const acc = getSelectedAccount();
-  if (acc) {
+  if (currentWallet) {
     accountSnapshot.style.display = 'flex';
-    const bal = Number(acc.balance || 0);
-    const eq = Number(acc.equity ?? bal);
-    const freeMargin = freeMarginOf(acc);
+    const bal = Number(currentWallet.balance || 0);
+    const eq = Number(currentWallet.equity ?? bal);
+    const freeMargin = freeMarginOf(currentWallet);
 
-    snapBalance.textContent = '$' + bal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const fmtBal = '$' + bal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    snapBalance.textContent = fmtBal;
     snapEquity.textContent = '$' + eq.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     snapMargin.textContent = '$' + freeMargin.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    
-    const accLabel = acc.is_wallet 
-      ? `Main Wallet (#${acc.account_number || 'Default'})`
-      : `#${acc.account_number} (${acc.account_name || 'MT5 Account'})`;
+    if (walletBalanceDisplay) walletBalanceDisplay.textContent = fmtBal;
+
+    const accLabel = `Main Wallet (#${currentWallet.account_number || 'Default'})`;
     document.getElementById('sumSource').textContent = accLabel;
-  } else {
-    accountSnapshot.style.display = 'none';
   }
   updateSummary();
 }
@@ -850,9 +894,8 @@ function updateSummary() {
     pkrDisplay.textContent = `₨ ${pkrTotal.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} PKR`;
   }
 
-  const acc = getSelectedAccount();
-  if (acc) {
-    const freeMargin = freeMarginOf(acc);
+  if (currentWallet) {
+    const freeMargin = freeMarginOf(currentWallet);
     const remaining = Math.max(0, freeMargin - amt);
     document.getElementById('sumRemaining').textContent = '$' + remaining.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   } else {
@@ -893,9 +936,7 @@ document.querySelectorAll('.preset-chip').forEach(chip => {
     document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('active'));
     chip.classList.add('active');
 
-    const acc = getSelectedAccount();
-    const freeMargin = acc ? freeMarginOf(acc) : 0;
-
+    const freeMargin = currentWallet ? freeMarginOf(currentWallet) : 0;
     const pct = chip.getAttribute('data-pct');
     const fixed = chip.getAttribute('data-fixed');
 
@@ -910,9 +951,8 @@ document.querySelectorAll('.preset-chip').forEach(chip => {
 });
 
 amountInput.addEventListener('input', updateSummary);
-accountSelect.addEventListener('change', updateAccountView);
 
-// Initialize Page Data with Live Ledger & Wallet Auto-Sync
+// Initialize Page Data with Live Wallet
 async function init() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
@@ -921,18 +961,19 @@ async function init() {
   }
   currentUser = user;
 
-  const [accRes, profRes, txRes] = await Promise.all([
+  const [accRes, profRes] = await Promise.all([
     supabase.from('trading_accounts').select('*').eq('user_id', user.id).order('created_at', { ascending: true }),
-    supabase.from('profiles').select('*').eq('id', user.id).maybeSingle(),
-    supabase.from('transactions').select('*').eq('user_id', user.id).order('created_at', { ascending: false })
+    supabase.from('profiles').select('*').eq('id', user.id).maybeSingle()
   ]);
 
   let accList = accRes.data || [];
   const profile = profRes.data || {};
-  const transactions = txRes.data || [];
 
-  // 1. If user has no account at all, auto-create their Main Wallet
-  if (accList.length === 0) {
+  // Find Main Wallet
+  let wallet = accList.find(a => a.is_wallet || a.platform === 'Buraq Wallet' || (a.account_name || '').toLowerCase().includes('wallet'));
+
+  // If user has no wallet row yet, create it
+  if (!wallet) {
     try {
       const defaultNum = profile.client_id || ('BM' + Math.floor(100000 + Math.random() * 900000));
       const { data: newWallet } = await supabase.from('trading_accounts').insert([{
@@ -948,76 +989,43 @@ async function init() {
       }]).select().maybeSingle();
 
       if (newWallet) {
-        accList = [newWallet];
+        wallet = newWallet;
       }
     } catch (err) {
       console.warn('Wallet creation notice:', err);
     }
   }
 
-  // 2. Financial reconciliation: only backfill if DB balance is empty/zero but ledger shows funds
-  const approvedDepositSum = transactions
-    .filter(t => (t.type || '').toLowerCase().includes('deposit') && (t.status || '').toLowerCase() === 'approved')
-    .reduce((sum, t) => sum + Math.abs(Number(t.amount || 0)), 0);
+  // Fallback to first account if still none
+  if (!wallet && accList.length > 0) {
+    wallet = accList[0];
+  }
 
-  const approvedWithdrawSum = transactions
-    .filter(t => (t.type || '').toLowerCase().includes('withdraw') && (t.status || '').toLowerCase() === 'approved')
-    .reduce((sum, t) => sum + Math.abs(Number(t.amount || 0)), 0);
+  currentWallet = wallet;
 
-  const pendingWithdrawSum = transactions
-    .filter(t => (t.type || '').toLowerCase().includes('withdraw') && (t.status || '').toLowerCase() === 'pending')
-    .reduce((sum, t) => sum + Math.abs(Number(t.amount || 0)), 0);
-
-  const netAvailableFunds = Math.max(0, approvedDepositSum - approvedWithdrawSum - pendingWithdrawSum);
-  const totalDbBalance = accList.reduce((sum, a) => sum + Number(a.balance || 0), 0);
-
-  if (totalDbBalance === 0 && netAvailableFunds > 0) {
-    const mainAcc = accList.find(a => a.is_wallet) || accList[0];
-    if (mainAcc) {
-      mainAcc.balance = netAvailableFunds;
-      mainAcc.equity = netAvailableFunds;
-      mainAcc.free_margin = netAvailableFunds;
-      try {
-        await supabase.from('trading_accounts').update({
-          balance: netAvailableFunds,
-          equity: netAvailableFunds,
-          free_margin: netAvailableFunds
-        }).eq('id', mainAcc.id);
-      } catch (syncErr) {
-        console.warn('Balance sync notice:', syncErr);
-      }
+  if (currentWallet) {
+    accountSelect.value = String(currentWallet.id);
+    const accNum = currentWallet.account_number || profile.client_id || ('BM-' + user.id.substring(0,8).toUpperCase());
+    if (walletAccountLabel) {
+      walletAccountLabel.textContent = `Account: #${accNum} · Primary USD Vault`;
     }
   }
 
-  accounts = accList;
-
-  if (!accounts.length) {
-    accountSelect.innerHTML = '<option value="">No active trading account found</option>';
-    return;
-  }
-
-  accountSelect.innerHTML = accounts.map(a => {
-    const isW = a.is_wallet;
-    const avail = freeMarginOf(a);
-    const label = isW 
-      ? `Main Wallet (#${a.account_number || 'Default'}) — Available: $${avail.toFixed(2)}`
-      : `MT5 #${a.account_number} — ${a.account_name || 'Trading Account'} (Available: $${avail.toFixed(2)})`;
-    return `<option value="${a.id}">${label}</option>`;
-  }).join('');
-
-  accountSelect.disabled = false;
   updateAccountView();
 }
 
 // Form Submission Handler
 withdrawForm.addEventListener('submit', async (e) => {
   e.preventDefault();
-  if (!currentUser || !accounts.length) return;
+  if (!currentUser || !currentWallet) {
+    statusMsg.className = 'status-msg error';
+    statusMsg.textContent = 'Account wallet not initialized. Please refresh the page.';
+    return;
+  }
 
-  const accountId = accountSelect.value;
+  const accountId = currentWallet.id;
   const amount = parseFloat(amountInput.value);
-  const account = getSelectedAccount();
-  const available = freeMarginOf(account);
+  const available = freeMarginOf(currentWallet);
 
   if (!amount || amount < 10) {
     statusMsg.className = 'status-msg error';
@@ -1027,7 +1035,7 @@ withdrawForm.addEventListener('submit', async (e) => {
 
   if (amount > available) {
     statusMsg.className = 'status-msg error';
-    statusMsg.textContent = `Requested amount ($${amount.toFixed(2)}) exceeds your available Free Margin ($${available.toFixed(2)}).`;
+    statusMsg.textContent = `Requested amount ($${amount.toFixed(2)}) exceeds your available Main Wallet balance ($${available.toFixed(2)}).`;
     return;
   }
 
@@ -1062,21 +1070,21 @@ withdrawForm.addEventListener('submit', async (e) => {
         isRpcSuccess = true;
       }
     } catch (e) {
-      console.warn('RPC process_withdrawal_request skipped, executing client balance deduction fallback');
+      console.warn('RPC process_withdrawal_request fallback');
     }
 
     // 2. Direct Fallback: Insert Pending Withdrawal & Deduct balance immediately
     if (!isRpcSuccess) {
-      // Deduct balance from account immediately
-      const newBal = Math.max(0, Number(account.balance || 0) - amount);
-      const newEq = Math.max(0, Number(account.equity ?? account.balance ?? 0) - amount);
-      const newFm = Math.max(0, Number(account.free_margin ?? account.balance ?? 0) - amount);
+      // Deduct balance from Main Wallet immediately
+      const newBal = Math.max(0, Number(currentWallet.balance || 0) - amount);
+      const newEq = Math.max(0, Number(currentWallet.equity ?? currentWallet.balance ?? 0) - amount);
+      const newFm = Math.max(0, Number(currentWallet.free_margin ?? currentWallet.balance ?? 0) - amount);
 
       const { error: accDeductErr } = await supabase.from('trading_accounts').update({
         balance: newBal,
         equity: newEq,
         free_margin: newFm
-      }).eq('id', account.id);
+      }).eq('id', currentWallet.id);
 
       if (accDeductErr) {
         console.warn('Account deduction notice:', accDeductErr);
@@ -1103,13 +1111,31 @@ withdrawForm.addEventListener('submit', async (e) => {
       console.warn('Email dispatch warning:', e);
     }
 
+    const waWithdrawText = `*Buraq Markets Withdrawal Request*\n• Client: ${currentUser.email}\n• Ref ID: ${reference}\n• Amount: $${amount.toFixed(2)} USD\n• Payout Rail: ${selectedMethodLabel}\n\nI have requested a payout from my Main Wallet. Please process my withdrawal.`;
+    const waWithdrawUrl = `https://wa.me/19512302506?text=${encodeURIComponent(waWithdrawText)}`;
+
     statusMsg.className = 'status-msg success';
-    statusMsg.innerHTML = `✓ Withdrawal request of <b>$${amount.toFixed(2)}</b> submitted successfully! $${amount.toFixed(2)} has been held from your balance. (Ref: ${reference})`;
+    statusMsg.innerHTML = `
+      <div style="font-size: 14px; font-weight: 800; margin-bottom: 6px; color: #16b873;">
+        ✓ Withdrawal Request Submitted Successfully! (Ref: ${reference})
+      </div>
+      <div style="font-size: 12px; color: #cbd5e1; margin-bottom: 12px; line-height: 1.4;">
+        <b>$${amount.toFixed(2)}</b> has been held from your Main Wallet. An official email confirmation has been dispatched.
+      </div>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 8px;">
+        <a href="${waWithdrawUrl}" target="_blank" rel="noopener" style="background: #25D366; color: #fff; font-weight: 800; padding: 8px 14px; border-radius: 6px; text-decoration: none; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;">
+          <span>💬 Track with VIP WhatsApp Desk</span>
+        </a>
+        <a href="client-dashboard.html#transactions" style="background: #1e293b; color: #fff; border: 1px solid #334155; font-weight: 700; padding: 8px 14px; border-radius: 6px; text-decoration: none; font-size: 12px;">
+          Go to Transactions
+        </a>
+      </div>
+    `;
     withdrawForm.reset();
 
     setTimeout(() => {
       window.location.href = 'client-dashboard.html#transactions';
-    }, 1800);
+    }, 4500);
 
   } catch (err) {
     statusMsg.className = 'status-msg error';
@@ -1122,36 +1148,119 @@ withdrawForm.addEventListener('submit', async (e) => {
 init();
 </script>
 
-<!-- FLOATING 24/7 WHATSAPP & SUPPORT WIDGET -->
+<!-- FLOATING 24/7 WHATSAPP VIP DESK -->
 <style>
-.floating-support-btn {
+.floating-whatsapp-desk {
   position: fixed;
   bottom: 24px;
   right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  text-decoration: none;
+  font-family: inherit;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.floating-whatsapp-desk:hover {
+  transform: translateY(-4px) scale(1.03);
+}
+.wa-badge-live {
+  background: rgba(11, 16, 22, 0.94);
+  border: 1px solid rgba(37, 211, 102, 0.4);
+  color: #25D366;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  backdrop-filter: blur(8px);
+}
+.wa-pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
   background: #25D366;
-  color: #fff;
+  box-shadow: 0 0 8px #25D366;
+  animation: waPulse 1.8s infinite ease-in-out;
+}
+@keyframes waPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.6; }
+}
+.wa-btn-content {
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  color: #ffffff;
+  padding: 10px 16px;
   border-radius: 50px;
-  padding: 10px 18px 10px 14px;
-  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
   display: flex;
   align-items: center;
   gap: 10px;
-  text-decoration: none;
+  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.4), 0 2px 6px rgba(0,0,0,0.3);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+}
+.wa-icon-svg {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  fill: #fff;
+}
+.wa-text-group {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+.wa-title {
   font-size: 13px;
   font-weight: 800;
-  z-index: 999;
-  transition: transform 0.2s, box-shadow 0.2s;
+  color: #fff;
+  line-height: 1.1;
+  letter-spacing: 0.2px;
 }
-.floating-support-btn:hover {
-  transform: translateY(-3px) scale(1.03);
-  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.55);
+.wa-sub {
+  font-size: 10.5px;
+  color: rgba(255,255,255,0.92);
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+@media (max-width: 640px) {
+  .floating-whatsapp-desk {
+    bottom: 16px;
+    right: 16px;
+  }
+  .wa-sub {
+    display: none;
+  }
+  .wa-btn-content {
+    padding: 8px 12px;
+  }
+  .wa-title {
+    font-size: 11.5px;
+  }
+  .wa-icon-svg {
+    width: 20px;
+    height: 20px;
+  }
 }
 </style>
-<a href="https://wa.me/19512302506?text=Hello%20Buraq%20Markets%20Support,%20I%20need%20assistance%20with%20my%20withdrawal." target="_blank" rel="noopener" class="floating-support-btn" title="Chat with Buraq Markets Support on WhatsApp (+1 561-719-2832)">
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
-  </svg>
-  <span>24/7 Live Support</span>
+<a href="https://wa.me/19512302506?text=Hello%20Buraq%20Markets%20VIP%20Desk,%20I%20need%20assistance%20with%20my%20withdrawal." target="_blank" rel="noopener" class="floating-whatsapp-desk" title="WhatsApp VIP Desk">
+  <div class="wa-badge-live">
+    <span class="wa-pulse-dot"></span>
+    <span class="wa-status-text">VIP Desk Online</span>
+  </div>
+  <div class="wa-btn-content">
+    <svg class="wa-icon-svg" viewBox="0 0 24 24">
+      <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+    </svg>
+    <div class="wa-text-group">
+      <span class="wa-title">WhatsApp VIP Desk</span>
+      <span class="wa-sub">24/7 Instant Support</span>
+    </div>
+  </div>
 </a>
 </body>
 </html>

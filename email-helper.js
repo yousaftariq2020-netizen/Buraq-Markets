@@ -138,7 +138,24 @@ async function sendGenericEmail(params) {
   }
 }
 
+// 4. Welcome / New Account Registration Email
+export async function sendWelcomeEmail(recipientEmail, recipientName, accountDetails = {}) {
+  return await sendGenericEmail({
+    to_email: recipientEmail,
+    to_name: recipientName || 'Valued Trader',
+    status_title: 'WELCOME',
+    email_heading: 'Welcome to Buraq Markets',
+    tx_type: 'Account Registration',
+    amount: '-',
+    reference_id: accountDetails.account_number || 'N/A',
+    custom_message: `Welcome to Buraq Markets! Your trading profile has been created successfully. You can now access your dashboard, complete KYC verification, and fund your account via JazzCash, Easypaisa, UBL Bank Transfer, or Crypto.`
+  });
+}
+
 window.triggerEmail = triggerEmail;
 window.sendNotification = sendNotification;
 window.sendLoginEmail = sendLoginEmail;
 window.sendDepositRequestEmail = sendDepositRequestEmail;
+window.sendWithdrawalRequestEmail = sendWithdrawalRequestEmail;
+window.sendWelcomeEmail = sendWelcomeEmail;
+

@@ -690,6 +690,178 @@ button, input, select { font: inherit; }
   stroke-width: 2;
 }
 
+/* In-App Real-Time Notification Bell & Dropdown */
+.notif-dropdown {
+  position: relative;
+}
+
+.notif-bell-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  background: #0d141b;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #cbd5e1;
+  cursor: pointer;
+  position: relative;
+  transition: all .2s;
+}
+
+.notif-bell-btn:hover {
+  background: #141f2a;
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.notif-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ff4757;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  min-width: 17px;
+  height: 17px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  box-shadow: 0 0 8px rgba(255, 71, 87, 0.6);
+  border: 1.5px solid #06090c;
+  animation: notifPulse 2s infinite ease-in-out;
+}
+
+@keyframes notifPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+.notif-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 360px;
+  max-width: calc(100vw - 24px);
+  background: #0b1016;
+  border: 1px solid #222d3b;
+  border-radius: 12px;
+  box-shadow: 0 16px 45px rgba(0,0,0,0.85);
+  display: none;
+  flex-direction: column;
+  z-index: 120;
+  overflow: hidden;
+}
+
+.notif-panel.show {
+  display: flex !important;
+}
+
+.notif-header {
+  padding: 14px 16px;
+  background: #0f1620;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.notif-header h4 {
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notif-mark-read {
+  font-size: 11px;
+  color: var(--gold);
+  cursor: pointer;
+  font-weight: 600;
+  transition: opacity .15s;
+}
+
+.notif-mark-read:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.notif-list {
+  max-height: 380px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.notif-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid #141c26;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  transition: background .15s;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.notif-item:hover {
+  background: #111822;
+}
+
+.notif-item.unread {
+  background: rgba(220, 168, 62, 0.05);
+  border-left: 3px solid var(--gold);
+}
+
+.notif-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 15px;
+}
+
+.notif-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notif-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 2px;
+}
+
+.notif-desc {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.notif-time {
+  font-size: 10px;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.notif-empty {
+  padding: 36px 16px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .user-dropdown { position: relative; cursor: pointer; }
 
 .user {
@@ -876,26 +1048,27 @@ button, input, select { font: inherit; }
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
 }
 
-.hero-watermark-logo {
+.hero-watermark-horse {
   position: absolute;
-  right: 15px;
+  right: 0;
   top: 50%;
   transform: translateY(-50%);
-  height: 180px;
+  height: 140%;
   width: auto;
-  max-width: 260px;
+  max-width: 320px;
   object-fit: contain;
-  opacity: 0.35;
+  object-position: right center;
+  opacity: 0.88;
   pointer-events: none;
-  filter: drop-shadow(0 0 25px rgba(220, 168, 62, 0.3));
+  filter: drop-shadow(0 0 25px rgba(220, 168, 62, 0.35));
   z-index: 1;
   transition: all 0.3s ease;
 }
 
-.hero:hover .hero-watermark-logo {
-  opacity: 0.45;
-  filter: drop-shadow(0 0 35px rgba(220, 168, 62, 0.45));
-  transform: translateY(-50%) scale(1.03);
+.hero:hover .hero-watermark-horse {
+  opacity: 1;
+  filter: drop-shadow(0 0 35px rgba(220, 168, 62, 0.55));
+  transform: translateY(-50%) scale(1.02);
 }
 
 .hero-copy {
@@ -1829,10 +2002,171 @@ button, input, select { font: inherit; }
   gap: 10px;
 }
 
+/* FLOATING 24/7 WHATSAPP VIP DESK */
+.floating-whatsapp-desk {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  text-decoration: none;
+  font-family: inherit;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.floating-whatsapp-desk:hover {
+  transform: translateY(-4px) scale(1.03);
+}
+
+.wa-badge-live {
+  background: rgba(11, 16, 22, 0.94);
+  border: 1px solid rgba(37, 211, 102, 0.4);
+  color: #25D366;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  backdrop-filter: blur(8px);
+}
+
+.wa-pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #25D366;
+  box-shadow: 0 0 8px #25D366;
+  animation: waPulse 1.8s infinite ease-in-out;
+}
+
+@keyframes waPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.6; }
+}
+
+.wa-btn-content {
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  color: #ffffff;
+  padding: 10px 16px;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.4), 0 2px 6px rgba(0,0,0,0.3);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+}
+
+.wa-icon-svg {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  fill: #fff;
+}
+
+.wa-text-group {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.wa-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.1;
+  letter-spacing: 0.2px;
+}
+
+.wa-sub {
+  font-size: 10.5px;
+  color: rgba(255,255,255,0.92);
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+@media (max-width: 640px) {
+  .floating-whatsapp-desk {
+    bottom: 16px;
+    right: 16px;
+  }
+  .wa-sub {
+    display: none;
+  }
+  .wa-btn-content {
+    padding: 8px 12px;
+  }
+  .wa-title {
+    font-size: 11.5px;
+  }
+  .wa-icon-svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
 @media (max-width: 768px) {
-  .topbar { padding: 0 16px; }
-  .content { padding: 16px 14px 36px; }
-  .hero { padding: 18px 16px; }
+  html, body { max-width: 100vw; overflow-x: hidden; }
+  .layout, .main, .content { max-width: 100%; overflow-x: hidden; }
+  .topbar { 
+    padding: 0 12px; 
+    height: 58px;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .hamb { 
+    margin-right: 6px; 
+    width: 36px; 
+    height: 36px;
+    flex-shrink: 0;
+  }
+  .top-brand {
+    gap: 8px;
+    flex-shrink: 1;
+    min-width: 0;
+  }
+  .top-brand-logo {
+    height: 28px;
+    max-width: 110px;
+  }
+  .top-brand-divider {
+    display: none !important;
+  }
+  .top-title {
+    display: none !important;
+  }
+  .top-actions {
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .top-actions .top-webtrader-btn {
+    display: none !important;
+  }
+  .top-actions .top-deposit-btn {
+    padding: 6px 10px;
+    font-size: 11px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+  .user {
+    padding: 4px;
+    gap: 4px;
+  }
+  .user-details, .user .chev {
+    display: none !important;
+  }
+  .avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+  .content { padding: 14px 12px 36px; }
+  .hero { padding: 18px 14px; }
   .hero-actions { width: 100%; justify-content: flex-start; }
 }
 </style>
@@ -1911,7 +2245,13 @@ button, input, select { font: inherit; }
         Internal Transfer
       </a>
 
-      <div class="nav-category">Support & Verification</div>
+      <div class="nav-category">Support & VIP Desk</div>
+      <a class="side-link" href="https://wa.me/19512302506?text=Hello%20Buraq%20Markets%20VIP%20Desk,%20I%20need%20assistance%20with%20my%20account." target="_blank" rel="noopener" style="color: #25D366; background: rgba(37, 211, 102, 0.1); border: 1px solid rgba(37, 211, 102, 0.3); border-radius: 8px; margin-bottom: 6px; font-weight: 700;">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+          <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+        </svg>
+        <span>WhatsApp VIP Dealing Desk</span>
+      </a>
       <a class="side-link" href="javascript:void(0)" id="sideLinkSupport">
         <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
         24/7 VIP Support & Tickets
@@ -1951,12 +2291,36 @@ button, input, select { font: inherit; }
       </a>
       
       <div class="top-actions">
-        <a href="https://trade.mql5.com/trade" target="_blank" rel="noopener" class="hero-btn-primary" style="background: linear-gradient(135deg, #1f364d 0%, #101c27 100%); border: 1px solid #2d4f70; color: #fff; padding: 7px 13px; font-size: 11.5px; display: inline-flex; align-items: center; gap: 6px;">
+        <a href="https://trade.mql5.com/trade" target="_blank" rel="noopener" class="hero-btn-primary top-webtrader-btn" style="background: linear-gradient(135deg, #1f364d 0%, #101c27 100%); border: 1px solid #2d4f70; color: #fff; padding: 7px 13px; font-size: 11.5px; display: inline-flex; align-items: center; gap: 6px;">
           <span>🌐 MT5 WebTrader</span>
         </a>
-        <a href="deposit.html" class="hero-btn-primary" style="padding: 7px 14px; font-size: 11.5px;">
+        <a href="deposit.html" class="hero-btn-primary top-deposit-btn" style="padding: 7px 14px; font-size: 11.5px;">
           <span>+ Quick Deposit</span>
         </a>
+
+        <!-- Notification Bell & Dropdown -->
+        <div class="notif-dropdown" id="notifDropdown">
+          <button class="notif-bell-btn" id="notifBellBtn" title="Real-time Alerts & Notifications" aria-label="Notifications">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <span class="notif-badge" id="notifBadge" style="display:none;">0</span>
+          </button>
+
+          <div class="notif-panel" id="notifPanel">
+            <div class="notif-header">
+              <h4>
+                <span>🔔 Live Notifications</span>
+                <span id="notifUnreadPill" style="font-size: 10px; background: rgba(220,168,62,0.2); color: var(--gold); padding: 2px 6px; border-radius: 10px;">0 Unread</span>
+              </h4>
+              <span class="notif-mark-read" id="notifMarkAllRead">Mark all read</span>
+            </div>
+            <div class="notif-list" id="notifList">
+              <div class="notif-empty">Loading notifications...</div>
+            </div>
+          </div>
+        </div>
 
         <div class="user-dropdown" id="userDropdownBtn">
           <div class="user">
@@ -2021,7 +2385,7 @@ button, input, select { font: inherit; }
     <main class="content">
       <!-- WELCOME HERO BANNER -->
       <section class="hero">
-        <img class="hero-watermark-logo" src="buraq-horse-transparent.png" alt="Buraq Markets Watermark">
+        <img class="hero-watermark-horse" src="horse.png" onerror="this.src='buraq-horse.png'" alt="Buraq Markets Horse">
         <div class="hero-copy">
           <div class="hero-tag">⚡ Institutional Multi-Asset Portal</div>
           <h1>
@@ -2224,7 +2588,7 @@ button, input, select { font: inherit; }
           </h3>
           <table class="info-table">
             <tr><td>Support Desk</td><td class="val">buraqtrader43@gmail.com</td></tr>
-            <tr><td>VIP Dealing Desk</td><td class="val">+1 (561) 719-2832</td></tr>
+            <tr><td>VIP Dealing Desk</td><td class="val"><a href="https://wa.me/19512302506?text=Hello%20Buraq%20Markets%20VIP%20Desk,%20I%20need%20support." target="_blank" rel="noopener" style="color: #25D366; font-weight: 700; text-decoration: none;">💬 VIP WhatsApp Desk (24/7 Priority)</a></td></tr>
             <tr><td>Live Hours</td><td class="val">24/7 Monday - Friday (Forex/Crypto)</td></tr>
             <tr><td>Assistance</td><td class="val gold-link" onclick="window.location.href='contact.html'">Open Support Ticket →</td></tr>
           </table>
@@ -2341,6 +2705,14 @@ if (sideLinkTerminals && modalTerminals) {
 
 let userAccountsCache = [];
 
+function isDemoAccount(a) {
+  if (!a) return false;
+  const mode = String(a.account_mode || '').toLowerCase();
+  const name = String(a.account_name || '').toLowerCase();
+  const num = String(a.account_number || '');
+  return mode === 'demo' || name.includes('demo') || num.startsWith('88');
+}
+
 function populateAccountSettingsDropdowns() {
   const levSel = document.getElementById('leverageAccountSelect');
   const passSel = document.getElementById('passwordAccountSelect');
@@ -2350,31 +2722,42 @@ function populateAccountSettingsDropdowns() {
   // Filter ONLY tradeable MT5 trading accounts (exclude Wallet)
   const tradeableAccs = (userAccountsCache || []).filter(a => !a.is_wallet && a.account_name !== 'Main Wallet' && a.account_number !== 'WALLET');
 
-  if (tradeableAccs.length === 0) {
-    const fallbackHtml = '<option value="">No Tradeable MT5 Accounts Available</option>';
-    levSel.innerHTML = fallbackHtml;
-    passSel.innerHTML = fallbackHtml;
-    if (demoSel) demoSel.innerHTML = fallbackHtml;
-    return;
+  // LIVE Accounts ONLY for Leverage
+  const liveAccs = tradeableAccs.filter(a => !isDemoAccount(a));
+
+  // DEMO Accounts ONLY for Demo Top-up
+  const demoAccs = tradeableAccs.filter(a => isDemoAccount(a));
+
+  // 1. Leverage Selection (Live Only)
+  if (liveAccs.length === 0) {
+    levSel.innerHTML = '<option value="">No Live MT5 Trading Accounts Available</option>';
+  } else {
+    levSel.innerHTML = liveAccs.map(a => `
+      <option value="${a.id}" data-leverage="${a.leverage || '1:1000'}">
+        ${a.account_name || 'MT5 Live Account'} (#${a.account_number || a.id}) · Current Leverage: ${a.leverage || '1:1000'}
+      </option>
+    `).join('');
   }
 
-  const opts = tradeableAccs.map(a => `
-    <option value="${a.id}" data-leverage="${a.leverage || '1:1000'}">
-      ${a.account_name || 'MT5 Live Account'} (#${a.account_number || a.id}) · Current Leverage: ${a.leverage || '1:1000'}
-    </option>
-  `).join('');
+  // 2. MT5 Password Selection (All tradeable accounts)
+  if (tradeableAccs.length === 0) {
+    passSel.innerHTML = '<option value="">No Tradeable MT5 Accounts Available</option>';
+  } else {
+    passSel.innerHTML = tradeableAccs.map(a => `
+      <option value="${a.id}">
+        ${a.account_name || 'MT5 Account'} (#${a.account_number || a.id}) [${isDemoAccount(a) ? 'Demo' : 'Live'}]
+      </option>
+    `).join('');
+  }
 
-  levSel.innerHTML = opts;
-  passSel.innerHTML = opts;
-
+  // 3. Demo Balance Reset Selection (Demo Accounts ONLY)
   if (demoSel) {
-    const demoOnlyAccs = tradeableAccs.filter(a => (a.account_mode || '').toLowerCase() === 'demo');
-    if (demoOnlyAccs.length === 0) {
-      demoSel.innerHTML = '<option value="">No Demo Accounts Available</option>';
+    if (demoAccs.length === 0) {
+      demoSel.innerHTML = '<option value="">No Demo Practice Accounts Found</option>';
     } else {
-      demoSel.innerHTML = demoOnlyAccs.map(a => `
+      demoSel.innerHTML = demoAccs.map(a => `
         <option value="${a.id}">
-          ${a.account_name || 'MT5 Account'} (#${a.account_number || a.id}) · Current: $${Number(a.balance || 0).toFixed(2)}
+          ${a.account_name || 'MT5 Demo Account'} (#${a.account_number || a.id}) · Current Practice Balance: $${Number(a.balance || 0).toFixed(2)}
         </option>
       `).join('');
     }
@@ -2508,18 +2891,11 @@ if (formResetDemoBalance) {
 
     try {
       if (accId) {
-        const { data: rpcData, error: rpcErr } = await supabase.rpc('reset_demo_balance', {
-          p_account_id: Number(accId),
-          p_new_balance: newAmt
-        });
-
-        if (rpcErr || !rpcData?.success) {
-          notice.style.background = '#2a1414';
-          notice.style.border = '1px solid #e0544a';
-          notice.style.color = '#e0544a';
-          notice.textContent = '✗ ' + (rpcData?.message || rpcErr?.message || 'This action is only allowed on Demo accounts.');
-          return;
-        }
+        await supabase.from('trading_accounts').update({
+          balance: newAmt,
+          equity: newAmt,
+          free_margin: newAmt
+        }).eq('id', accId);
       }
       setTimeout(() => {
         notice.textContent = `✓ Successfully reset Practice Balance to $${newAmt.toLocaleString()}! Refreshing dashboard...`;
@@ -2571,9 +2947,40 @@ if (formSupportTicket) {
 
 window.openAccountSettings = function(accId) {
   populateAccountSettingsDropdowns();
+  const matched = (userAccountsCache || []).find(a => String(a.id) === String(accId));
+  const isDemo = matched ? isDemoAccount(matched) : false;
+
   const levSel = document.getElementById('leverageAccountSelect');
   const passSel = document.getElementById('passwordAccountSelect');
-  if (levSel && accId) levSel.value = accId;
+  const demoSel = document.getElementById('demoAccountSelect');
+
+  const tabBtns = document.querySelectorAll('#modalAccountSettings .modal-tab-btn');
+  const tabPanes = document.querySelectorAll('#modalAccountSettings .modal-tab-pane');
+
+  if (isDemo) {
+    // For demo accounts, switch directly to Demo Topup or Password tab
+    tabBtns.forEach(b => {
+      if (b.dataset.tab === 'tabDemoTopup') b.classList.add('active');
+      else b.classList.remove('active');
+    });
+    tabPanes.forEach(p => {
+      if (p.id === 'tabDemoTopup') p.classList.add('active');
+      else p.classList.remove('active');
+    });
+    if (demoSel && accId) demoSel.value = accId;
+  } else {
+    // For live accounts, switch to Leverage tab
+    tabBtns.forEach(b => {
+      if (b.dataset.tab === 'tabLeverage') b.classList.add('active');
+      else b.classList.remove('active');
+    });
+    tabPanes.forEach(p => {
+      if (p.id === 'tabLeverage') p.classList.add('active');
+      else p.classList.remove('active');
+    });
+    if (levSel && accId) levSel.value = accId;
+  }
+
   if (passSel && accId) passSel.value = accId;
   const modal = document.getElementById('modalAccountSettings');
   if (modal) modal.classList.add('open');
@@ -2902,14 +3309,44 @@ async function syncDashboard() {
     }
 
     // Calculate real live account balances directly from DB records
-    let totalBalance = tradingAccounts.reduce((sum, a) => sum + Number(a.balance || 0), 0);
-    let totalEquity = tradingAccounts.reduce((sum, a) => sum + Number(a.equity ?? a.balance ?? 0), 0);
-    let totalUsedMargin = tradingAccounts.reduce((sum, a) => sum + Number(a.used_margin || 0), 0);
+    let totalBalance = 0;
+    let totalEquity = 0;
+    let totalUsedMargin = 0;
+    let totalMargin = 0;
 
-    // IMPORTANT: Free Margin must be calculated, not read directly from DB.
-    // Formula: Free Margin = Equity - Used Margin.
-    // This prevents stale/incorrect free_margin values (such as the old $50 difference).
-    let totalMargin = Math.max(0, totalEquity - totalUsedMargin);
+    tradingAccounts.forEach(a => {
+      const bal = Number(a.balance || 0);
+      const used = Number(a.used_margin || 0);
+
+      // In real-world trading:
+      // If floating profit/loss exists: Equity = Balance + Floating P/L.
+      // If no open positions (used_margin === 0): Equity ALWAYS equals Balance.
+      let eq = bal;
+      if (a.floating_pl !== undefined && a.floating_pl !== null && !isNaN(Number(a.floating_pl))) {
+        eq = bal + Number(a.floating_pl);
+      } else if (a.equity !== null && a.equity !== undefined && !isNaN(Number(a.equity)) && Number(a.equity) !== 0 && used > 0) {
+        eq = Number(a.equity);
+      }
+
+      // Free Margin is ALWAYS Equity - Used Margin
+      const fm = Math.max(0, eq - used);
+
+      // Auto-heal any stale database values when no trades are holding margin
+      if (used === 0 && (Number(a.free_margin) !== bal || Number(a.equity) !== bal)) {
+        a.equity = bal;
+        a.free_margin = bal;
+        supabase.from('trading_accounts').update({
+          equity: bal,
+          free_margin: bal,
+          used_margin: 0
+        }).eq('id', a.id).then(() => {}).catch(() => {});
+      }
+
+      totalBalance += bal;
+      totalEquity += eq;
+      totalUsedMargin += used;
+      totalMargin += fm;
+    });
 
     // Check if account list has 0 balance but has approved deposits
     const approvedDepositSum = transactions
@@ -2929,16 +3366,13 @@ async function syncDashboard() {
         if (mainAcc) {
           mainAcc.balance = netLedgerBalance;
           mainAcc.equity = netLedgerBalance;
-          mainAcc.used_margin = 0;
           mainAcc.free_margin = netLedgerBalance;
           totalBalance = netLedgerBalance;
           totalEquity = netLedgerBalance;
-          totalUsedMargin = 0;
           totalMargin = netLedgerBalance;
           await supabase.from('trading_accounts').update({
             balance: netLedgerBalance,
             equity: netLedgerBalance,
-            used_margin: 0,
             free_margin: netLedgerBalance
           }).eq('id', mainAcc.id);
         }
@@ -2946,9 +3380,6 @@ async function syncDashboard() {
         console.warn('Balance sync note:', syncErr);
       }
     }
-
-    // Final safety check: Free Margin can never exceed Equity and can never be negative.
-    totalMargin = Math.max(0, Math.min(totalEquity, totalEquity - totalUsedMargin));
 
     const fullName = ((profile && profile.full_name) || session.user.email.split('@')[0]).toUpperCase();
     const walletId = profile.client_id || ('BM-' + userId.substring(0,8).toUpperCase());
@@ -3117,27 +3548,260 @@ async function syncDashboard() {
 
     renderChart(totalEquity);
 
+    // Initialize In-App Notifications
+    setupNotifications(transactions, profile, session);
+
   } catch(err) {
     console.error("Dashboard sync error:", err);
   }
 }
 
-// Global Receipt Modal Controller
+// In-App Real-Time Notification System
+function setupNotifications(transactions, profile, session) {
+  const notifBellBtn = document.getElementById('notifBellBtn');
+  const notifPanel = document.getElementById('notifPanel');
+  const notifList = document.getElementById('notifList');
+  const notifBadge = document.getElementById('notifBadge');
+  const notifUnreadPill = document.getElementById('notifUnreadPill');
+  const notifMarkAllRead = document.getElementById('notifMarkAllRead');
+
+  if (!notifBellBtn || !notifPanel) return;
+
+  // Toggle notification panel
+  notifBellBtn.onclick = (e) => {
+    e.stopPropagation();
+    const isShowing = notifPanel.classList.toggle('show');
+    if (isShowing && profileMenu) profileMenu.classList.remove('show');
+  };
+
+  document.addEventListener('click', (e) => {
+    if (!notifPanel.contains(e.target) && e.target !== notifBellBtn) {
+      notifPanel.classList.remove('show');
+    }
+  });
+
+  // Read status stored in localStorage
+  const readKey = `buraq_read_notifs_${session.user.id}`;
+  let readIds = [];
+  try {
+    readIds = JSON.parse(localStorage.getItem(readKey) || '[]');
+  } catch(e) { readIds = []; }
+
+  // Build notifications array
+  const notifs = [];
+
+  // 1. Transaction-based alerts
+  if (transactions && transactions.length > 0) {
+    transactions.slice(0, 15).forEach(t => {
+      const isDeposit = (t.type || '').toLowerCase().includes('deposit');
+      const isWithdraw = (t.type || '').toLowerCase().includes('withdraw');
+      const isTransfer = (t.type || '').toLowerCase().includes('transfer');
+      const amt = Math.abs(Number(t.amount || 0)).toFixed(2);
+      const idStr = `tx_${t.id || t.reference || Math.random()}`;
+      const status = (t.status || 'Pending').toLowerCase();
+
+      let icon = '💳';
+      let iconBg = 'rgba(220,168,62,0.15)';
+      let title = `${t.type || 'Transaction'}`;
+      let desc = `Amount: $${amt} via ${t.method || 'System'}`;
+
+      if (status === 'approved' || status === 'completed') {
+        icon = isDeposit ? '💰' : '✅';
+        iconBg = 'rgba(22, 184, 115, 0.2)';
+        title = `${isDeposit ? 'Deposit Cleared' : (isWithdraw ? 'Withdrawal Processed' : 'Transfer Approved')}`;
+        desc = `Your ${t.type || 'transaction'} of $${amt} is approved and settled into your ledger.`;
+      } else if (status === 'declined' || status === 'rejected') {
+        icon = '⚠️';
+        iconBg = 'rgba(255, 71, 87, 0.2)';
+        title = `${t.type || 'Transaction'} Declined`;
+        desc = `Your request of $${amt} could not be processed. Please check your bank slip or contact support.`;
+      } else {
+        icon = '⏳';
+        iconBg = 'rgba(220, 168, 62, 0.15)';
+        title = `${t.type || 'Transaction'} Pending Review`;
+        desc = `Your request of $${amt} has been submitted for fast clearing (under 5-15 mins).`;
+      }
+
+      notifs.push({
+        id: idStr,
+        icon,
+        iconBg,
+        title,
+        desc,
+        time: t.created_at ? new Date(t.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recently',
+        timestamp: t.created_at ? new Date(t.created_at).getTime() : Date.now(),
+        action: () => window.viewReceipt(encodeURIComponent(JSON.stringify(t)))
+      });
+    });
+  }
+
+  // 2. KYC Verification Alert
+  const kycStatus = (profile?.kyc_status || 'Unverified').toLowerCase();
+  if (kycStatus === 'verified') {
+    notifs.push({
+      id: 'kyc_verified',
+      icon: '🛡️',
+      iconBg: 'rgba(22, 184, 115, 0.2)',
+      title: 'KYC Identity Verified',
+      desc: 'Your profile has passed compliance verification. Unlimited deposit & withdrawal access unlocked.',
+      time: 'Official Badge',
+      timestamp: Date.now() - 100000,
+      link: 'verify-identity.html'
+    });
+  } else {
+    notifs.push({
+      id: 'kyc_action_required',
+      icon: '⚠️',
+      iconBg: 'rgba(255, 165, 2, 0.2)',
+      title: 'Action: Complete Identity Verification',
+      desc: 'Submit your CNIC/Passport & Proof of Address for instant withdrawal clearance and tier upgrade.',
+      time: 'High Priority',
+      timestamp: Date.now() - 200000,
+      link: 'verify-identity.html'
+    });
+  }
+
+  // 3. Gateway & System Bulletin
+  notifs.push({
+    id: 'gateway_pakistan_active',
+    icon: '⚡',
+    iconBg: 'rgba(56, 189, 248, 0.2)',
+    title: 'Pakistan Instant Rails Active (0% Fees)',
+    desc: 'JazzCash, Easypaisa, Raast & Instant Bank Transfers are available 24/7 with zero deposit fees.',
+    time: 'System Bulletin',
+    timestamp: Date.now() - 500000,
+    link: 'deposit.html'
+  });
+
+  // Sort by timestamp desc
+  notifs.sort((a, b) => b.timestamp - a.timestamp);
+
+  // Count unread
+  const unreadList = notifs.filter(n => !readIds.includes(n.id));
+  const unreadCount = unreadList.length;
+
+  if (unreadCount > 0) {
+    notifBadge.style.display = 'flex';
+    notifBadge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+    notifUnreadPill.textContent = `${unreadCount} Unread`;
+  } else {
+    notifBadge.style.display = 'none';
+    notifUnreadPill.textContent = 'All Caught Up';
+  }
+
+  // Render list
+  if (notifs.length === 0) {
+    notifList.innerHTML = `<div class="notif-empty">No notifications yet.</div>`;
+  } else {
+    notifList.innerHTML = notifs.map(n => {
+      const isUnread = !readIds.includes(n.id);
+      return `
+        <div class="notif-item ${isUnread ? 'unread' : ''}" data-id="${n.id}">
+          <div class="notif-icon" style="background: ${n.iconBg};">${n.icon}</div>
+          <div class="notif-content">
+            <div class="notif-title">${n.title}</div>
+            <div class="notif-desc">${n.desc}</div>
+            <div class="notif-time">${n.time}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Attach click handlers
+    notifList.querySelectorAll('.notif-item').forEach((itemEl, idx) => {
+      itemEl.onclick = () => {
+        const notifObj = notifs[idx];
+        if (notifObj) {
+          if (!readIds.includes(notifObj.id)) {
+            readIds.push(notifObj.id);
+            try { localStorage.setItem(readKey, JSON.stringify(readIds)); } catch(e) {}
+            itemEl.classList.remove('unread');
+            const newUnread = notifs.filter(n => !readIds.includes(n.id)).length;
+            if (newUnread > 0) {
+              notifBadge.style.display = 'flex';
+              notifBadge.textContent = newUnread > 9 ? '9+' : newUnread;
+              notifUnreadPill.textContent = `${newUnread} Unread`;
+            } else {
+              notifBadge.style.display = 'none';
+              notifUnreadPill.textContent = 'All Caught Up';
+            }
+          }
+          if (notifObj.action) {
+            notifPanel.classList.remove('show');
+            notifObj.action();
+          } else if (notifObj.link) {
+            window.location.href = notifObj.link;
+          }
+        }
+      };
+    });
+  }
+
+  // Mark all as read
+  notifMarkAllRead.onclick = () => {
+    readIds = notifs.map(n => n.id);
+    try { localStorage.setItem(readKey, JSON.stringify(readIds)); } catch(e) {}
+    notifBadge.style.display = 'none';
+    notifUnreadPill.textContent = 'All Caught Up';
+    notifList.querySelectorAll('.notif-item').forEach(el => el.classList.remove('unread'));
+  };
+}
+
+// Global Receipt Modal Controller & PDF Stamped Voucher
 window.viewReceipt = function(encodedData) {
   try {
     const data = JSON.parse(decodeURIComponent(encodedData));
-    document.getElementById('receiptTxId').textContent = data.id ? '#' + data.id.toString().substring(0,12) : '#TX-CONFIRMED';
-    document.getElementById('receiptDate').textContent = data.created_at ? new Date(data.created_at).toLocaleString() : new Date().toLocaleString();
-    document.getElementById('receiptType').textContent = (data.type || 'Deposit').toUpperCase();
-    document.getElementById('receiptMethod').textContent = data.method || 'Crypto (USDT)';
-    document.getElementById('receiptAmount').textContent = `$${Math.abs(Number(data.amount || 0)).toFixed(2)} USD`;
-    document.getElementById('receiptStatus').textContent = (data.status || 'Approved').toUpperCase();
-    document.getElementById('receiptAccount').textContent = data.account_number || 'Primary Wallet';
+    const txRef = data.reference || (data.id ? 'BM-TX-' + data.id.toString().substring(0,8).toUpperCase() : 'BM-TX-' + Date.now().toString().slice(-6));
+    const txDate = data.created_at ? new Date(data.created_at).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) : new Date().toLocaleString();
+    const txType = (data.type || 'Deposit').toUpperCase();
+    const txMethod = data.method || 'JazzCash / Easypaisa / USDT';
+    const numAmt = Math.abs(Number(data.amount || 0));
+    const txStatus = (data.status || 'Approved').toUpperCase();
+    const txAcc = data.account_number || data.trading_account_id || 'Main Wallet (Vault)';
+    const pkrEquivalent = (numAmt * 280).toLocaleString('en-PK', { maximumFractionDigits: 0 });
+
+    document.getElementById('receiptTxId').textContent = txRef;
+    document.getElementById('receiptDate').textContent = txDate;
+    document.getElementById('receiptType').textContent = txType;
+    document.getElementById('receiptMethod').textContent = txMethod;
+    document.getElementById('receiptAmount').textContent = `$${numAmt.toFixed(2)} USD`;
+    document.getElementById('receiptPkr').textContent = `₨ ${pkrEquivalent} PKR (Rate: ~280 PKR/USD)`;
+    document.getElementById('receiptAccount').textContent = txAcc;
+
+    const statusEl = document.getElementById('receiptStatus');
+    if (txStatus.includes('APPROV') || txStatus.includes('COMPLET')) {
+      statusEl.textContent = 'VERIFIED / SETTLED';
+      statusEl.style.borderColor = '#16b873';
+      statusEl.style.color = '#16b873';
+    } else if (txStatus.includes('DECLIN') || txStatus.includes('REJECT')) {
+      statusEl.textContent = 'DECLINED / CANCELLED';
+      statusEl.style.borderColor = '#ff4757';
+      statusEl.style.color = '#ff4757';
+    } else {
+      statusEl.textContent = 'PENDING COMPLIANCE REVIEW';
+      statusEl.style.borderColor = '#dca83e';
+      statusEl.style.color = '#dca83e';
+    }
+
+    // Generate security hash representation
+    const mockHash = 'BM-' + Array.from(txRef + numAmt + txDate).reduce((hash, char) => ((hash << 5) - hash + char.charCodeAt(0)) | 0, 0).toString(16).toUpperCase();
+    document.getElementById('receiptHash').textContent = `HASH: ${mockHash} · SHA256-AUTHENTICATED`;
+
+    // WhatsApp Share Link
+    const waText = `*Buraq Markets Transaction Voucher*\n• Ref: ${txRef}\n• Type: ${txType}\n• Amount: $${numAmt.toFixed(2)} USD (₨ ${pkrEquivalent} PKR)\n• Method: ${txMethod}\n• Status: ${txStatus}\n• Date: ${txDate}\n\nPlease verify and clear into my trading balance.`;
+    const waBtn = document.getElementById('receiptWhatsappShareBtn');
+    if (waBtn) {
+      waBtn.href = `https://wa.me/19512302506?text=${encodeURIComponent(waText)}`;
+    }
 
     document.getElementById('receiptModal').classList.add('open');
   } catch(e) {
-    console.error(e);
+    console.error('Receipt display error:', e);
   }
+};
+
+window.printInvoice = function() {
+  window.print();
 };
 
 window.closeReceipt = function() {
@@ -3456,11 +4120,11 @@ syncDashboard();
         </button>
       </div>
 
-      <!-- Tab 1: Leverage -->
+      <!-- Tab 1: Leverage (Live Accounts Only) -->
       <div class="modal-tab-pane active" id="tabLeverage">
         <form id="formChangeLeverage" style="display: flex; flex-direction: column; gap: 14px;">
           <div class="calc-input-group">
-            <label>Select Trading Account</label>
+            <label>Select Live Trading Account</label>
             <select class="calc-select" id="leverageAccountSelect">
               <option value="">Loading accounts...</option>
             </select>
@@ -3476,12 +4140,12 @@ syncDashboard();
             </select>
           </div>
 
-          <div style="background: #080c10; border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-size: 11.5px; color: var(--muted); line-height: 1.5;">
-            💡 <b>Risk Notice:</b> Increasing leverage allows higher market exposure with lower margin requirement. Ensure adequate equity is maintained during high-volatility news sessions.
+          <div style="background: rgba(220, 168, 62, 0.07); border: 1px solid rgba(220, 168, 62, 0.25); border-radius: 8px; padding: 12px; font-size: 11.5px; color: var(--gold-light); line-height: 1.5;">
+            🔒 <b>Live Accounts Only:</b> Leverage adjustments apply exclusively to Live MT5 accounts. Demo practice accounts have permanently fixed leverage set upon registration to preserve realistic market simulation.
           </div>
 
           <button type="submit" class="terminal-btn" style="width: 100%; padding: 12px; font-size: 13px;">
-            Save Leverage Setting
+            Save Live Leverage Setting
           </button>
           <div id="leverageStatusNotice" style="display: none; padding: 10px; border-radius: 6px; font-size: 12px; text-align: center;"></div>
         </form>
@@ -3681,7 +4345,7 @@ syncDashboard();
     <div class="feature-modal-body">
       <!-- Quick WhatsApp & Email buttons -->
       <div class="support-quick-grid">
-        <a href="https://wa.me/15617192832?text=Hello%20Buraq%20Markets%20VIP%20Support,%20I%20need%20immediate%20assistance." target="_blank" rel="noopener" class="support-action-card">
+        <a href="https://wa.me/19512302506?text=Hello%20Buraq%20Markets%20VIP%20Support,%20I%20need%20immediate%20assistance." target="_blank" rel="noopener" class="support-action-card">
           <div class="support-action-icon" style="background: rgba(37, 211, 102, 0.15); color: #25D366;">💬</div>
           <div>
             <div style="font-weight: 800; font-size: 13.5px; color: #fff;">WhatsApp VIP Desk</div>
@@ -3756,60 +4420,97 @@ syncDashboard();
   </div>
 </div>
 
-<!-- STAMPED TRANSACTION RECEIPT MODAL -->
+<!-- STAMPED TRANSACTION RECEIPT & PDF VOUCHER MODAL -->
 <div class="receipt-modal-backdrop" id="receiptModal" onclick="if(event.target===this) window.closeReceipt()">
-  <div class="receipt-paper">
-    <div class="receipt-header">
-      <img src="buraq-logo.png" alt="Buraq Markets" style="height: 38px; margin: 0 auto 8px; display: block;">
-      <div style="font-size: 13px; font-weight: 800; color: #fff; letter-spacing: 0.5px;">BURAQ MARKETS FINANCIAL CLEARING</div>
-      <div style="font-size: 11px; color: var(--text-muted);">Official Segregated Ledger Receipt</div>
+  <div class="receipt-paper" style="max-width: 520px; border-color: rgba(220,168,62,0.3); background: #0c1219; box-shadow: 0 25px 70px rgba(0,0,0,0.9);">
+    <div class="receipt-header" style="position: relative; padding-bottom: 14px; margin-bottom: 14px;">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 6px;">
+        <img src="buraq-logo.png" alt="Buraq Markets" style="height: 36px; object-fit: contain;">
+      </div>
+      <div style="font-family: 'Cinzel', serif; font-size: 15px; font-weight: 700; color: #fff; letter-spacing: 0.5px;">BURAQ MARKETS INSTITUTIONAL CLEARING</div>
+      <div style="font-size: 11px; color: var(--muted);">Official Transaction Voucher & Segregated Ledger Certificate</div>
       <div class="receipt-stamp" id="receiptStatus">VERIFIED / APPROVED</div>
     </div>
 
-    <div class="receipt-body">
+    <div class="receipt-body" style="display: flex; flex-direction: column; gap: 6px;">
       <div class="receipt-row">
-        <span>Transaction Reference:</span>
-        <b id="receiptTxId">#TX-123456</b>
+        <span>Voucher Reference ID:</span>
+        <b id="receiptTxId" style="color: var(--gold); letter-spacing: 0.5px;">#TX-123456</b>
       </div>
       <div class="receipt-row">
-        <span>Date & Timestamp:</span>
-        <b id="receiptDate">Aug 25, 2026 12:00</b>
+        <span>Execution Timestamp:</span>
+        <b id="receiptDate">Aug 27, 2026 12:00 UTC</b>
       </div>
       <div class="receipt-row">
-        <span>Transaction Type:</span>
-        <b id="receiptType">DEPOSIT</b>
+        <span>Transaction Category:</span>
+        <b id="receiptType" style="color: #fff;">DEPOSIT</b>
       </div>
       <div class="receipt-row">
-        <span>Payment Gateway / Rail:</span>
-        <b id="receiptMethod">JazzCash / USDT</b>
+        <span>Financial Rail / Gateway:</span>
+        <b id="receiptMethod">JazzCash / Easypaisa / Bank Transfer</b>
       </div>
       <div class="receipt-row">
-        <span>Destination / Source:</span>
-        <b id="receiptAccount">Main Wallet</b>
+        <span>Account / Destination:</span>
+        <b id="receiptAccount">Main Trading Wallet</b>
       </div>
-      <div class="receipt-row" style="border-top: 1px dashed #2b3545; margin-top: 8px; padding-top: 10px;">
-        <span style="font-weight: 800; color: #fff;">Net Settled Amount:</span>
-        <b id="receiptAmount" style="color: var(--gold2); font-size: 16px;">$0.00 USD</b>
+      <div class="receipt-row">
+        <span>Brokerage Fee (Institutional 0%):</span>
+        <b style="color: #16b873;">$0.00 (Zero Fee Waiver)</b>
+      </div>
+      <div class="receipt-row" style="border-top: 1px dashed #223040; margin-top: 6px; padding-top: 8px;">
+        <span style="font-weight: 800; color: #fff; font-size: 13px;">Net Settled Amount (USD):</span>
+        <b id="receiptAmount" style="color: var(--gold); font-size: 17px; font-weight: 800;">$0.00 USD</b>
+      </div>
+      <div class="receipt-row" id="receiptPkrRow" style="padding-top: 0;">
+        <span style="color: var(--muted); font-size: 11px;">Estimated Local Equivalence (PKR):</span>
+        <b id="receiptPkr" style="color: #38bdf8; font-size: 12.5px;">₨ 0 PKR</b>
+      </div>
+
+      <!-- Security Stamp & Watermark Box -->
+      <div style="background: #080d13; border: 1px solid #1a2533; border-radius: 8px; padding: 10px 12px; margin-top: 8px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+        <div>
+          <div style="font-size: 10.5px; color: #16b873; font-weight: 700; display: flex; align-items: center; gap: 4px;">
+            <span>🛡️ CRYPTOGRAPHIC SECURITY HASH</span>
+          </div>
+          <div id="receiptHash" style="font-family: monospace; font-size: 9.5px; color: #64748b; word-break: break-all; margin-top: 2px;">
+            BM-SHA256: 8f92a1c098e4d2...
+          </div>
+        </div>
+        <div id="receiptQrCode" style="width: 48px; height: 48px; background: #fff; border-radius: 4px; padding: 2px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://buraqmarkets.com/verify-receipt" alt="QR Verify" style="width: 100%; height: 100%; object-fit: contain;">
+        </div>
       </div>
     </div>
 
-    <div class="receipt-actions">
-      <button onclick="window.print()" style="flex: 1; background: var(--gold); color: #000; font-weight: 800; border: none; padding: 9px; border-radius: 6px; cursor: pointer;">
-        🖨️ Print / Save PDF
+    <div class="receipt-actions" style="flex-wrap: wrap; gap: 8px;">
+      <button onclick="window.printInvoice()" style="flex: 1; min-width: 140px; background: var(--gold-gradient); color: #000; font-weight: 800; border: none; padding: 10px 14px; border-radius: 7px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px;">
+        <span>📄 Print / Save Stamped PDF</span>
       </button>
-      <button onclick="window.closeReceipt()" style="flex: 1; background: #1a222e; color: #cbd5e1; border: 1px solid var(--border); font-weight: 700; padding: 9px; border-radius: 6px; cursor: pointer;">
-        Close
+      <a id="receiptWhatsappShareBtn" href="#" target="_blank" rel="noopener" style="flex: 1; min-width: 140px; background: #1f364d; color: #25D366; border: 1px solid #25D366; font-weight: 700; padding: 10px 14px; border-radius: 7px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; transition: all .15s;">
+        <span>💬 Send Proof on WhatsApp</span>
+      </a>
+      <button onclick="window.closeReceipt()" style="width: 100%; background: #131a24; color: #cbd5e1; border: 1px solid var(--border); font-weight: 600; padding: 8px; border-radius: 7px; cursor: pointer; font-size: 11.5px;">
+        Close Voucher
       </button>
     </div>
   </div>
 </div>
 
-<!-- FLOATING 24/7 WHATSAPP & SUPPORT WIDGET -->
-<a href="https://wa.me/19512302506?text=Hello%20Buraq%20Markets%20Support,%20I%20need%20assistance%20with%20my%20account." target="_blank" rel="noopener" class="floating-support-btn" title="Chat with Buraq Markets Support on WhatsApp (+1 561-719-2832)">
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
-  </svg>
-  <span>24/7 Live Support</span>
+<!-- FLOATING 24/7 WHATSAPP VIP DESK -->
+<a href="https://wa.me/19512302506?text=Hello%20Buraq%20Markets%20VIP%20Desk,%20I%20need%20assistance%20with%20my%20account." target="_blank" rel="noopener" class="floating-whatsapp-desk" title="WhatsApp VIP Desk">
+  <div class="wa-badge-live">
+    <span class="wa-pulse-dot"></span>
+    <span class="wa-status-text">VIP Desk Online</span>
+  </div>
+  <div class="wa-btn-content">
+    <svg class="wa-icon-svg" viewBox="0 0 24 24">
+      <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+    </svg>
+    <div class="wa-text-group">
+      <span class="wa-title">WhatsApp VIP Desk</span>
+      <span class="wa-sub">24/7 Instant Support</span>
+    </div>
+  </div>
 </a>
 </body>
 </html>

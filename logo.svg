@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 110" width="100%" height="100%">
+  <defs>
+    <!-- Rich 3D Metallic Gold Linear Gradients -->
+    <linearGradient id="logoGoldMain" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFDF2" />
+      <stop offset="20%" stop-color="#FDE896" />
+      <stop offset="45%" stop-color="#F2C748" />
+      <stop offset="70%" stop-color="#C68A1E" />
+      <stop offset="88%" stop-color="#EABF43" />
+      <stop offset="100%" stop-color="#845207" />
+    </linearGradient>
+
+    <linearGradient id="logoGoldLight" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="25%" stop-color="#FFF0AB" />
+      <stop offset="55%" stop-color="#E8BA3A" />
+      <stop offset="80%" stop-color="#A56E10" />
+      <stop offset="100%" stop-color="#5E3902" />
+    </linearGradient>
+
+    <linearGradient id="logoGoldFeather" x1="0%" y1="0%" x2="100%" y2="80%">
+      <stop offset="0%" stop-color="#FFF8D6" />
+      <stop offset="30%" stop-color="#F5D05D" />
+      <stop offset="65%" stop-color="#C98E20" />
+      <stop offset="100%" stop-color="#734704" />
+    </linearGradient>
+
+    <filter id="logoGlow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.45" />
+    </filter>
+  </defs>
+
+  <!-- ==================== LEFT ICON: GOLDEN WINGED HORSE EMBLEM ==================== -->
+  <g transform="translate(0, 5) scale(0.18)" filter="url(#logoGlow)">
+    <!-- UPPER EXTENDED WINGS -->
+    <path d="M 235 140 C 180 135 70 120 12 90 C 40 108 90 125 145 138 C 100 142 50 152 28 165 C 65 168 115 165 170 158 C 125 170 75 190 55 210 C 95 205 145 192 195 176 C 150 198 105 230 90 255 C 130 242 175 220 220 198 Z" fill="url(#logoGoldFeather)" stroke="#845207" stroke-width="0.5" />
+    <path d="M 215 160 C 150 160 55 125 15 92 C 5 85 10 95 25 102 C 65 125 140 148 200 155 C 135 168 65 190 38 215 C 80 205 145 185 205 170 C 150 198 90 240 75 270 C 120 248 175 215 225 188 Z" fill="url(#logoGoldMain)" />
+    <path d="M 195 215 C 145 245 90 300 78 335 C 115 305 165 265 210 230 C 160 270 115 330 108 370 C 145 330 190 280 230 242 C 185 295 140 365 142 410 C 175 360 215 300 252 255 Z" fill="url(#logoGoldFeather)" />
+    <path d="M 220 260 C 180 315 140 395 142 415 C 155 425 170 410 185 385 C 205 350 230 305 250 265 C 215 325 180 405 188 438 C 200 445 215 425 232 390 C 255 345 275 295 285 260 Z" fill="url(#logoGoldLight)" />
+    <path d="M 240 285 C 205 355 175 440 188 458 C 198 462 210 448 228 410 C 250 365 272 315 285 275 Z" fill="url(#logoGoldFeather)" />
+    <path d="M 255 310 C 228 375 205 450 218 472 C 228 475 238 460 255 420 C 275 375 292 330 302 290 Z" fill="url(#logoGoldMain)" />
+
+    <!-- HORSE BODY & NECK -->
+    <path d="M 290 280 C 310 295 330 330 335 370 C 338 400 328 435 305 470 C 325 450 345 410 348 375 C 352 330 330 285 300 265 Z" fill="url(#logoGoldMain)" />
+    <path d="M 270 335 C 290 355 310 395 310 435 C 310 465 295 490 275 510 C 298 485 318 445 318 410 C 318 368 295 335 270 315 Z" fill="url(#logoGoldLight)" />
+    <path d="M 250 380 C 275 405 295 450 290 495 C 275 520 255 530 240 532 C 265 520 285 480 285 445 C 285 405 260 375 240 360 Z" fill="url(#logoGoldFeather)" />
+    <path d="M 285 240 C 315 205 340 160 342 110 C 342 95 338 85 330 75 C 345 90 355 110 352 135 C 348 180 320 230 285 270 Z" fill="url(#logoGoldMain)" />
+
+    <!-- MANE & HEAD -->
+    <path d="M 330 80 C 300 95 265 140 242 195 C 265 160 300 120 335 95 Z" fill="url(#logoGoldLight)" />
+    <path d="M 315 125 C 280 150 245 205 228 260 C 252 220 285 175 322 142 Z" fill="url(#logoGoldFeather)" />
+    <path d="M 298 175 C 265 210 235 270 220 320 C 242 275 272 230 305 195 Z" fill="url(#logoGoldMain)" />
+    <path d="M 275 230 C 248 270 225 330 215 375 C 235 330 260 285 285 250 Z" fill="url(#logoGoldLight)" />
+    <path d="M 335 72 C 348 60 365 55 382 58 C 368 68 355 75 342 82 Z" fill="url(#logoGoldLight)" />
+    <path d="M 350 68 C 368 55 388 52 405 56 C 390 68 375 75 358 82 Z" fill="url(#logoGoldFeather)" />
+    <path d="M 388 56 C 395 38 408 24 418 20 C 418 32 412 45 402 58 Z" fill="url(#logoGoldMain)" />
+    <path d="M 402 58 C 412 36 428 18 440 12 C 438 28 430 46 415 62 Z" fill="url(#logoGoldLight)" />
+    <path d="M 412 55 C 420 38 430 26 436 22 C 432 34 425 46 416 58 Z" fill="#784705" />
+    <path d="M 415 62 C 430 75 448 98 458 125 C 468 150 480 182 485 200 C 490 212 488 222 478 228 C 465 235 450 230 445 220 C 440 210 442 200 448 190 C 440 195 432 195 425 188 C 420 180 422 170 428 162 C 405 175 385 190 370 212 C 362 205 360 195 365 185 C 382 155 408 125 415 62 Z" fill="url(#logoGoldMain)" />
+    <path d="M 412 110 C 422 105 432 108 438 116 C 430 118 422 122 415 120 Z" fill="url(#logoGoldLight)" />
+    <ellipse cx="425" cy="115" rx="5" ry="4" fill="#3D2402" />
+    <circle cx="427" cy="113" r="1.5" fill="#FFFFFF" />
+    <path d="M 472 205 C 476 198 482 198 485 205 C 485 212 478 215 472 208 Z" fill="#3D2402" />
+    <path d="M 462 224 C 470 220 478 220 482 225" stroke="#784705" stroke-width="2" fill="none" />
+    <path d="M 375 185 C 395 160 425 145 445 148 C 452 165 445 185 430 198 C 410 215 390 225 375 185 Z" fill="url(#logoGoldLight)" />
+    <path d="M 370 212 C 392 235 410 270 412 310 C 395 285 380 250 365 220 Z" fill="url(#logoGoldFeather)" />
+  </g>
+
+  <!-- ==================== RIGHT SIDE: TYPOGRAPHY ==================== -->
+  <!-- "BURAQ" - Primary Wordmark -->
+  <g transform="translate(108, 48)" filter="url(#logoGlow)">
+    <text x="0" y="0" 
+          font-family="'Cinzel', 'Trajan Pro', 'Georgia', serif" 
+          font-size="44" 
+          font-weight="900" 
+          letter-spacing="2.5" 
+          fill="url(#logoGoldMain)">BURAQ</text>
+  </g>
+
+  <!-- "MARKETS" - Sub-Wordmark -->
+  <g transform="translate(110, 75)" filter="url(#logoGlow)">
+    <text x="1" y="0" 
+          font-family="'Cinzel', 'Trajan Pro', 'Georgia', serif" 
+          font-size="16" 
+          font-weight="700" 
+          letter-spacing="10.8" 
+          fill="url(#logoGoldLight)">MARKETS</text>
+  </g>
+
+  <!-- "Trade Beyond Limits" Tagline -->
+  <g transform="translate(110, 95)">
+    <line x1="2" y1="-4" x2="65" y2="-4" stroke="url(#logoGoldMain)" stroke-width="1" />
+    <text x="168" y="0" 
+          font-family="'Cinzel', 'Trajan Pro', 'Georgia', serif" 
+          font-size="9" 
+          font-weight="600" 
+          letter-spacing="2.2" 
+          text-anchor="middle"
+          fill="url(#logoGoldLight)">TRADE BEYOND LIMITS</text>
+    <line x1="272" y1="-4" x2="335" y2="-4" stroke="url(#logoGoldMain)" stroke-width="1" />
+  </g>
+</svg>
