@@ -340,6 +340,39 @@ input:focus + .input-icon,
   margin-top: 1px;
 }
 
+.verify-box {
+  background: rgba(220, 168, 62, 0.1);
+  border: 1px solid rgba(220, 168, 62, 0.4);
+  color: #f7d274;
+  padding: 14px;
+  border-radius: 9px;
+  font-size: 12.5px;
+  margin-bottom: 18px;
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.verify-box .resend-btn {
+  background: rgba(220, 168, 62, 0.2);
+  border: 1px solid var(--gold);
+  color: #fff;
+  padding: 7px 14px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: all 0.2s;
+}
+
+.verify-box .resend-btn:hover {
+  background: var(--gold-gradient);
+  color: #120e06;
+}
+
 /* Divider & Register Box */
 .divider {
   display: flex;
@@ -517,6 +550,20 @@ input:focus + .input-icon,
       <span id="errorMessage">Invalid email or password.</span>
     </div>
 
+    <div id="verifyBox" class="verify-box">
+      <div style="display:flex;align-items:flex-start;gap:8px;">
+        <svg style="width:18px;height:18px;stroke:#e0ae45;fill:none;stroke-width:2;flex-shrink:0;margin-top:2px;" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <div>
+          <strong style="display:block;color:#f7d274;font-size:13px;margin-bottom:3px;">Email Verification Required</strong>
+          <span id="verifyText" style="color:#d5dbdb;font-size:12px;line-height:1.4;">Aapka email address abhi tak confirm nahi hua. Humne verification link aapke email par bheja hai. Pehle inbox mein link par click karke confirm karein.</span>
+        </div>
+      </div>
+      <div style="margin-top:4px;display:flex;align-items:center;gap:10px;">
+        <button type="button" id="loginResendBtn" class="resend-btn">✉ Resend Verification Email</button>
+        <span id="loginResendStatus" style="font-size:11.5px;color:#8ee0a5;"></span>
+      </div>
+    </div>
+
     <form id="loginForm" autocomplete="on">
       <div class="form-group">
         <label for="email">Email Address</label>
@@ -661,14 +708,59 @@ try {
 const loginForm = document.getElementById('loginForm');
 const errorBox = document.getElementById('errorBox');
 const errorMessage = document.getElementById('errorMessage');
+const verifyBox = document.getElementById('verifyBox');
+const verifyText = document.getElementById('verifyText');
+const loginResendBtn = document.getElementById('loginResendBtn');
+const loginResendStatus = document.getElementById('loginResendStatus');
 const submitBtn = document.getElementById('submitBtn');
 const btnSpinner = document.getElementById('btnSpinner');
 const btnText = document.getElementById('btnText');
+
+if (loginResendBtn) {
+  loginResendBtn.addEventListener('click', async () => {
+    const email = emailInput.value.trim();
+    if (!email) {
+      loginResendStatus.style.color = '#ff8b8b';
+      loginResendStatus.textContent = 'Please enter your email above.';
+      return;
+    }
+
+    loginResendBtn.disabled = true;
+    loginResendBtn.textContent = 'Sending...';
+    loginResendStatus.textContent = '';
+
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+        options: {
+          emailRedirectTo: window.location.origin + '/client-login.html'
+        }
+      });
+
+      if (error) {
+        loginResendStatus.style.color = '#ff8b8b';
+        loginResendStatus.textContent = error.message;
+      } else {
+        loginResendStatus.style.color = '#8ee0a5';
+        loginResendStatus.textContent = '✓ Confirmation email resent! Check your inbox.';
+      }
+    } catch (e) {
+      loginResendStatus.style.color = '#ff8b8b';
+      loginResendStatus.textContent = 'Failed to resend. Please try again.';
+    } finally {
+      loginResendBtn.disabled = false;
+      loginResendBtn.textContent = '✉ Resend Verification Email';
+    }
+  });
+}
 
 // 6. Form Submit Handler
 loginForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   errorBox.style.display = 'none';
+  if (verifyBox) verifyBox.style.display = 'none';
+  if (loginResendStatus) loginResendStatus.textContent = '';
   
   // Loading state
   btnSpinner.style.display = 'inline-block';
@@ -689,8 +781,17 @@ loginForm.addEventListener('submit', async (e) => {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
-      errorMessage.textContent = error.message || 'Invalid email or password. Please try again.';
-      errorBox.style.display = 'flex';
+      const errMsg = (error.message || '').toLowerCase();
+      const errCode = error.code || '';
+
+      if (errCode === 'email_not_confirmed' || errMsg.includes('email not confirmed')) {
+        verifyText.textContent = `Aapka account verify nahi hua. Humne ${email} par confirmation link bheja hai. Apna email inbox (aur spam folder) check karein aur link par click karke portal mein login karein.`;
+        verifyBox.style.display = 'flex';
+      } else {
+        errorMessage.textContent = error.message || 'Invalid email or password. Please try again.';
+        errorBox.style.display = 'flex';
+      }
+
       btnSpinner.style.display = 'none';
       btnText.textContent = 'Sign In to Portal →';
       submitBtn.disabled = false;

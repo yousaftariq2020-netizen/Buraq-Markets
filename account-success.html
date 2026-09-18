@@ -233,50 +233,56 @@
       <img src="buraq-logo.png" alt="Buraq Markets" class="logo-img">
     </a>
 
-    <div class="icon-badge">
+    <div class="icon-badge" style="background: rgba(40, 167, 69, 0.12); border-color: rgba(40, 167, 69, 0.35); color: #5cdb80;">
       <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
     </div>
 
-    <div class="eyebrow">Application Received</div>
-    <h1>Account Registered Successfully</h1>
+    <div class="eyebrow" style="color: #5cdb80;">Email Verified & Account Activated</div>
+    <h1>Account Created Successfully!</h1>
     <p class="desc" id="successDesc">
-      Welcome to Buraq Markets. Your trading account profile has been created and our automated matching engine is preparing your trading credentials.
+      Your email address has been successfully verified via EmailJS security code. Your Buraq Markets trading account is now active and ready for use.
     </p>
 
     <div class="account-ref-box">
-      <small>Registered Email</small>
+      <small>Verified Account Email</small>
       <strong id="displayEmail">Client Portal Account</strong>
+      <div style="margin-top:12px;">
+        <span style="display:inline-flex;align-items:center;gap:6px;color:#5cdb80;font-size:12.5px;font-weight:600;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Identity Verified via Security Code
+        </span>
+      </div>
     </div>
 
     <div class="steps-list">
       <div class="step-item">
         <div class="step-num">1</div>
         <div>
-          <h5>Instant Client Dashboard Access</h5>
-          <p>Login to your portal to manage trading wallets, leverage and multi-currency balances.</p>
+          <h5>Log In to Your Client Portal</h5>
+          <p>Access your dashboard using your registered email and password.</p>
         </div>
       </div>
 
       <div class="step-item">
         <div class="step-num">2</div>
         <div>
-          <h5>Deposit & Fund Account</h5>
-          <p>Zero-fee local payment gateways (EasyPaisa, JazzCash, Bank Transfer, USDT TRC20).</p>
+          <h5>Fund Your Account</h5>
+          <p>Make an instant zero-fee local deposit using JazzCash, EasyPaisa, or Bank Transfer.</p>
         </div>
       </div>
 
       <div class="step-item">
         <div class="step-num">3</div>
         <div>
-          <h5>Start Trading on MT5 / MT4</h5>
-          <p>Execute orders with institutional raw spreads from 0.0 pips on 500+ assets.</p>
+          <h5>Start Trading Live</h5>
+          <p>Launch MT5 or trade directly with institutional ECN spreads from 0.0 pips.</p>
         </div>
       </div>
     </div>
 
     <div class="action-buttons">
       <a href="client-login.html" class="btn btn-primary">
-        <span>Go to Client Login</span>
+        <span>Proceed to Client Login</span>
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </a>
       <a href="index.html" class="btn btn-secondary">
@@ -285,11 +291,11 @@
     </div>
   </div>
 
-  <script>
+  <script type="module">
     const email = sessionStorage.getItem('buraq_signup_email');
     if (email) {
       document.getElementById('displayEmail').textContent = email;
-      document.getElementById('successDesc').textContent = `Welcome to Buraq Markets. We have linked your credentials to ${email}. You can now log in to access your trading portal.`;
+      document.getElementById('successDesc').textContent = `Your email (${email}) has been successfully verified. Welcome to Buraq Markets! You can now log in to access your trading portal.`;
     }
   </script>
 

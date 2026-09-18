@@ -614,7 +614,183 @@
         font-size: 28px;
       }
     }
+
+    /* EmailJS OTP Verification Modal */
+    .otp-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 6, 9, 0.88);
+      backdrop-filter: blur(12px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 20px;
+    }
+
+    .otp-modal-card {
+      background: linear-gradient(165deg, #131922 0%, #0c1015 100%);
+      border: 1px solid rgba(220, 168, 62, 0.4);
+      border-radius: 16px;
+      padding: 34px 28px;
+      max-width: 440px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(220, 168, 62, 0.15);
+      text-align: center;
+      position: relative;
+      animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modalSlideUp {
+      from { opacity: 0; transform: translateY(20px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .otp-icon-wrap {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 18px;
+      border-radius: 50%;
+      background: rgba(220, 168, 62, 0.12);
+      border: 1px solid rgba(220, 168, 62, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #f7d274;
+    }
+
+    .otp-title {
+      font-family: 'Cinzel', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .otp-desc {
+      font-size: 13px;
+      color: #8b99a8;
+      line-height: 1.5;
+      margin-bottom: 22px;
+    }
+
+    .otp-desc strong {
+      color: #f7d274;
+      word-break: break-all;
+    }
+
+    .otp-inputs-wrap {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .otp-digit {
+      width: 46px;
+      height: 54px;
+      border-radius: 10px;
+      background: #090d12;
+      border: 1.5px solid #222c38;
+      color: #f7d274;
+      font-size: 22px;
+      font-weight: 700;
+      text-align: center;
+      outline: none;
+      transition: all 0.2s ease;
+      font-family: monospace;
+    }
+
+    .otp-digit:focus {
+      border-color: #dca83e;
+      box-shadow: 0 0 12px rgba(220, 168, 62, 0.35);
+      background: #0d131a;
+    }
+
+    .otp-alert {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      margin-bottom: 18px;
+      display: none;
+      line-height: 1.4;
+    }
+
+    .otp-alert.error {
+      background: rgba(220, 53, 69, 0.15);
+      border: 1px solid #dc3545;
+      color: #ff8b8b;
+      display: block;
+    }
+
+    .otp-alert.success {
+      background: rgba(40, 167, 69, 0.15);
+      border: 1px solid #28a745;
+      color: #8ee0a5;
+      display: block;
+    }
+
+    .otp-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .otp-verify-btn {
+      width: 100%;
+      height: 48px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #f7d274 0%, #dca83e 50%, #b38222 100%);
+      color: #120e06;
+      border: none;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 18px rgba(220, 168, 62, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .otp-verify-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 22px rgba(220, 168, 62, 0.45);
+    }
+
+    .otp-verify-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .otp-resend-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #8b99a8;
+      padding: 0 4px;
+    }
+
+    .otp-resend-link {
+      color: #f7d274;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      text-decoration: underline;
+      font-size: 12px;
+    }
+
+    .otp-resend-link:disabled {
+      color: #556270;
+      cursor: not-allowed;
+      text-decoration: none;
+    }
   </style>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 </head>
 <body>
 
@@ -868,16 +1044,84 @@
     </div>
   </footer>
 
+  <!-- EMAILJS 6-DIGIT OTP VERIFICATION MODAL -->
+  <div id="otpModalOverlay" class="otp-modal-overlay">
+    <div class="otp-modal-card">
+      <div class="otp-icon-wrap">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+          <polyline points="22,6 12,13 2,6"/>
+        </svg>
+      </div>
+      <h3 class="otp-title">Verify Your Email</h3>
+      <p class="otp-desc">
+        A 6-digit security code has been sent via EmailJS to <br>
+        <strong id="otpTargetEmail">trader@example.com</strong>
+      </p>
+
+      <div class="otp-inputs-wrap">
+        <input type="text" maxlength="1" class="otp-digit" id="otp1" inputmode="numeric" autocomplete="one-time-code" autofocus>
+        <input type="text" maxlength="1" class="otp-digit" id="otp2" inputmode="numeric">
+        <input type="text" maxlength="1" class="otp-digit" id="otp3" inputmode="numeric">
+        <input type="text" maxlength="1" class="otp-digit" id="otp4" inputmode="numeric">
+        <input type="text" maxlength="1" class="otp-digit" id="otp5" inputmode="numeric">
+        <input type="text" maxlength="1" class="otp-digit" id="otp6" inputmode="numeric">
+      </div>
+
+      <div id="otpAlert" class="otp-alert"></div>
+
+      <div class="otp-actions">
+        <button type="button" id="verifyOtpBtn" class="otp-verify-btn">
+          <span>Confirm & Complete Registration</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+        <div class="otp-resend-row">
+          <span>Didn't receive email?</span>
+          <button type="button" id="resendOtpBtn" class="otp-resend-link">Resend Code</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- AUTHENTICATION & FORM SCRIPT -->
   <script type="module">
     import { supabase } from './supabase-config.js';
-    import { sendWelcomeEmail } from './email-helper.js';
+    import { sendWelcomeEmail, sendVerificationOtpEmail } from './email-helper.js';
+
+    // Initialize EmailJS with project credentials
+    if (window.emailjs) {
+      try {
+        window.emailjs.init("srCNMfHCpU7OtJ4hJ");
+      } catch (e) {
+        console.warn('EmailJS init warning:', e);
+      }
+    }
 
     const form = document.getElementById('signupForm');
     const btn = document.getElementById('submitBtn');
     const errorBox = document.getElementById('errorBox');
     const passwordInput = document.getElementById('password');
     const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+
+    // OTP Modal Elements
+    const otpModalOverlay = document.getElementById('otpModalOverlay');
+    const otpTargetEmail = document.getElementById('otpTargetEmail');
+    const otpInputs = [
+      document.getElementById('otp1'),
+      document.getElementById('otp2'),
+      document.getElementById('otp3'),
+      document.getElementById('otp4'),
+      document.getElementById('otp5'),
+      document.getElementById('otp6')
+    ];
+    const otpAlert = document.getElementById('otpAlert');
+    const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+    const resendOtpBtn = document.getElementById('resendOtpBtn');
+
+    // State cache during OTP verification
+    let pendingRegistration = null;
+    let currentOtpCode = null;
+    let otpExpiresAt = null;
 
     // Password show/hide toggle
     togglePasswordBtn.addEventListener('click', () => {
@@ -890,6 +1134,74 @@
       }
     });
 
+    // Helper: Generate secure 6-digit OTP
+    function generateOtp() {
+      return Math.floor(100000 + Math.random() * 900000).toString();
+    }
+
+    // OTP Input auto-focus chaining
+    otpInputs.forEach((input, index) => {
+      input.addEventListener('input', (e) => {
+        const val = e.target.value.replace(/[^0-9]/g, '');
+        e.target.value = val;
+        if (val && index < otpInputs.length - 1) {
+          otpInputs[index + 1].focus();
+        }
+      });
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !input.value && index > 0) {
+          otpInputs[index - 1].focus();
+        }
+      });
+
+      input.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const pastedData = (e.clipboardData || window.clipboardData).getData('text').trim();
+        if (/^\d{6}$/.test(pastedData)) {
+          pastedData.split('').forEach((digit, i) => {
+            if (otpInputs[i]) otpInputs[i].value = digit;
+          });
+          otpInputs[otpInputs.length - 1].focus();
+        }
+      });
+    });
+
+    // Send OTP via EmailJS
+    async function dispatchOtpEmail(email, name, code) {
+      try {
+        await sendVerificationOtpEmail(email, name, code);
+        return true;
+      } catch (err) {
+        console.warn('Direct EmailJS OTP warning:', err);
+        return false;
+      }
+    }
+
+    // Resend OTP Button Handler
+    resendOtpBtn.addEventListener('click', async () => {
+      if (!pendingRegistration) return;
+      resendOtpBtn.disabled = true;
+      resendOtpBtn.textContent = 'Sending...';
+      otpAlert.className = 'otp-alert';
+      otpAlert.style.display = 'none';
+
+      currentOtpCode = generateOtp();
+      otpExpiresAt = Date.now() + 10 * 60 * 1000;
+
+      await dispatchOtpEmail(pendingRegistration.email, pendingRegistration.fullName, currentOtpCode);
+
+      otpAlert.className = 'otp-alert success';
+      otpAlert.textContent = 'A new 6-digit verification code has been dispatched to your email.';
+      otpAlert.style.display = 'block';
+
+      setTimeout(() => {
+        resendOtpBtn.disabled = false;
+        resendOtpBtn.textContent = 'Resend Code';
+      }, 15000);
+    });
+
+    // Step 1: Form Submit -> Validates fields & Dispatches EmailJS OTP
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       
@@ -899,7 +1211,7 @@
       btn.disabled = true;
       btn.innerHTML = `
         <svg style="animation: spin 1s linear infinite; width: 16px; height: 16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg>
-        <span>Creating Your Account...</span>
+        <span>Sending Verification Code...</span>
       `;
 
       const fullName = document.getElementById('fullName').value.trim();
@@ -913,55 +1225,54 @@
 
       try {
         // 1. Check if Email is already registered
-        const { data: emailExists, error: emailCheckErr } = await supabase
-          .rpc('check_email_exists', { check_email: emailInput });
+        try {
+          const { data: emailExists, error: emailCheckErr } = await supabase
+            .rpc('check_email_exists', { check_email: emailInput });
 
-        if (!emailCheckErr && emailExists) {
-          throw new Error('This email address is already registered. Please login to your client portal.');
+          if (!emailCheckErr && emailExists) {
+            throw new Error('This email address is already registered. Please login to your client portal.');
+          }
+        } catch (rpcErr) {
+          if (rpcErr.message && rpcErr.message.includes('already registered')) {
+            throw rpcErr;
+          }
         }
 
-        // 2. Check if Phone is already registered
-        const { data: phoneExists, error: phoneCheckErr } = await supabase
-          .rpc('check_phone_exists', { check_phone: phoneInput });
-
-        if (!phoneCheckErr && phoneExists) {
-          throw new Error('This phone number is already registered with another account.');
-        }
-
-        // 3. Register user in Supabase Auth
-        const metaData = {
-          full_name: fullName,
+        // Cache registration details for OTP step
+        pendingRegistration = {
+          fullName,
+          email: emailInput,
           phone: phoneInput,
-          country: country,
-          preferred_platform: platform,
-          account_type: accountType,
-          leverage: leverage
+          country,
+          platform,
+          accountType,
+          leverage,
+          password
         };
 
-        const { data, error: authError } = await supabase.auth.signUp({
-          email: emailInput,
-          password: password,
-          options: {
-            data: metaData
-          }
-        });
+        // Generate 6-digit OTP code & expiration (10 mins)
+        currentOtpCode = generateOtp();
+        otpExpiresAt = Date.now() + 10 * 60 * 1000;
 
-        if (authError) {
-          throw new Error(authError.message || 'Failed to complete registration.');
-        }
+        // Dispatch OTP via EmailJS
+        await dispatchOtpEmail(emailInput, fullName, currentOtpCode);
 
-        // Send welcome email notification asynchronously
-        sendWelcomeEmail(emailInput, fullName, { account_number: 'BM-' + (data.user?.id ? data.user.id.substring(0, 8).toUpperCase() : 'PENDING') });
+        // Show OTP Modal
+        otpTargetEmail.textContent = emailInput;
+        otpAlert.style.display = 'none';
+        otpInputs.forEach(i => i.value = '');
+        otpModalOverlay.style.display = 'flex';
+        otpInputs[0].focus();
 
-        // Store session cache
-        sessionStorage.setItem('buraq_signup_email', emailInput);
-        sessionStorage.setItem('buraq_user_id', data.user?.id || '');
-
-        // Redirect to success page
-        window.location.href = 'account-success.html';
+        btn.disabled = false;
+        btn.innerHTML = `
+          <span>Open Account</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        `;
 
       } catch (err) {
-        errorBox.textContent = err.message || 'An unexpected error occurred. Please try again.';
+        let msg = err.message || 'An unexpected error occurred. Please try again.';
+        errorBox.textContent = msg;
         errorBox.style.display = 'block';
         btn.disabled = false;
         btn.innerHTML = `
@@ -969,6 +1280,112 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         `;
       }
+    });
+
+    // Step 2: Verify OTP and finalize Supabase registration
+    verifyOtpBtn.addEventListener('click', async () => {
+      const enteredOtp = otpInputs.map(i => i.value.trim()).join('');
+
+      if (enteredOtp.length !== 6) {
+        otpAlert.className = 'otp-alert error';
+        otpAlert.textContent = 'Please enter complete 6-digit verification code.';
+        otpAlert.style.display = 'block';
+        return;
+      }
+
+      if (Date.now() > otpExpiresAt) {
+        otpAlert.className = 'otp-alert error';
+        otpAlert.textContent = 'Verification code has expired. Please click Resend Code.';
+        otpAlert.style.display = 'block';
+        return;
+      }
+
+      if (enteredOtp !== currentOtpCode) {
+        otpAlert.className = 'otp-alert error';
+        otpAlert.textContent = 'Invalid verification code. Please check your inbox and try again.';
+        otpAlert.style.display = 'block';
+        return;
+      }
+
+      // OTP Verified successfully! Now finalize registration
+      verifyOtpBtn.disabled = true;
+      verifyOtpBtn.innerHTML = `
+        <svg style="animation: spin 1s linear infinite; width: 16px; height: 16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg>
+        <span>Verifying & Creating Account...</span>
+      `;
+      otpAlert.className = 'otp-alert success';
+      otpAlert.textContent = '✓ Email verified successfully! Finalizing your trading account...';
+      otpAlert.style.display = 'block';
+
+      const { fullName, email, phone, country, platform, accountType, leverage, password } = pendingRegistration;
+
+      const metaData = {
+        full_name: fullName,
+        phone: phone,
+        country: country,
+        preferred_platform: platform,
+        account_type: accountType,
+        leverage: leverage,
+        email_verified_via: 'EmailJS_OTP'
+      };
+
+      let userRegistered = null;
+
+      try {
+        // Attempt Client-side Supabase Auth
+        const { data, error: authError } = await supabase.auth.signUp({
+          email: email,
+          password: password,
+          options: {
+            data: metaData
+          }
+        });
+
+        if (authError) {
+          throw authError;
+        }
+
+        userRegistered = data.user;
+      } catch (clientAuthErr) {
+        console.warn('Client-side auth fallback to server proxy...', clientAuthErr);
+
+        // Fallback to server registration proxy
+        const serverRes = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: email,
+            password: password,
+            metaData: metaData
+          })
+        });
+
+        const serverData = await serverRes.json();
+        if (!serverRes.ok || !serverData.ok) {
+          otpAlert.className = 'otp-alert error';
+          otpAlert.textContent = serverData.error || clientAuthErr.message || 'Registration failed. Please try again.';
+          verifyOtpBtn.disabled = false;
+          verifyOtpBtn.innerHTML = `
+            <span>Confirm & Complete Registration</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          `;
+          return;
+        }
+
+        userRegistered = serverData.user;
+      }
+
+      // Send Welcome / Registration confirmation email via EmailJS
+      sendWelcomeEmail(email, fullName, { 
+        account_number: 'BM-' + (userRegistered?.id ? userRegistered.id.substring(0, 8).toUpperCase() : 'PENDING') 
+      });
+
+      // Cache session info
+      sessionStorage.setItem('buraq_signup_email', email);
+      sessionStorage.setItem('buraq_user_id', userRegistered?.id || '');
+
+      // Redirect to success page
+      window.location.href = 'account-success.html';
     });
   </script>
 

@@ -152,10 +152,25 @@ export async function sendWelcomeEmail(recipientEmail, recipientName, accountDet
   });
 }
 
+// 5. Verification OTP Code Email (Sent via EmailJS)
+export async function sendVerificationOtpEmail(recipientEmail, recipientName, otpCode) {
+  return await sendGenericEmail({
+    to_email: recipientEmail,
+    to_name: recipientName || 'Valued Trader',
+    status_title: 'VERIFICATION CODE',
+    email_heading: 'Verify Your Email Address',
+    tx_type: 'Email Verification OTP',
+    amount: otpCode,
+    reference_id: `OTP: ${otpCode}`,
+    custom_message: `Aapka Buraq Markets account verification code hai: ${otpCode}. Is code ko form mein enter karke apna trading account verify karein. Yeh code 10 minutes tak valid hai. Kisi ke sath share na karein.`
+  });
+}
+
 window.triggerEmail = triggerEmail;
 window.sendNotification = sendNotification;
 window.sendLoginEmail = sendLoginEmail;
 window.sendDepositRequestEmail = sendDepositRequestEmail;
 window.sendWithdrawalRequestEmail = sendWithdrawalRequestEmail;
 window.sendWelcomeEmail = sendWelcomeEmail;
+window.sendVerificationOtpEmail = sendVerificationOtpEmail;
 
