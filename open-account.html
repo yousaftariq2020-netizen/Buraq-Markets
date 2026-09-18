@@ -1356,7 +1356,8 @@
           body: JSON.stringify({
             email: email,
             password: password,
-            metaData: metaData
+            metaData: metaData,
+            emailRedirectTo: window.location.origin + '/client-login.html'
           })
         });
 

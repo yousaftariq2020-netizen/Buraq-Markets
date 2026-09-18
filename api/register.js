@@ -26,7 +26,11 @@ module.exports = async function registerHandler(req, res) {
   }
 
   try {
-    const redirectUrl = emailRedirectTo || `${req.protocol}://${req.get('host')}/client-login.html`;
+    const host = (req.headers && (req.headers['x-forwarded-host'] || req.headers.host))
+      || (typeof req.get === 'function' ? req.get('host') : null)
+      || 'buraqmarkets.com';
+    const protocol = (req.headers && req.headers['x-forwarded-proto']) || req.protocol || 'https';
+    const redirectUrl = emailRedirectTo || `${protocol}://${host}/client-login.html`;
 
     const { data, error } = await supabase.auth.signUp({
       email: String(email).trim().toLowerCase(),
