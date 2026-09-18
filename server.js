@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const sendEmailHandler = require('./api/send-email.js');
 const registerHandler = require('./api/register.js');
+const loginHandler = require('./api/login.js');
 
 const app = express();
 const PORT = 3000;
@@ -11,9 +12,13 @@ const HOST = '0.0.0.0';
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Registration endpoint (provides fast proxy to Supabase Auth avoiding client DNS/adblock issues)
+// Authentication proxy endpoints (provides reliable auth avoiding client ISP/DNS/adblock issues)
 app.all('/api/register', (req, res) => {
   return registerHandler(req, res);
+});
+
+app.all('/api/login', (req, res) => {
+  return loginHandler(req, res);
 });
 
 // Email API handlers

@@ -676,19 +676,27 @@ togglePasswordBtn.addEventListener('click', () => {
 });
 
 // 4. Role-based Redirect Logic (Supports ?redirect= parameter)
-async function handleUserRedirect(user) {
+async function handleUserRedirect(user, explicitRole = null) {
   if (!user) return;
 
   const urlParams = new URLSearchParams(window.location.search);
   const redirectParam = urlParams.get('redirect');
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .maybeSingle();
+  let role = explicitRole;
+  if (!role) {
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .maybeSingle();
+      role = profile?.role;
+    } catch (e) {
+      console.warn('Profile fetch notice:', e);
+    }
+  }
 
-  if (profile?.role === 'admin') {
+  if (role === 'admin') {
     window.location.href = redirectParam || 'admin-dashboard.html';
   } else {
     window.location.href = redirectParam || 'client-dashboard.html';
@@ -755,7 +763,7 @@ if (loginResendBtn) {
   });
 }
 
-// 6. Form Submit Handler
+// 6. Form Submit Handler (with client + server proxy redundancy)
 loginForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   errorBox.style.display = 'none';
@@ -777,35 +785,91 @@ loginForm.addEventListener('submit', async (e) => {
     localStorage.removeItem('buraq_remembered_email');
   }
 
+  let data = null;
+  let authError = null;
+  let detectedRole = null;
+
+  // Attempt 1: Direct Client Supabase login
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
-    if (error) {
-      const errMsg = (error.message || '').toLowerCase();
-      const errCode = error.code || '';
-
-      if (errCode === 'email_not_confirmed' || errMsg.includes('email not confirmed')) {
-        verifyText.textContent = `Aapka account verify nahi hua. Humne ${email} par confirmation link bheja hai. Apna email inbox (aur spam folder) check karein aur link par click karke portal mein login karein.`;
-        verifyBox.style.display = 'flex';
-      } else {
-        errorMessage.textContent = error.message || 'Invalid email or password. Please try again.';
-        errorBox.style.display = 'flex';
-      }
-
-      btnSpinner.style.display = 'none';
-      btnText.textContent = 'Sign In to Portal →';
-      submitBtn.disabled = false;
+    const res = await supabase.auth.signInWithPassword({ email, password });
+    if (res.error) {
+      authError = res.error;
     } else {
-      btnText.textContent = 'Signing you in...';
-      sendLoginEmail(email);
-      await handleUserRedirect(data.user);
+      data = res.data;
     }
-  } catch (err) {
-    errorMessage.textContent = 'Connection error. Please check your internet and try again.';
-    errorBox.style.display = 'flex';
+  } catch (clientErr) {
+    authError = clientErr;
+  }
+
+  // Attempt 2: If client direct connection failed (e.g. "Failed to fetch" / DNS / ISP / Adblock issues), fallback to Server Proxy
+  if (authError) {
+    const rawMsg = (authError.message || '').toLowerCase();
+    const isFetchOrNetwork = !authError.status ||
+      rawMsg.includes('fetch') ||
+      rawMsg.includes('network') ||
+      rawMsg.includes('failed') ||
+      rawMsg.includes('load failed') ||
+      rawMsg.includes('typeerror');
+
+    if (isFetchOrNetwork) {
+      try {
+        btnText.textContent = 'Connecting securely...';
+        const proxyRes = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const proxyData = await proxyRes.json();
+        
+        if (proxyRes.ok && proxyData.ok && proxyData.session) {
+          authError = null;
+          data = { user: proxyData.user, session: proxyData.session };
+          detectedRole = proxyData.role;
+
+          // Synchronize session token to client instance and local storage
+          try {
+            await supabase.auth.setSession(proxyData.session);
+          } catch (syncErr) {
+            console.warn('Local session sync notice:', syncErr);
+          }
+          sessionStorage.setItem('buraq_user_id', proxyData.user?.id || '');
+          sessionStorage.setItem('buraq_user_email', proxyData.user?.email || '');
+          localStorage.setItem('buraq_user_id', proxyData.user?.id || '');
+        } else if (proxyData.error) {
+          authError = {
+            message: proxyData.error,
+            code: proxyData.code || 'auth_error'
+          };
+        }
+      } catch (proxyErr) {
+        console.warn('Proxy fallback error:', proxyErr);
+      }
+    }
+  }
+
+  if (authError) {
+    const errMsg = (authError.message || '').toLowerCase();
+    const errCode = authError.code || '';
+
+    if (errCode === 'email_not_confirmed' || errMsg.includes('email not confirmed')) {
+      verifyText.textContent = `Aapka account verify nahi hua. Humne ${email} par confirmation link bheja hai. Apna email inbox check karein aur link par click karke portal mein login karein.`;
+      verifyBox.style.display = 'flex';
+    } else {
+      let displayMsg = authError.message || 'Invalid email or password. Please try again.';
+      if (displayMsg.toLowerCase().includes('failed to fetch')) {
+        displayMsg = 'Connection error: Unable to reach authentication server. Please check your internet connection.';
+      }
+      errorMessage.textContent = displayMsg;
+      errorBox.style.display = 'flex';
+    }
+
     btnSpinner.style.display = 'none';
     btnText.textContent = 'Sign In to Portal →';
     submitBtn.disabled = false;
+  } else if (data?.user) {
+    btnText.textContent = 'Signing you in...';
+    sendLoginEmail(email);
+    await handleUserRedirect(data.user, detectedRole);
   }
 });
 </script>
