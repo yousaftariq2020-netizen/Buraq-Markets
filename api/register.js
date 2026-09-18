@@ -48,7 +48,7 @@ module.exports = async function registerHandler(req, res) {
         return res.status(429).json({
           ok: false,
           code: 'over_email_send_rate_limit',
-          error: 'Supabase email send rate limit exceeded (Free tier par default email limit 3 per hour hoti hai). Har naye user ko verification email bhejne ke liye Supabase Dashboard > Project Settings > Authentication > SMTP Settings mein apna Custom SMTP (Gmail ya professional email) enable karein, jisse unlimited confirmation emails deliver hon gi.'
+          error: 'Supabase Server Rate Limit: Supabase Dashboard mein "Confirm email" toggle ON hai jiski wajah se Supabase apna email bhejne ki koshish kar ke block kar raha hai. Hal: Supabase Dashboard > Authentication > Providers > Email mein ja kar "Confirm email" ko OFF (disable) kar dein, kyunki email verification ab EmailJS OTP se ho rahi hai.'
         });
       }
 
